@@ -45,7 +45,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
+            : var(--bg);
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
@@ -1662,7 +1662,7 @@
                     estado: 'SP',
                     cidade: 'São Paulo',
                     descricao: 'Apostila completa e atualizada para o cargo de Agente Administrativo. Material preparado conforme o último edital publicado.',
-                    capa_url: 'https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila',
+                    capa_url: 'https://imageswscdn.wslojas.com.br/files/97/MED_produto-apostila-cismetro-holambra-2026-tecnico-de-enfermagem-1673653085.webp',
                     paginas: 450,
                     preco: 49.90,
                     preco_original: 79.90,
@@ -1688,7 +1688,7 @@
                     nome: 'Maria Silva',
                     cargo_aprovado: 'Técnica Administrativa - Prefeitura SP',
                     texto: 'Material excelente! Consegui minha aprovação estudando com as apostilas da +QApostilas. Recomendo muito!',
-                    foto_url: 'https://via.placeholder.com/60/22C55E/FFFFFF?text=MS',
+                    foto_url: 'https://imageswscdn.wslojas.com.br/files/97/MED_produto-apostila-cismetro-holambra-2026-tecnico-de-enfermagem-1673653085.webp',
                     avaliacao: 5,
                     destaque: true,
                     ativo: true
@@ -1831,7 +1831,7 @@
             return `
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
                     <div class="product-image-container">
-                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
+                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://imageswscdn.wslojas.com.br/files/97/MED_produto-apostila-cismetro-holambra-2026-tecnico-de-enfermagem-1673653085.webp'">
                         <div class="product-badges">
                             ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check"></i> Atualizado</span>' : ''}
                             ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
@@ -1889,9 +1889,14 @@
                 <div class="testimonial-card">
                     ${depoimento.destaque ? '<span class="badge badge-success testimonial-badge">✅ Destaque</span>' : ''}
                     <div class="testimonial-header">
-                        <img src="${fotoUrl}" alt="${depoimento.nome}" class="testimonial-photo" onerror="this.src='https://via.placeholder.com/60/22C55E/FFFFFF?text=${depoimento.nome.charAt(0)}'">
-                        <div class="testimonial-info">
-                            <h4>${depoimento.nome}</h4>
+<img 
+  src="${fotoUrl && fotoUrl.startsWith('http') 
+    ? fotoUrl 
+    : `https://placehold.co/60x60/22C55E/FFFFFF?text=${depoimento.nome.charAt(0)}`}"
+  alt="${depoimento.nome}"
+  class="testimonial-photo"
+  loading="lazy">                                                   
+  <h4>${depoimento.nome}</h4>
                             ${depoimento.cargo_aprovado ? `<div class="testimonial-cargo"><i class="fas fa-trophy"></i> ${depoimento.cargo_aprovado}</div>` : ''}
                         </div>
                     </div>
