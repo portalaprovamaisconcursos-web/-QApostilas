@@ -1883,7 +1883,7 @@
 
         function renderTestimonialCard(depoimento) {
             const stars = renderStars(depoimento.avaliacao || 5);
-            const fotoUrl = depoimento.foto_url || 'https://via.placeholder.com/60/22C55E/FFFFFF?text=' + depoimento.nome.charAt(0);
+            const fotoUrl = depoimento.foto_url || 'https://placehold.co/60/22C55E/FFFFFF?text=' + depoimento.nome.charAt(0);
 
             return `
                 <div class="testimonial-card">
@@ -1919,7 +1919,7 @@
             modalBody.innerHTML = `
                 <div class="product-detail">
                     <div>
-                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://placehold.co/400x550/1E90FF/FFFFFF?text=Apostila'">
                     </div>
                     <div class="product-detail-info">
                         <span class="product-category">${categoria}</span>
