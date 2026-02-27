@@ -481,18 +481,19 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .product-image-container {
-            position: relative;
-            height: 350px;
-            background: var(--primary-light);
-            overflow: hidden;
-        }
+      .product-image-container {
+  position: relative;
+  aspect-ratio: 3 / 4;        /* padrão de capa (ajuste se quiser) */
+  height: auto;               /* deixa o aspect-ratio mandar */
+  background: var(--primary-light);
+  overflow: hidden;           /* pode manter */
+}
 
        .product-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;      /* não corta */
-  background: #E8F4FF;      /* fundo quando sobrar espaço */
+  object-fit: contain;        /* sem corte */
+  object-position: center;
 }
 
         .product-badges {
