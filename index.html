@@ -6,6 +6,9 @@
     <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
     <title>+QApostilas - Apostilas para Concursos Públicos</title>
     
+    <!-- Favicon dinâmico (configurado via painel admin) -->
+    <link rel="icon" id="site-favicon" href="" type="image/x-icon">
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -482,15 +485,18 @@
 
         .product-image-container {
             position: relative;
-            height: 350px;
-            background: var(--primary-light);
+            /* Proporção A4: 21cm x 29,7cm = 1:1.414 */
+            aspect-ratio: 21 / 29.7;
+            background: #FFFFFF;
             overflow: hidden;
+            border-bottom: 1px solid var(--border);
         }
 
         .product-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
         }
 
         .product-badges {
@@ -1211,6 +1217,13 @@
                     
                     <div class="form-row">
                         <div class="form-group">
+                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL do Favicon <small style="font-weight:400;color:var(--text-muted)">(ícone na aba do navegador, ex: .ico ou .png 32x32)</small></label>
+                            <input type="url" name="favicon_url" id="config_favicon_url" placeholder="https://exemplo.com/favicon.ico">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
                             <label>Título do Banner</label>
                             <input type="text" name="banner_title" id="config_banner_title">
                         </div>
@@ -1492,17 +1505,61 @@
             
             <!-- Categorias Section -->
             <div class="admin-section" id="admin-categorias">
-                <h3>Gerenciar Categorias</h3>
-                <p style="color: var(--text-muted); margin-bottom: 20px;">
-                    As categorias são predefinidas. Você pode ativar/desativar e alterar a ordem.
-                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3>Gerenciar Categorias</h3>
+                    <button class="btn btn-primary" onclick="showCategoryForm()">
+                        <i class="fas fa-plus"></i> Nova Categoria
+                    </button>
+                </div>
+
+                <!-- Formulário de Categoria -->
+                <div id="categoryFormContainer" class="hidden">
+                    <form id="categoryForm" onsubmit="saveCategoryForm(event)" style="background:var(--bg);padding:24px;border-radius:12px;margin-bottom:24px;border:2px solid var(--border);">
+                        <input type="hidden" id="cat_id">
+                        <h4 id="categoryFormTitle" style="margin-bottom:16px;">Nova Categoria</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                <input type="text" id="cat_nome" required placeholder="Ex: Forças Armadas" oninput="autofillSlug()">
+                            </div>
+                            <div class="form-group">
+                                <label>Slug * <small style="font-weight:400;color:var(--text-muted)">(identificador único, sem acentos/espaços)</small></label>
+                                <input type="text" id="cat_slug" required placeholder="ex: forcas-armadas">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ícone Font Awesome <small style="font-weight:400;color:var(--text-muted)">(ex: fa-star — veja em <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a>)</small></label>
+                                <input type="text" id="cat_icone" placeholder="fa-star">
+                            </div>
+                            <div class="form-group">
+                                <label>URL da Imagem <small style="font-weight:400;color:var(--text-muted)">(opcional, substitui ícone)</small></label>
+                                <input type="url" id="cat_imagem_url" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label>Ordem <small style="font-weight:400;color:var(--text-muted)">(menor = primeiro)</small></label>
+                                <input type="number" id="cat_ordem" value="99" min="1">
+                            </div>
+                        </div>
+                        <div class="checkbox-group" style="margin-bottom:16px;">
+                            <input type="checkbox" id="cat_ativo" checked>
+                            <label for="cat_ativo">Ativo (visível no site)</label>
+                        </div>
+                        <div style="display:flex;gap:12px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Categoria
+                            </button>
+                            <button type="button" class="btn" onclick="hideCategoryForm()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
                 
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>Nome</th>
-                                <th>Ícone</th>
+                                <th>Ícone / Imagem</th>
                                 <th>Ordem</th>
                                 <th>Status</th>
                                 <th>Ações</th>
@@ -1591,17 +1648,24 @@
                 document.getElementById('site-logo').src = appState.config.logo_url;
                 document.getElementById('site-logo').classList.remove('hidden');
             }
+
+            // Update favicon if exists
+            if (appState.config.favicon_url) {
+                const faviconEl = document.getElementById('site-favicon');
+                faviconEl.href = appState.config.favicon_url;
+            }
         }
 
         async function loadCategorias() {
             const { data, error } = await supabaseClient
                 .from('categorias')
                 .select('*')
-                .eq('ativo', true)
                 .order('ordem');
             
             if (error) throw error;
-            appState.categorias = data;
+            // Store ALL categories (for admin), filter active for front-end
+            appState.allCategorias = data;
+            appState.categorias = data.filter(c => c.ativo);
             
             // Update dropdown
             updateCategoriesDropdown();
@@ -2287,12 +2351,17 @@
             
             try {
                 for (let [key, value] of formData.entries()) {
+                    // Use upsert so new keys (like favicon_url) are also inserted if not present
                     await supabaseClient
                         .from('site_config')
-                        .update({ value: value })
-                        .eq('key', key);
+                        .upsert({ key: key, value: value }, { onConflict: 'key' });
                     
                     appState.config[key] = value;
+                }
+
+                // Apply favicon immediately if changed
+                if (appState.config.favicon_url) {
+                    document.getElementById('site-favicon').href = appState.config.favicon_url;
                 }
 
                 showAlert('Configurações salvas com sucesso!', 'success');
@@ -2547,21 +2616,35 @@
         // ==================== CATEGORIES ====================
         function loadCategoriesTable() {
             const tbody = document.getElementById('categoriesTableBody');
-            tbody.innerHTML = appState.categorias.map(c => `
+            const list = appState.allCategorias || appState.categorias;
+            tbody.innerHTML = list.map(c => `
                 <tr>
-                    <td>${c.nome}</td>
-                    <td><i class="fas ${c.icone}"></i> ${c.icone}</td>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>
+                        ${c.imagem_url
+                            ? `<img src="${c.imagem_url}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;"> <small>${c.imagem_url.substring(0,30)}...</small>`
+                            : `<i class="fas ${c.icone || 'fa-tag'}"></i> <small>${c.icone || ''}</small>`
+                        }
+                    </td>
                     <td>${c.ordem}</td>
                     <td>
-                        <span class="badge ${c.ativo ? 'badge-success' : 'badge-error'}">
-                            ${c.ativo ? 'Ativo' : 'Inativo'}
+                        <span class="badge ${c.ativo ? 'badge-success' : 'badge-warning'}">
+                            ${c.ativo ? '✅ Ativo' : '⏸ Inativo'}
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-edit" onclick="toggleCategoryStatus(${c.id}, ${!c.ativo})">
-                            <i class="fas fa-${c.ativo ? 'eye-slash' : 'eye'}"></i> 
-                            ${c.ativo ? 'Desativar' : 'Ativar'}
-                        </button>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-edit" onclick="editCategoryItem(${c.id})">
+                                <i class="fas fa-pen"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-edit" onclick="toggleCategoryStatus(${c.id}, ${!c.ativo})" style="background:${c.ativo ? '#888' : 'var(--success)'}">
+                                <i class="fas fa-${c.ativo ? 'eye-slash' : 'eye'}"></i> 
+                                ${c.ativo ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteCategoryItem(${c.id}, '${c.nome.replace(/'/g, "\\'") }')">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -2574,12 +2657,115 @@
                     .update({ ativo })
                     .eq('id', id);
                 
-                showAlert('Categoria atualizada com sucesso!', 'success');
+                showAlert('Categoria ' + (ativo ? 'ativada' : 'desativada') + ' com sucesso!', 'success');
                 await loadCategorias();
                 loadCategoriesTable();
             } catch (error) {
                 console.error(error);
                 showAlert('Erro ao atualizar categoria', 'error');
+            }
+        }
+
+        // ==================== CATEGORY FORM ====================
+        function showCategoryForm(edit = false) {
+            document.getElementById('categoryFormContainer').classList.remove('hidden');
+            document.getElementById('categoryFormTitle').textContent = edit ? 'Editar Categoria' : 'Nova Categoria';
+            if (!edit) {
+                document.getElementById('cat_id').value = '';
+                document.getElementById('cat_nome').value = '';
+                document.getElementById('cat_slug').value = '';
+                document.getElementById('cat_icone').value = '';
+                document.getElementById('cat_imagem_url').value = '';
+                document.getElementById('cat_ordem').value = '99';
+                document.getElementById('cat_ativo').checked = true;
+            }
+            document.getElementById('categoryFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideCategoryForm() {
+            document.getElementById('categoryFormContainer').classList.add('hidden');
+        }
+
+        function autofillSlug() {
+            // Only auto-fill if it's a new category (no id set)
+            if (document.getElementById('cat_id').value) return;
+            const nome = document.getElementById('cat_nome').value;
+            const slug = nome
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+            document.getElementById('cat_slug').value = slug;
+        }
+
+        async function saveCategoryForm(event) {
+            event.preventDefault();
+            const id = document.getElementById('cat_id').value;
+            const payload = {
+                nome: document.getElementById('cat_nome').value.trim(),
+                slug: document.getElementById('cat_slug').value.trim(),
+                icone: document.getElementById('cat_icone').value.trim() || 'fa-tag',
+                imagem_url: document.getElementById('cat_imagem_url').value.trim() || null,
+                ordem: parseInt(document.getElementById('cat_ordem').value) || 99,
+                ativo: document.getElementById('cat_ativo').checked
+            };
+
+            try {
+                if (id) {
+                    // Update
+                    const { error } = await supabaseClient
+                        .from('categorias').update(payload).eq('id', id);
+                    if (error) throw error;
+                    showAlert('Categoria atualizada com sucesso!', 'success');
+                } else {
+                    // Insert
+                    const { error } = await supabaseClient
+                        .from('categorias').insert([payload]);
+                    if (error) throw error;
+                    showAlert('Categoria criada com sucesso!', 'success');
+                }
+                hideCategoryForm();
+                await loadCategorias();
+                loadCategoriesTable();
+                // Refresh product category select
+                const categorySelect = document.getElementById('product_categoria_id');
+                if (categorySelect) {
+                    categorySelect.innerHTML = appState.categorias.map(c =>
+                        `<option value="${c.id}">${c.nome}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar categoria: ' + (error.message || error), 'error');
+            }
+        }
+
+        function editCategoryItem(id) {
+            const list = appState.allCategorias || appState.categorias;
+            const cat = list.find(c => c.id === id);
+            if (!cat) return;
+            showCategoryForm(true);
+            document.getElementById('cat_id').value = cat.id;
+            document.getElementById('cat_nome').value = cat.nome;
+            document.getElementById('cat_slug').value = cat.slug;
+            document.getElementById('cat_icone').value = cat.icone || '';
+            document.getElementById('cat_imagem_url').value = cat.imagem_url || '';
+            document.getElementById('cat_ordem').value = cat.ordem;
+            document.getElementById('cat_ativo').checked = cat.ativo;
+        }
+
+        async function deleteCategoryItem(id, nome) {
+            if (!confirm(`Tem certeza que deseja excluir a categoria "${nome}"?\n\nATENÇÃO: Produtos vinculados a esta categoria perderão a associação.`)) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('categorias').delete().eq('id', id);
+                if (error) throw error;
+                showAlert('Categoria excluída com sucesso!', 'success');
+                await loadCategorias();
+                loadCategoriesTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir categoria: ' + (error.message || error), 'error');
             }
         }
 
