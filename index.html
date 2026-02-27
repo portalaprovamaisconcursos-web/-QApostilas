@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
+    <title>+QApostilas - Apostilas para Concursos Públicos</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* ==================== RESET & VARIÁVEIS ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1E90FF;
+            --primary-dark: #0066CC;
+            --primary-light: #E8F4FF;
+            --accent: #FF4444;
+            --partner: #0066CC;
+            --text: #111111;
+            --text-muted: #666666;
+            --bg: #F8FAFF;
+            --white: #FFFFFF;
+            --border: #E0E8FF;
+            --success: #22C55E;
+            --gold: #FFD700;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        /* ==================== UTILIDADES ==================== */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #FF5555 0%, var(--accent) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-partner {
+            background: var(--partner);
+            color: var(--white);
+        }
+
+        .btn-partner:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .badge-info {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .badge-accent {
+            background: #FFE5E5;
+            color: var(--accent);
+        }
+
+        /* ==================== HEADER / NAVBAR ==================== */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            font-weight: 500;
+            color: var(--text);
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            border-radius: 12px;
+            padding: 12px 0;
+            min-width: 200px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-admin {
+            background: var(--text);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-admin:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* ==================== HERO / BANNER ==================== */
+        .hero {
+            position: relative;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.85) 0%, rgba(0, 102, 204, 0.75) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-content {
+            color: var(--white);
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            margin-bottom: 16px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-content p {
+            font-size: clamp(16px, 2vw, 22px);
+            margin-bottom: 32px;
+            opacity: 0.95;
+        }
+
+        /* ==================== BARRA DE PESQUISA ==================== */
+        .search-section {
+            background: var(--white);
+            padding: 40px 20px;
+            box-shadow: var(--shadow-md);
+            margin-top: -60px;
+            position: relative;
+            z-index: 100;
+            border-radius: 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .search-select {
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        /* ==================== CATEGORIAS ==================== */
+        .categories-section {
+            padding: 80px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 42px);
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: var(--white);
+            padding: 30px 20px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .category-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* ==================== PRODUTOS ==================== */
+        .products-section {
+            padding: 60px 20px;
+            background: var(--white);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-image-container {
+            position: relative;
+            height: 350px;
+            background: var(--primary-light);
+            overflow: hidden;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-badges {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-category {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-meta {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+            color: var(--gold);
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .price-current {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .price-original {
+            font-size: 18px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        /* ==================== DEPOIMENTOS ==================== */
+        .testimonials-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .testimonial-info h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .testimonial-cargo {
+            font-size: 14px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .testimonial-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .testimonial-rating {
+            display: flex;
+            gap: 4px;
+            color: var(--gold);
+        }
+
+        .testimonial-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        /* ==================== RODAPÉ ==================== */
+        .footer {
+            background: var(--text);
+            color: var(--white);
+            padding: 60px 20px 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .footer-section p {
+            opacity: 0.8;
+            line-height: 1.8;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* ==================== PÁGINA DE PRODUTO ==================== */
+        .product-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .product-detail-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .product-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .product-detail-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .content-programatico {
+            background: var(--primary-light);
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .content-programatico h3 {
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+        }
+
+        .content-programatico ul {
+            list-style: none;
+            display: grid;
+            gap: 8px;
+        }
+
+        .content-programatico li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .content-programatico li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* ==================== ADMIN PANEL ==================== */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            z-index: 10000;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: var(--text);
+            color: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 20px;
+            background: var(--bg);
+            padding: 20px 30px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .admin-content {
+            padding: 30px;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table th {
+            background: var(--primary);
+            color: var(--white);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== RESPONSIVO ==================== */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero {
+                height: 400px;
+            }
+
+            .search-section {
+                margin-top: 0;
+                border-radius: 0;
+            }
+
+            .product-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-tabs {
+                overflow-x: auto;
+                gap: 10px;
+            }
+
+            .admin-tab {
+                white-space: nowrap;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+
+        /* ==================== ALERTAS ==================== */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: #DCFCE7;
+            color: #16A34A;
+            border: 1px solid #86EFAC;
+        }
+
+        .alert-error {
+            background: #FFE5E5;
+            color: #DC2626;
+            border: 1px solid #FCA5A5;
+        }
+
+        .alert-warning {
+            background: #FEF3C7;
+            color: #D97706;
+            border: 1px solid #FCD34D;
+        }
+
+        .alert-info {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid #BAE6FD;
+        }
+
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ==================== HEADER ==================== -->
+    <header class="header">
+        <nav class="navbar container">
+            <div class="logo-container">
+                <img id="site-logo" class="logo hidden" alt="Logo +QApostilas">
+                <span class="logo-text" id="logo-text">+QApostilas</span>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" onclick="navigateTo('home')">Início</a></li>
+                <li class="dropdown">
+                    <span class="dropdown-toggle">
+                        Categorias <i class="fas fa-chevron-down"></i>
+                    </span>
+                    <div class="dropdown-menu" id="categoriesDropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </li>
+                <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
+                <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
+                <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
+                <li><a href="#" onclick="navigateTo('contato')">Contato</a></li>
+            </ul>
+            
+            <button class="btn-admin" onclick="openAdminLogin()">
+                <i class="fas fa-lock"></i>
+                Admin
+            </button>
+            
+            <div class="menu-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main id="mainContent">
+        <!-- Content will be dynamically injected -->
+    </main>
+
+    <!-- ==================== RODAPÉ ==================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>+QApostilas</h3>
+                    <p>Sua melhor fonte de apostilas atualizadas para concursos públicos. Material 100% digital e sempre conforme o último edital.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Úteis</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="navigateTo('home')">Início</a></li>
+                        <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
+                        <li><a href="#" onclick="navigateTo('contato')">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Informações</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showModal('privacidade')">Política de Privacidade</a></li>
+                        <li><a href="#" onclick="showModal('termos')">Termos de Uso</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 +QApostilas. Todos os direitos reservados.</p>
+                <p style="margin-top: 8px; font-size: 14px;">Os produtos de parceiros são adquiridos diretamente no site oficial do parceiro. Somos apenas uma vitrine de organização.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== MODAL ==================== -->
+    <div class="modal" id="globalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Modal</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ADMIN PANEL ==================== -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+            <button class="btn btn-accent" onclick="closeAdmin()">
+                <i class="fas fa-times"></i> Fechar
+            </button>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('config')">Configurações</button>
+            <button class="admin-tab" onclick="switchAdminTab('produtos')">Produtos</button>
+            <button class="admin-tab" onclick="switchAdminTab('depoimentos')">Depoimentos</button>
+            <button class="admin-tab" onclick="switchAdminTab('categorias')">Categorias</button>
+        </div>
+        
+        <div class="admin-content">
+            <!-- Config Section -->
+            <div class="admin-section active" id="admin-config">
+                <h3>Configurações do Site</h3>
+                <form id="configForm" onsubmit="saveConfig(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>URL da Logo</label>
+                            <input type="url" name="logo_url" id="config_logo_url" placeholder="https://exemplo.com/logo.png">
+                        </div>
+                        <div class="form-group">
+                            <label>URL do Banner</label>
+                            <input type="url" name="banner_url" id="config_banner_url" placeholder="https://exemplo.com/banner.jpg">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título do Banner</label>
+                            <input type="text" name="banner_title" id="config_banner_title">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo do Banner</label>
+                            <input type="text" name="banner_subtitle" id="config_banner_subtitle">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>WhatsApp (com código do país)</label>
+                            <input type="text" name="whatsapp" id="config_whatsapp" placeholder="5511999999999">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="email" id="config_email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Texto "Sobre Nós"</label>
+                        <textarea name="sobre_nos" id="config_sobre_nos" rows="6"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Senha Admin</label>
+                        <input type="password" name="admin_password" id="config_admin_password">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Produtos Section -->
+            <div class="admin-section" id="admin-produtos">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3>Gerenciar Produtos</h3>
+                    <button class="btn btn-primary" onclick="showProductForm()">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
+                </div>
+                
+                <div id="productFormContainer" class="hidden">
+                    <form id="productForm" onsubmit="saveProduct(event)">
+                        <input type="hidden" name="id" id="product_id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Título *</label>
+                                <input type="text" name="titulo" id="product_titulo" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Órgão *</label>
+                                <input type="text" name="orgao" id="product_orgao" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cargo *</label>
+                                <input type="text" name="cargo" id="product_cargo" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <input type="text" name="estado" id="product_estado" placeholder="Ex: SP">
+                            </div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" name="cidade" id="product_cidade">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descrição *</label>
+                            <textarea name="descricao" id="product_descricao" required></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>URL da Capa *</label>
+                                <input type="url" name="capa_url" id="product_capa_url" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Número de Páginas</label>
+                                <input type="number" name="paginas" id="product_paginas">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Preço (R$) *</label>
+                                <input type="number" step="0.01" name="preco" id="product_preco" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Preço Original (R$)</label>
+                                <input type="number" step="0.01" name="preco_original" id="product_preco_original">
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria *</label>
+                                <select name="categoria_id" id="product_categoria_id" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Conteúdo Programático (uma matéria por linha)</label>
+                            <textarea name="conteudo_programatico" id="product_conteudo_programatico" rows="6"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo de Botão *</label>
+                                <select name="tipo_botao" id="product_tipo_botao" required>
+                                    <option value="hotmart">Hotmart</option>
+                                    <option value="parceiro">Site Parceiro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Link de Compra *</label>
+                                <input type="url" name="link_compra" id="product_link_compra" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Avaliação Média (0-5)</label>
+                                <input type="number" step="0.1" min="0" max="5" name="avaliacao_media" id="product_avaliacao_media">
+                            </div>
+                            <div class="form-group">
+                                <label>Total de Avaliações</label>
+                                <input type="number" name="total_avaliacoes" id="product_total_avaliacoes">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="destaque" id="product_destaque">
+                                <label>Destaque</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="lancamento" id="product_lancamento">
+                                <label>Lançamento</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="mais_vendida" id="product_mais_vendida">
+                                <label>Mais Vendida</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="pre_venda" id="product_pre_venda">
+                                <label>Pré-venda</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="atualizado_edital" id="product_atualizado_edital" checked>
+                                <label>Atualizado conforme edital</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="ativo" id="product_ativo" checked>
+                                <label>Ativo</label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Produto
+                            </button>
+                            <button type="button" class="btn" onclick="hideProductForm()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="productsTableContainer">
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Órgão</th>
+                                    <th>Cargo</th>
+                                    <th>Preço</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Depoimentos Section -->
+            <div class="admin-section" id="admin-depoimentos">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3>Gerenciar Depoimentos</h3>
+                    <button class="btn btn-primary" onclick="showTestimonialForm()">
+                        <i class="fas fa-plus"></i> Novo Depoimento
+                    </button>
+                </div>
+                
+                <div id="testimonialFormContainer" class="hidden">
+                    <form id="testimonialForm" onsubmit="saveTestimonial(event)">
+                        <input type="hidden" name="id" id="testimonial_id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                <input type="text" name="nome" id="testimonial_nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Cargo Aprovado</label>
+                                <input type="text" name="cargo_aprovado" id="testimonial_cargo_aprovado">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Depoimento *</label>
+                            <textarea name="texto" id="testimonial_texto" required rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>URL da Foto</label>
+                                <input type="url" name="foto_url" id="testimonial_foto_url">
+                            </div>
+                            <div class="form-group">
+                                <label>Avaliação (1-5)</label>
+                                <input type="number" min="1" max="5" name="avaliacao" id="testimonial_avaliacao" value="5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="destaque" id="testimonial_destaque">
+                                <label>Destaque</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="ativo" id="testimonial_ativo" checked>
+                                <label>Ativo</label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Depoimento
+                            </button>
+                            <button type="button" class="btn" onclick="hideTestimonialForm()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="testimonialsTableContainer">
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Cargo</th>
+                                    <th>Avaliação</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testimonialsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Categorias Section -->
+            <div class="admin-section" id="admin-categorias">
+                <h3>Gerenciar Categorias</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    As categorias são predefinidas. Você pode ativar/desativar e alterar a ordem.
+                </p>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Ícone</th>
+                                <th>Ordem</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SUPABASE CONFIG ==================== -->
+    <script src="supabase-config.js"></script>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ==================== GLOBAL STATE ====================
+        let appState = {
+            config: {},
+            categorias: [],
+            produtos: [],
+            depoimentos: [],
+            currentView: 'home',
+            isAdmin: false,
+            filters: {
+                search: '',
+                categoria: '',
+                estado: '',
+                type: ''
+            }
+        };
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if Supabase is configured
+            if (typeof supabaseClient === 'undefined') {
+                showAlert('Supabase não configurado. Configure o arquivo supabase-config.js', 'warning');
+                loadDemoData();
+                renderHome();
+                return;
+            }
+
+            // Check admin session
+            const adminSession = sessionStorage.getItem('admin_logged_in');
+            if (adminSession === 'true') {
+                appState.isAdmin = true;
+            }
+
+            await loadData();
+            renderHome();
+        });
+
+        // ==================== DATA LOADING ====================
+        async function loadData() {
+            try {
+                await Promise.all([
+                    loadConfig(),
+                    loadCategorias(),
+                    loadProdutos(),
+                    loadDepoimentos()
+                ]);
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                showAlert('Erro ao carregar dados. Usando dados de demonstração.', 'error');
+                loadDemoData();
+            }
+        }
+
+        async function loadConfig() {
+            const { data, error } = await supabaseClient
+                .from('site_config')
+                .select('*');
+            
+            if (error) throw error;
+            
+            appState.config = {};
+            data.forEach(item => {
+                appState.config[item.key] = item.value;
+            });
+
+            // Update logo if exists
+            if (appState.config.logo_url) {
+                document.getElementById('site-logo').src = appState.config.logo_url;
+                document.getElementById('site-logo').classList.remove('hidden');
+            }
+        }
+
+        async function loadCategorias() {
+            const { data, error } = await supabaseClient
+                .from('categorias')
+                .select('*')
+                .eq('ativo', true)
+                .order('ordem');
+            
+            if (error) throw error;
+            appState.categorias = data;
+            
+            // Update dropdown
+            updateCategoriesDropdown();
+        }
+
+        async function loadProdutos() {
+            const { data, error } = await supabaseClient
+                .from('produtos')
+                .select('*, categorias(nome, slug)')
+                .eq('ativo', true)
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            appState.produtos = data;
+        }
+
+        async function loadDepoimentos() {
+            const { data, error } = await supabaseClient
+                .from('depoimentos')
+                .select('*')
+                .eq('ativo', true)
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            appState.depoimentos = data;
+        }
+
+        function loadDemoData() {
+            appState.config = {
+                logo_url: '',
+                banner_url: '',
+                banner_title: 'Apostilas Atualizadas para Concursos Públicos',
+                banner_subtitle: 'Material 100% digital, conforme último edital',
+                whatsapp: '5511999999999',
+                email: 'contato@qapostilas.com.br',
+                sobre_nos: 'Somos especializados em apostilas para concursos públicos. Todo nosso material é cuidadosamente preparado e atualizado conforme os editais mais recentes.',
+                admin_password: 'admin123'
+            };
+
+            appState.categorias = [
+                { id: 1, nome: 'Prefeituras', slug: 'prefeituras', icone: 'fa-city', ordem: 1, ativo: true },
+                { id: 2, nome: 'Área Policial', slug: 'policial', icone: 'fa-shield-halved', ordem: 2, ativo: true },
+                { id: 3, nome: 'Área Saúde', slug: 'saude', icone: 'fa-heart-pulse', ordem: 3, ativo: true },
+                { id: 4, nome: 'Bancos', slug: 'bancos', icone: 'fa-building-columns', ordem: 4, ativo: true },
+                { id: 5, nome: 'Educação', slug: 'educacao', icone: 'fa-graduation-cap', ordem: 5, ativo: true },
+                { id: 6, nome: 'Administrativo', slug: 'administrativo', icone: 'fa-briefcase', ordem: 6, ativo: true },
+                { id: 7, nome: 'Pré-venda', slug: 'pre-venda', icone: 'fa-clock', ordem: 7, ativo: true }
+            ];
+
+            appState.produtos = [
+                {
+                    id: 1,
+                    titulo: 'Apostila Completa - Agente Administrativo',
+                    slug: 'apostila-agente-administrativo',
+                    orgao: 'Prefeitura Municipal',
+                    cargo: 'Agente Administrativo',
+                    estado: 'SP',
+                    cidade: 'São Paulo',
+                    descricao: 'Apostila completa e atualizada para o cargo de Agente Administrativo. Material preparado conforme o último edital publicado.',
+                    capa_url: 'https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila',
+                    paginas: 450,
+                    preco: 49.90,
+                    preco_original: 79.90,
+                    conteudo_programatico: 'Língua Portuguesa\nMatemática\nInformática\nDireito Administrativo\nDireito Constitucional',
+                    atualizado_edital: true,
+                    tipo_botao: 'hotmart',
+                    link_compra: 'https://pay.hotmart.com/exemplo',
+                    categoria_id: 6,
+                    categorias: { nome: 'Administrativo', slug: 'administrativo' },
+                    destaque: true,
+                    lancamento: true,
+                    mais_vendida: false,
+                    pre_venda: false,
+                    ativo: true,
+                    avaliacao_media: 4.8,
+                    total_avaliacoes: 124
+                }
+            ];
+
+            appState.depoimentos = [
+                {
+                    id: 1,
+                    nome: 'Maria Silva',
+                    cargo_aprovado: 'Técnica Administrativa - Prefeitura SP',
+                    texto: 'Material excelente! Consegui minha aprovação estudando com as apostilas da +QApostilas. Recomendo muito!',
+                    foto_url: 'https://via.placeholder.com/60/22C55E/FFFFFF?text=MS',
+                    avaliacao: 5,
+                    destaque: true,
+                    ativo: true
+                }
+            ];
+
+            updateCategoriesDropdown();
+        }
+
+        // ==================== NAVIGATION ====================
+        function navigateTo(view, data = null) {
+            appState.currentView = view;
+            
+            switch(view) {
+                case 'home':
+                    renderHome();
+                    break;
+                case 'produto':
+                    renderProductDetail(data);
+                    break;
+                case 'sobre':
+                    renderSobre();
+                    break;
+                case 'contato':
+                    renderContato();
+                    break;
+            }
+
+            // Close mobile menu
+            document.getElementById('navMenu').classList.remove('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+
+        // ==================== RENDER HOME ====================
+        function renderHome() {
+            const mainContent = document.getElementById('mainContent');
+            const bannerUrl = appState.config.banner_url || '';
+            const bannerTitle = appState.config.banner_title || 'Apostilas Atualizadas para Concursos Públicos';
+            const bannerSubtitle = appState.config.banner_subtitle || 'Material 100% digital, conforme último edital';
+
+            mainContent.innerHTML = `
+                <!-- Hero Banner -->
+                <section class="hero">
+                    ${bannerUrl ? `<img src="${bannerUrl}" alt="Banner" class="hero-image">` : ''}
+                    <div class="hero-overlay">
+                        <div class="hero-content">
+                            <h1>${bannerTitle}</h1>
+                            <p>${bannerSubtitle}</p>
+                            <button class="btn btn-accent" onclick="document.getElementById('produtos-destaques').scrollIntoView({behavior: 'smooth'})">
+                                <i class="fas fa-book"></i> Ver Apostilas
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Search Section -->
+                <div class="container">
+                    <div class="search-section">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Busque por concurso, cargo, órgão..." onkeyup="handleSearch()">
+                            <select class="search-select" id="searchEstado" onchange="handleSearch()">
+                                <option value="">Todos os Estados</option>
+                                ${getUniqueEstados().map(e => `<option value="${e}">${e}</option>`).join('')}
+                            </select>
+                            <select class="search-select" id="searchCategoria" onchange="handleSearch()">
+                                <option value="">Todas as Categorias</option>
+                                ${appState.categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')}
+                            </select>
+                            <button class="btn btn-primary" onclick="handleSearch()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <section class="categories-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Categorias</h2>
+                            <p class="section-subtitle">Encontre apostilas por área de interesse</p>
+                        </div>
+                        <div class="categories-grid">
+                            ${appState.categorias.map(cat => `
+                                <div class="category-card" onclick="filterByCategory(${cat.id})">
+                                    <div class="category-icon">
+                                        <i class="fas ${cat.icone}"></i>
+                                    </div>
+                                    <div class="category-name">${cat.nome}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Destaques -->
+                ${renderProductsSection('destaques', '🔥 Destaques', appState.produtos.filter(p => p.destaque))}
+
+                <!-- Lançamentos -->
+                ${renderProductsSection('lancamentos', '🆕 Lançamentos', appState.produtos.filter(p => p.lancamento))}
+
+                <!-- Mais Vendidas -->
+                ${renderProductsSection('mais-vendidas', '⭐ Mais Vendidas', appState.produtos.filter(p => p.mais_vendida))}
+
+                <!-- Pré-venda -->
+                ${renderProductsSection('pre-venda', '🔔 Pré-venda', appState.produtos.filter(p => p.pre_venda))}
+
+                <!-- Depoimentos -->
+                ${renderTestimonialsSection()}
+            `;
+        }
+
+        function renderProductsSection(id, title, produtos) {
+            if (produtos.length === 0) return '';
+
+            return `
+                <section class="products-section" id="produtos-${id}">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">${title}</h2>
+                        </div>
+                        <div class="products-grid">
+                            ${produtos.map(p => renderProductCard(p)).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderProductCard(produto) {
+            const categoria = produto.categorias ? produto.categorias.nome : '';
+            const stars = renderStars(produto.avaliacao_media || 5);
+            
+            return `
+                <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
+                    <div class="product-image-container">
+                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
+                        <div class="product-badges">
+                            ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check"></i> Atualizado</span>' : ''}
+                            ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
+                            ${produto.lancamento ? '<span class="badge badge-accent"><i class="fas fa-star"></i> Novo</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">${categoria}</div>
+                        <h3 class="product-title">${produto.titulo}</h3>
+                        <div class="product-meta">
+                            <div><i class="fas fa-building"></i> ${produto.orgao}</div>
+                            <div><i class="fas fa-briefcase"></i> ${produto.cargo}</div>
+                            ${produto.estado ? `<div><i class="fas fa-map-marker-alt"></i> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
+                        </div>
+                        <div class="product-rating">
+                            <div class="stars">${stars}</div>
+                            <span>(${produto.total_avaliacoes || 0})</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                            ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                        </div>
+                        <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" onclick="buyProduct(event, '${produto.link_compra}')">
+                            <i class="fas fa-shopping-cart"></i> 
+                            ${produto.tipo_botao === 'hotmart' ? 'Comprar Agora' : 'Comprar no Site'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTestimonialsSection() {
+            if (appState.depoimentos.length === 0) return '';
+
+            return `
+                <section class="testimonials-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">💬 O que nossos alunos dizem</h2>
+                            <p class="section-subtitle">Depoimentos de quem conquistou a aprovação</p>
+                        </div>
+                        <div class="testimonials-grid">
+                            ${appState.depoimentos.map(t => renderTestimonialCard(t)).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderTestimonialCard(depoimento) {
+            const stars = renderStars(depoimento.avaliacao || 5);
+            const fotoUrl = depoimento.foto_url || 'https://via.placeholder.com/60/22C55E/FFFFFF?text=' + depoimento.nome.charAt(0);
+
+            return `
+                <div class="testimonial-card">
+                    ${depoimento.destaque ? '<span class="badge badge-success testimonial-badge">✅ Destaque</span>' : ''}
+                    <div class="testimonial-header">
+                        <img src="${fotoUrl}" alt="${depoimento.nome}" class="testimonial-photo" onerror="this.src='https://via.placeholder.com/60/22C55E/FFFFFF?text=${depoimento.nome.charAt(0)}'">
+                        <div class="testimonial-info">
+                            <h4>${depoimento.nome}</h4>
+                            ${depoimento.cargo_aprovado ? `<div class="testimonial-cargo"><i class="fas fa-trophy"></i> ${depoimento.cargo_aprovado}</div>` : ''}
+                        </div>
+                    </div>
+                    <p class="testimonial-text">${depoimento.texto}</p>
+                    <div class="testimonial-rating">${stars}</div>
+                </div>
+            `;
+        }
+
+        // ==================== RENDER PRODUCT DETAIL ====================
+        function renderProductDetail(productId) {
+            const produto = appState.produtos.find(p => p.id === productId);
+            if (!produto) return;
+
+            const stars = renderStars(produto.avaliacao_media || 5);
+            const categoria = produto.categorias ? produto.categorias.nome : '';
+            const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="product-detail">
+                    <div>
+                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                    </div>
+                    <div class="product-detail-info">
+                        <span class="product-category">${categoria}</span>
+                        <h2>${produto.titulo}</h2>
+                        
+                        <div class="product-detail-badges">
+                            ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
+                            <span class="badge badge-info"><i class="fas fa-mobile-alt"></i> 100% Digital - Envio automático após compra</span>
+                            ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+                        </div>
+
+                        <div class="product-meta" style="font-size: 16px; gap: 8px;">
+                            <div><strong><i class="fas fa-building"></i> Órgão:</strong> ${produto.orgao}</div>
+                            <div><strong><i class="fas fa-briefcase"></i> Cargo:</strong> ${produto.cargo}</div>
+                            ${produto.estado ? `<div><strong><i class="fas fa-map-marker-alt"></i> Localização:</strong> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
+                            ${produto.paginas ? `<div><strong><i class="fas fa-file-alt"></i> Páginas:</strong> ${produto.paginas}</div>` : ''}
+                        </div>
+
+                        <div class="product-rating" style="font-size: 18px;">
+                            <div class="stars">${stars}</div>
+                            <span><strong>${produto.avaliacao_media || 5.0}</strong> (${produto.total_avaliacoes || 0} avaliações)</span>
+                        </div>
+
+                        <div class="product-price">
+                            <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                            ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                        </div>
+
+                        <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" style="width: 100%; padding: 18px; font-size: 18px;" onclick="buyProduct(event, '${produto.link_compra}')">
+                            <i class="fas fa-shopping-cart"></i> 
+                            ${produto.tipo_botao === 'hotmart' ? '🛒 Comprar Agora na Hotmart' : '🌐 Comprar no Site Oficial'}
+                        </button>
+
+                        <p style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+                            <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px;">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-align-left"></i> Descrição</h3>
+                    <p style="line-height: 1.8; color: var(--text-muted);">${produto.descricao}</p>
+                </div>
+
+                ${conteudos.length > 0 ? `
+                    <div class="content-programatico">
+                        <h3><i class="fas fa-list-check"></i> Conteúdo Programático</h3>
+                        <ul>
+                            ${conteudos.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('modalTitle').textContent = produto.titulo;
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        // ==================== RENDER SOBRE ====================
+        function renderSobre() {
+            const mainContent = document.getElementById('mainContent');
+            const sobreText = appState.config.sobre_nos || 'Somos especializados em apostilas para concursos públicos.';
+
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 100px 20px;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Sobre Nós</h2>
+                        </div>
+                        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                            <p style="font-size: 18px; line-height: 1.8; color: var(--text-muted);">
+                                ${sobreText}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // ==================== RENDER CONTATO ====================
+        function renderContato() {
+            const mainContent = document.getElementById('mainContent');
+            const whatsapp = appState.config.whatsapp || '';
+            const email = appState.config.email || '';
+
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 100px 20px;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Entre em Contato</h2>
+                            <p class="section-subtitle">Estamos aqui para ajudar você!</p>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 800px; margin: 0 auto;">
+                            ${whatsapp ? `
+                                <div style="background: var(--white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); text-align: center;">
+                                    <div style="font-size: 60px; color: #25D366; margin-bottom: 20px;">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </div>
+                                    <h3 style="margin-bottom: 12px;">WhatsApp</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 24px;">Fale conosco diretamente pelo WhatsApp</p>
+                                    <a href="https://wa.me/${whatsapp}" target="_blank" rel="noopener noreferrer" class="btn btn-success">
+                                        <i class="fab fa-whatsapp"></i> Abrir WhatsApp
+                                    </a>
+                                </div>
+                            ` : ''}
+                            ${email ? `
+                                <div style="background: var(--white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); text-align: center;">
+                                    <div style="font-size: 60px; color: var(--primary); margin-bottom: 20px;">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <h3 style="margin-bottom: 12px;">E-mail</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 24px;">Envie-nos um e-mail</p>
+                                    <a href="mailto:${email}" class="btn btn-primary">
+                                        <i class="fas fa-envelope"></i> Enviar E-mail
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // ==================== FILTERS & SEARCH ====================
+        function handleSearch() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const estado = document.getElementById('searchEstado').value;
+            const categoriaId = document.getElementById('searchCategoria').value;
+
+            appState.filters = { search: searchText, estado, categoria: categoriaId, type: '' };
+            
+            // Filter produtos
+            let filtered = appState.produtos;
+
+            if (searchText) {
+                filtered = filtered.filter(p => 
+                    p.titulo.toLowerCase().includes(searchText) ||
+                    p.orgao.toLowerCase().includes(searchText) ||
+                    p.cargo.toLowerCase().includes(searchText) ||
+                    (p.cidade && p.cidade.toLowerCase().includes(searchText))
+                );
+            }
+
+            if (estado) {
+                filtered = filtered.filter(p => p.estado === estado);
+            }
+
+            if (categoriaId) {
+                filtered = filtered.filter(p => p.categoria_id == categoriaId);
+            }
+
+            renderFilteredResults(filtered);
+        }
+
+        function filterByCategory(categoriaId) {
+            appState.filters = { search: '', estado: '', categoria: categoriaId, type: '' };
+            const filtered = appState.produtos.filter(p => p.categoria_id === categoriaId);
+            renderFilteredResults(filtered);
+        }
+
+        function filterProducts(type) {
+            appState.filters = { search: '', estado: '', categoria: '', type };
+            let filtered = [];
+
+            switch(type) {
+                case 'lancamento':
+                    filtered = appState.produtos.filter(p => p.lancamento);
+                    break;
+                case 'mais_vendida':
+                    filtered = appState.produtos.filter(p => p.mais_vendida);
+                    break;
+                case 'destaque':
+                    filtered = appState.produtos.filter(p => p.destaque);
+                    break;
+                case 'pre_venda':
+                    filtered = appState.produtos.filter(p => p.pre_venda);
+                    break;
+            }
+
+            renderFilteredResults(filtered);
+        }
+
+        function renderFilteredResults(produtos) {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 60px 20px; min-height: 60vh;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Resultados da Busca</h2>
+                            <p class="section-subtitle">${produtos.length} ${produtos.length === 1 ? 'apostila encontrada' : 'apostilas encontradas'}</p>
+                            <button class="btn btn-primary" onclick="navigateTo('home')" style="margin-top: 20px;">
+                                <i class="fas fa-arrow-left"></i> Voltar para Início
+                            </button>
+                        </div>
+                        ${produtos.length > 0 ? `
+                            <div class="products-grid">
+                                ${produtos.map(p => renderProductCard(p)).join('')}
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <i class="fas fa-search" style="font-size: 80px; color: var(--text-muted); opacity: 0.3; margin-bottom: 20px;"></i>
+                                <h3 style="color: var(--text-muted);">Nenhuma apostila encontrada</h3>
+                                <p style="color: var(--text-muted); margin-top: 12px;">Tente ajustar os filtros ou buscar por outros termos.</p>
+                            </div>
+                        `}
+                    </div>
+                </section>
+            `;
+        }
+
+        // ==================== UTILITIES ====================
+        function getUniqueEstados() {
+            const estados = appState.produtos
+                .filter(p => p.estado)
+                .map(p => p.estado);
+            return [...new Set(estados)].sort();
+        }
+
+        function updateCategoriesDropdown() {
+            const dropdown = document.getElementById('categoriesDropdown');
+            dropdown.innerHTML = appState.categorias.map(cat => `
+                <a href="#" onclick="event.preventDefault(); filterByCategory(${cat.id})">
+                    <i class="fas ${cat.icone}"></i> ${cat.nome}
+                </a>
+            `).join('');
+        }
+
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) stars += '<i class="fas fa-star"></i>';
+            if (hasHalfStar) stars += '<i class="fas fa-star-half-alt"></i>';
+            for (let i = 0; i < emptyStars; i++) stars += '<i class="far fa-star"></i>';
+            
+            return stars;
+        }
+
+        function formatPrice(price) {
+            return parseFloat(price).toFixed(2).replace('.', ',');
+        }
+
+        function buyProduct(event, url) {
+            event.stopPropagation();
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // ==================== MODAL ====================
+        function closeModal() {
+            document.getElementById('globalModal').classList.remove('active');
+        }
+
+        function showModal(type) {
+            const modalBody = document.getElementById('modalBody');
+            let content = '';
+
+            switch(type) {
+                case 'privacidade':
+                    content = `
+                        <h3>Política de Privacidade</h3>
+                        <p>Sua privacidade é importante para nós. Esta política descreve como coletamos e usamos seus dados.</p>
+                        <p>Coletamos apenas informações necessárias para processar suas compras e melhorar nossos serviços.</p>
+                    `;
+                    break;
+                case 'termos':
+                    content = `
+                        <h3>Termos de Uso</h3>
+                        <p>Ao utilizar nosso site, você concorda com nossos termos de uso.</p>
+                        <p>As apostilas são produtos digitais fornecidos por nós ou por parceiros.</p>
+                    `;
+                    break;
+            }
+
+            modalBody.innerHTML = content;
+            document.getElementById('modalTitle').textContent = type === 'privacidade' ? 'Política de Privacidade' : 'Termos de Uso';
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        // ==================== ADMIN ====================
+        function openAdminLogin() {
+            // Check if already logged in
+            if (appState.isAdmin) {
+                openAdmin();
+                return;
+            }
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label>Usuário</label>
+                        <input type="text" name="username" value="admin" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" name="password" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </form>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Login Admin';
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const password = event.target.password.value;
+
+            if (password === appState.config.admin_password) {
+                appState.isAdmin = true;
+                sessionStorage.setItem('admin_logged_in', 'true');
+                closeModal();
+                openAdmin();
+                showAlert('Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('Senha incorreta!', 'error');
+            }
+        }
+
+        async function openAdmin() {
+            // Load admin data
+            await loadAdminData();
+            document.getElementById('adminPanel').classList.add('active');
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+        }
+
+        function switchAdminTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`admin-${tab}`).classList.add('active');
+        }
+
+        async function loadAdminData() {
+            // Load config
+            Object.keys(appState.config).forEach(key => {
+                const el = document.getElementById(`config_${key}`);
+                if (el) el.value = appState.config[key] || '';
+            });
+
+            // Load categories for product form
+            const categorySelect = document.getElementById('product_categoria_id');
+            categorySelect.innerHTML = appState.categorias.map(c => 
+                `<option value="${c.id}">${c.nome}</option>`
+            ).join('');
+
+            // Load tables
+            loadProductsTable();
+            loadTestimonialsTable();
+            loadCategoriesTable();
+        }
+
+        // ==================== CONFIG SAVE ====================
+        async function saveConfig(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                for (let [key, value] of formData.entries()) {
+                    await supabaseClient
+                        .from('site_config')
+                        .update({ value: value })
+                        .eq('key', key);
+                    
+                    appState.config[key] = value;
+                }
+
+                showAlert('Configurações salvas com sucesso!', 'success');
+                await loadConfig();
+                if (appState.currentView === 'home') renderHome();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar configurações', 'error');
+            }
+        }
+
+        // ==================== PRODUCTS CRUD ====================
+        function showProductForm(productId = null) {
+            document.getElementById('productFormContainer').classList.remove('hidden');
+            document.getElementById('productsTableContainer').classList.add('hidden');
+
+            if (productId) {
+                const produto = appState.produtos.find(p => p.id === productId);
+                if (produto) {
+                    Object.keys(produto).forEach(key => {
+                        const el = document.getElementById(`product_${key}`);
+                        if (el) {
+                            if (el.type === 'checkbox') {
+                                el.checked = produto[key];
+                            } else {
+                                el.value = produto[key] || '';
+                            }
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('product_id').value = '';
+            }
+        }
+
+        function hideProductForm() {
+            document.getElementById('productFormContainer').classList.add('hidden');
+            document.getElementById('productsTableContainer').classList.remove('hidden');
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const productData = {};
+
+            for (let [key, value] of formData.entries()) {
+                if (key === 'id') continue;
+                
+                const el = document.getElementById(`product_${key}`);
+                if (el && el.type === 'checkbox') {
+                    productData[key] = el.checked;
+                } else if (value) {
+                    productData[key] = value;
+                }
+            }
+
+            // Generate slug
+            if (!productData.slug) {
+                productData.slug = productData.titulo.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]+/g, '-');
+            }
+
+            try {
+                const id = document.getElementById('product_id').value;
+                
+                if (id) {
+                    // Update
+                    await supabaseClient
+                        .from('produtos')
+                        .update(productData)
+                        .eq('id', id);
+                    showAlert('Produto atualizado com sucesso!', 'success');
+                } else {
+                    // Insert
+                    await supabaseClient
+                        .from('produtos')
+                        .insert([productData]);
+                    showAlert('Produto criado com sucesso!', 'success');
+                }
+
+                await loadProdutos();
+                loadProductsTable();
+                hideProductForm();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar produto', 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+            try {
+                await supabaseClient
+                    .from('produtos')
+                    .delete()
+                    .eq('id', id);
+                
+                showAlert('Produto excluído com sucesso!', 'success');
+                await loadProdutos();
+                loadProductsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir produto', 'error');
+            }
+        }
+
+        function loadProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = appState.produtos.map(p => `
+                <tr>
+                    <td>${p.titulo}</td>
+                    <td>${p.orgao}</td>
+                    <td>${p.cargo}</td>
+                    <td>R$ ${formatPrice(p.preco)}</td>
+                    <td>
+                        <span class="badge ${p.ativo ? 'badge-success' : 'badge-error'}">
+                            ${p.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-edit" onclick="showProductForm(${p.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteProduct(${p.id})">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== TESTIMONIALS CRUD ====================
+        function showTestimonialForm(testimonialId = null) {
+            document.getElementById('testimonialFormContainer').classList.remove('hidden');
+            document.getElementById('testimonialsTableContainer').classList.add('hidden');
+
+            if (testimonialId) {
+                const depoimento = appState.depoimentos.find(d => d.id === testimonialId);
+                if (depoimento) {
+                    Object.keys(depoimento).forEach(key => {
+                        const el = document.getElementById(`testimonial_${key}`);
+                        if (el) {
+                            if (el.type === 'checkbox') {
+                                el.checked = depoimento[key];
+                            } else {
+                                el.value = depoimento[key] || '';
+                            }
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('testimonialForm').reset();
+                document.getElementById('testimonial_id').value = '';
+            }
+        }
+
+        function hideTestimonialForm() {
+            document.getElementById('testimonialFormContainer').classList.add('hidden');
+            document.getElementById('testimonialsTableContainer').classList.remove('hidden');
+        }
+
+        async function saveTestimonial(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const testimonialData = {};
+
+            for (let [key, value] of formData.entries()) {
+                if (key === 'id') continue;
+                
+                const el = document.getElementById(`testimonial_${key}`);
+                if (el && el.type === 'checkbox') {
+                    testimonialData[key] = el.checked;
+                } else if (value) {
+                    testimonialData[key] = value;
+                }
+            }
+
+            try {
+                const id = document.getElementById('testimonial_id').value;
+                
+                if (id) {
+                    await supabaseClient
+                        .from('depoimentos')
+                        .update(testimonialData)
+                        .eq('id', id);
+                    showAlert('Depoimento atualizado com sucesso!', 'success');
+                } else {
+                    await supabaseClient
+                        .from('depoimentos')
+                        .insert([testimonialData]);
+                    showAlert('Depoimento criado com sucesso!', 'success');
+                }
+
+                await loadDepoimentos();
+                loadTestimonialsTable();
+                hideTestimonialForm();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar depoimento', 'error');
+            }
+        }
+
+        async function deleteTestimonial(id) {
+            if (!confirm('Tem certeza que deseja excluir este depoimento?')) return;
+
+            try {
+                await supabaseClient
+                    .from('depoimentos')
+                    .delete()
+                    .eq('id', id);
+                
+                showAlert('Depoimento excluído com sucesso!', 'success');
+                await loadDepoimentos();
+                loadTestimonialsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir depoimento', 'error');
+            }
+        }
+
+        function loadTestimonialsTable() {
+            const tbody = document.getElementById('testimonialsTableBody');
+            tbody.innerHTML = appState.depoimentos.map(d => `
+                <tr>
+                    <td>${d.nome}</td>
+                    <td>${d.cargo_aprovado || '-'}</td>
+                    <td>${renderStars(d.avaliacao)}</td>
+                    <td>
+                        <span class="badge ${d.ativo ? 'badge-success' : 'badge-error'}">
+                            ${d.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-edit" onclick="showTestimonialForm(${d.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteTestimonial(${d.id})">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ==================== CATEGORIES ====================
+        function loadCategoriesTable() {
+            const tbody = document.getElementById('categoriesTableBody');
+            tbody.innerHTML = appState.categorias.map(c => `
+                <tr>
+                    <td>${c.nome}</td>
+                    <td><i class="fas ${c.icone}"></i> ${c.icone}</td>
+                    <td>${c.ordem}</td>
+                    <td>
+                        <span class="badge ${c.ativo ? 'badge-success' : 'badge-error'}">
+                            ${c.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-edit" onclick="toggleCategoryStatus(${c.id}, ${!c.ativo})">
+                            <i class="fas fa-${c.ativo ? 'eye-slash' : 'eye'}"></i> 
+                            ${c.ativo ? 'Desativar' : 'Ativar'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function toggleCategoryStatus(id, ativo) {
+            try {
+                await supabaseClient
+                    .from('categorias')
+                    .update({ ativo })
+                    .eq('id', id);
+                
+                showAlert('Categoria atualizada com sucesso!', 'success');
+                await loadCategorias();
+                loadCategoriesTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao atualizar categoria', 'error');
+            }
+        }
+
+        // ==================== ALERTS ====================
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '100000';
+            alertDiv.style.minWidth = '300px';
+            alertDiv.style.animation = 'slideInRight 0.3s ease';
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Add keyframes for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Close modal on outside click
+        document.getElementById('globalModal').addEventListener('click', (e) => {
+            if (e.target.id === 'globalModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
