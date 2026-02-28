@@ -1188,6 +1188,57 @@
         .hidden {
             display: none !important;
         }
+
+        /* ==================== GRID ESTÁTICO (categoria / busca) ==================== */
+        .products-grid-static {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 30px;
+        }
+        .products-grid-static .product-card {
+            flex: none;
+            min-width: auto;
+            max-width: none;
+            width: 100%;
+            scroll-snap-align: unset;
+        }
+        @media (max-width: 1100px) {
+            .products-grid-static { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .products-grid-static { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .products-grid-static { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+
+        /* ==================== PREÇOS DIGITAL / IMPRESSO ==================== */
+        .product-prices {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .price-version-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .price-version-icon {
+            font-size: 13px;
+        }
+        .price-impresso {
+            font-size: 18px;
+            font-weight: 800;
+            color: #7C3AED;
+        }
+        .price-impresso-detail {
+            font-size: 26px;
+            font-weight: 800;
+            color: #7C3AED;
+        }
     </style>
 </head>
 <body>
@@ -1413,9 +1464,15 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label>URL da Capa *</label>
-                                <input type="url" name="capa_url" id="product_capa_url" required>
+                                <label>📱 URL da Capa Digital *</label>
+                                <input type="url" name="capa_url" id="product_capa_url" required placeholder="https://...capa-digital.jpg">
                             </div>
+                            <div class="form-group">
+                                <label>📖 URL da Capa Impressa <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                            </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
                                 <label>Número de Páginas</label>
                                 <input type="number" name="paginas" id="product_paginas">
@@ -1424,13 +1481,19 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Preço (R$) *</label>
-                                <input type="number" step="0.01" name="preco" id="product_preco" required>
+                                <label>📱 Preço Digital (R$) *</label>
+                                <input type="number" step="0.01" name="preco" id="product_preco" required placeholder="0.00">
                             </div>
                             <div class="form-group">
-                                <label>Preço Original (R$)</label>
-                                <input type="number" step="0.01" name="preco_original" id="product_preco_original">
+                                <label>📱 Preço Digital Original (R$) <small style="font-weight:400;color:var(--text-muted)">(riscado, opcional)</small></label>
+                                <input type="number" step="0.01" name="preco_original" id="product_preco_original" placeholder="0.00">
                             </div>
+                            <div class="form-group">
+                                <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
                                 <label>Categoria *</label>
                                 <select name="categoria_id" id="product_categoria_id" required>
@@ -2039,9 +2102,18 @@
                             <div class="stars">${stars}</div>
                             <span>(${produto.total_avaliacoes || 0})</span>
                         </div>
-                        <div class="product-price">
-                            <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
-                            ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                        <div class="product-prices">
+                            <div class="price-version-row">
+                                <span class="price-version-icon">📱</span>
+                                <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                                ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                            </div>
+                            ${produto.preco_impresso ? `
+                            <div class="price-version-row">
+                                <span class="price-version-icon">📖</span>
+                                <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
+                            </div>
+                            ` : ''}
                         </div>
                         <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" onclick="buyProduct(event, '${produto.link_compra}')">
                             <i class="fas fa-shopping-cart"></i> 
@@ -2099,11 +2171,23 @@
             const categoria = produto.categorias ? produto.categorias.nome : '';
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
 
+            // Capas: digital obrigatória, impressa opcional
+            const coverHtml = produto.capa_url_impresso
+                ? `<div>
+                    <p style="text-align:center;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📱 Digital</p>
+                    <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                  </div>
+                  <div style="margin-top:16px;">
+                    <p style="text-align:center;font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📖 Impressa</p>
+                    <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/7C3AED/FFFFFF?text=Impressa'">
+                  </div>`
+                : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
+
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <div class="product-detail">
                     <div>
-                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                        ${coverHtml}
                     </div>
                     <div class="product-detail-info">
                         <span class="product-category">${categoria}</span>
@@ -2127,9 +2211,18 @@
                             <span><strong>${produto.avaliacao_media || 5.0}</strong> (${produto.total_avaliacoes || 0} avaliações)</span>
                         </div>
 
-                        <div class="product-price">
-                            <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
-                            ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                        <div class="product-prices" style="margin-bottom:16px;">
+                            <div style="margin-bottom:8px;">
+                                <span style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📱 Versão Digital</span>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                                    ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                                </div>
+                            </div>
+                            ${produto.preco_impresso ? `<div>
+                                <span style="font-size:11px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
+                                <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
+                            </div>` : ''}
                         </div>
 
                         <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" style="width: 100%; padding: 18px; font-size: 18px;" onclick="buyProduct(event, '${produto.link_compra}')">
@@ -2261,12 +2354,20 @@
         function filterByCategory(categoriaId) {
             appState.filters = { search: '', estado: '', categoria: categoriaId, type: '' };
             const filtered = appState.produtos.filter(p => p.categoria_id === categoriaId);
-            renderFilteredResults(filtered);
+            const cat = appState.categorias.find(c => c.id === categoriaId);
+            const titulo = cat ? cat.nome : 'Categoria';
+            renderFilteredResults(filtered, titulo);
         }
 
         function filterProducts(type) {
             appState.filters = { search: '', estado: '', categoria: '', type };
             let filtered = [];
+            const titulos = {
+                lancamento: '🆕 Lançamentos',
+                mais_vendida: '⭐ Mais Vendidas',
+                destaque: '🔥 Destaques',
+                pre_venda: '🔔 Pré-venda'
+            };
 
             switch(type) {
                 case 'lancamento':
@@ -2283,28 +2384,24 @@
                     break;
             }
 
-            renderFilteredResults(filtered);
+            renderFilteredResults(filtered, titulos[type] || 'Resultados');
         }
 
-        function renderFilteredResults(produtos) {
+        function renderFilteredResults(produtos, titulo = 'Resultados da Busca') {
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
                 <section class="products-section" style="padding: 60px 20px; min-height: 60vh;">
                     <div class="container">
                         <div class="section-header">
-                            <h2 class="section-title">Resultados da Busca</h2>
+                            <h2 class="section-title">${titulo}</h2>
                             <p class="section-subtitle">${produtos.length} ${produtos.length === 1 ? 'apostila encontrada' : 'apostilas encontradas'}</p>
                             <button class="btn btn-primary" onclick="navigateTo('home')" style="margin-top: 20px;">
                                 <i class="fas fa-arrow-left"></i> Voltar para Início
                             </button>
                         </div>
                         ${produtos.length > 0 ? `
-                            <div class="carousel-wrapper" style="margin-top:30px;">
-                                <button class="carousel-btn prev" onclick="carouselScroll('grid-busca', -1)" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
-                                <div class="products-grid" id="grid-busca">
-                                    ${produtos.map(p => renderProductCard(p)).join('')}
-                                </div>
-                                <button class="carousel-btn next" onclick="carouselScroll('grid-busca', 1)" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
+                            <div class="products-grid-static">
+                                ${produtos.map(p => renderProductCard(p)).join('')}
                             </div>
                         ` : `
                             <div style="text-align: center; padding: 60px 20px;">
