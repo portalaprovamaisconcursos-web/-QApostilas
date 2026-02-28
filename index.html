@@ -456,36 +456,109 @@
         }
 
         /* ==================== PRODUTOS ==================== */
+        /* ==================== CARROSSEL DE PRODUTOS ==================== */
         .products-section {
-            padding: 60px 20px;
+            padding: 50px 20px;
             background: var(--white);
+        }
+
+        /* Wrapper do carrossel */
+        .carousel-wrapper {
+            position: relative;
+            margin-top: 30px;
         }
 
         .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 12px;
+            /* Esconde scrollbar mas mantém funcionalidade */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .products-grid::-webkit-scrollbar {
+            display: none;
         }
 
+        /* Botões de navegação do carrossel */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--primary);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        .carousel-btn.prev { left: -22px; }
+        .carousel-btn.next { right: -22px; }
+        @media (max-width: 768px) {
+            .carousel-btn { display: none; }
+        }
+
+        /* Indicadores de paginação */
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .carousel-dot.active {
+            background: var(--primary);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        /* Card do produto — 4 por vez */
         .product-card {
             background: var(--white);
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: var(--shadow-sm);
             transition: all 0.3s ease;
             border: 1px solid var(--border);
             cursor: pointer;
+            /* 4 cards visíveis + gaps */
+            flex: 0 0 calc(25% - 14px);
+            min-width: 200px;
+            max-width: 260px;
+            scroll-snap-align: start;
         }
 
         .product-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
         }
 
         .product-image-container {
             position: relative;
-            /* Proporção A4: 21cm x 29,7cm = 1:1.414 */
             aspect-ratio: 21 / 29.7;
             background: #FFFFFF;
             overflow: hidden;
@@ -501,76 +574,95 @@
 
         .product-badges {
             position: absolute;
-            top: 12px;
-            left: 12px;
+            top: 8px;
+            left: 8px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
             align-items: flex-start;
+        }
+        .product-badges .badge {
+            font-size: 10px;
+            padding: 3px 7px;
         }
 
         .product-content {
-            padding: 20px;
+            padding: 12px 14px 14px;
         }
 
         .product-category {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--primary);
             text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
+            letter-spacing: 0.4px;
         }
 
         .product-title {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            line-height: 1.35;
         }
 
         .product-meta {
-            font-size: 14px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 3px;
         }
 
         .product-rating {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 5px;
+            margin-bottom: 8px;
+            font-size: 11px;
         }
 
         .stars {
             display: flex;
-            gap: 2px;
+            gap: 1px;
             color: var(--gold);
+            font-size: 11px;
         }
 
         .product-price {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .price-current {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 800;
             color: var(--primary);
         }
 
         .price-original {
-            font-size: 18px;
+            font-size: 13px;
             color: var(--text-muted);
             text-decoration: line-through;
+        }
+
+        /* Responsivo: 2 cards em mobile */
+        @media (max-width: 600px) {
+            .product-card {
+                flex: 0 0 calc(50% - 9px);
+                min-width: 150px;
+            }
+            .products-grid {
+                gap: 12px;
+            }
         }
 
         /* ==================== DEPOIMENTOS ==================== */
@@ -1164,7 +1256,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 +QApostilas. Todos os direitos reservados.</p>
+                <p>© 2025 +QApostilas. Todos os direitos reservados.</p>
                 <p style="margin-top: 8px; font-size: 14px;">Os produtos de parceiros são adquiridos diretamente no site oficial do parceiro. Somos apenas uma vitrine de organização.</p>
             </div>
         </div>
@@ -1882,8 +1974,16 @@
                         <div class="section-header">
                             <h2 class="section-title">${title}</h2>
                         </div>
-                        <div class="products-grid">
-                            ${produtos.map(p => renderProductCard(p)).join('')}
+                        <div class="carousel-wrapper">
+                            <button class="carousel-btn prev" onclick="carouselScroll('grid-${id}', -1)" aria-label="Anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="products-grid" id="grid-${id}">
+                                ${produtos.map(p => renderProductCard(p)).join('')}
+                            </div>
+                            <button class="carousel-btn next" onclick="carouselScroll('grid-${id}', 1)" aria-label="Próximo">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -2176,8 +2276,12 @@
                             </button>
                         </div>
                         ${produtos.length > 0 ? `
-                            <div class="products-grid">
-                                ${produtos.map(p => renderProductCard(p)).join('')}
+                            <div class="carousel-wrapper" style="margin-top:30px;">
+                                <button class="carousel-btn prev" onclick="carouselScroll('grid-busca', -1)" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+                                <div class="products-grid" id="grid-busca">
+                                    ${produtos.map(p => renderProductCard(p)).join('')}
+                                </div>
+                                <button class="carousel-btn next" onclick="carouselScroll('grid-busca', 1)" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
                             </div>
                         ` : `
                             <div style="text-align: center; padding: 60px 20px;">
@@ -2812,6 +2916,17 @@
                 closeModal();
             }
         });
+
+        // ===== FUNÇÕES DO CARROSSEL =====
+        function carouselScroll(gridId, direction) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            const card = grid.querySelector('.product-card');
+            if (!card) return;
+            const cardWidth = card.offsetWidth + 18; // 18 = gap
+            const scrollAmount = cardWidth * 2; // avança 2 cards por clique
+            grid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
