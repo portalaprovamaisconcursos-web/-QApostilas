@@ -190,6 +190,8 @@
             height: 50px;
             width: auto;
             object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
         }
 
         .logo-text {
@@ -197,6 +199,7 @@
             font-size: 24px;
             font-weight: 800;
             color: var(--primary);
+            display: none;
         }
 
         .nav-menu {
@@ -1193,8 +1196,7 @@
     <header class="header">
         <nav class="navbar container">
             <div class="logo-container">
-                <img id="site-logo" class="logo hidden" alt="Logo +QApostilas">
-                <span class="logo-text" id="logo-text">+QApostilas</span>
+                <img id="site-logo" class="logo" alt="Logo" style="display:none;">
             </div>
             
             <ul class="nav-menu" id="navMenu">
@@ -1298,12 +1300,25 @@
                 <form id="configForm" onsubmit="saveConfig(event)">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>URL da Logo</label>
+                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL da Logo</label>
                             <input type="url" name="logo_url" id="config_logo_url" placeholder="https://exemplo.com/logo.png">
                         </div>
                         <div class="form-group">
-                            <label>URL do Banner</label>
+                            <label><i class="fas fa-ruler-vertical" style="color:var(--primary)"></i> Altura da Logo (px)</label>
+                            <input type="number" name="logo_height" id="config_logo_height" placeholder="50" min="20" max="200" value="50">
+                            <small style="color:var(--text-muted)">Altura em pixels da logo na navbar. Recomendado: 40–80px.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-panorama" style="color:var(--primary)"></i> URL do Banner</label>
                             <input type="url" name="banner_url" id="config_banner_url" placeholder="https://exemplo.com/banner.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-v" style="color:var(--primary)"></i> Altura do Banner (px)</label>
+                            <input type="number" name="banner_height" id="config_banner_height" placeholder="500" min="200" max="900" value="500">
+                            <small style="color:var(--text-muted)">Altura em pixels do banner hero. Recomendado: 400–600px.</small>
                         </div>
                     </div>
                     
@@ -1737,8 +1752,13 @@
 
             // Update logo if exists
             if (appState.config.logo_url) {
-                document.getElementById('site-logo').src = appState.config.logo_url;
-                document.getElementById('site-logo').classList.remove('hidden');
+                const logoEl = document.getElementById('site-logo');
+                logoEl.src = appState.config.logo_url;
+                logoEl.style.display = 'block';
+                // Apply logo height from config
+                const logoH = parseInt(appState.config.logo_height) || 50;
+                logoEl.style.height = logoH + 'px';
+                logoEl.style.width = 'auto';
             }
 
             // Update favicon if exists
@@ -1788,7 +1808,9 @@
         function loadDemoData() {
             appState.config = {
                 logo_url: '',
+                logo_height: '50',
                 banner_url: '',
+                banner_height: '500',
                 banner_title: 'Apostilas Atualizadas para Concursos Públicos',
                 banner_subtitle: 'Material 100% digital, conforme último edital',
                 whatsapp: '5511999999999',
@@ -1889,10 +1911,11 @@
             const bannerUrl = appState.config.banner_url || '';
             const bannerTitle = appState.config.banner_title || 'Apostilas Atualizadas para Concursos Públicos';
             const bannerSubtitle = appState.config.banner_subtitle || 'Material 100% digital, conforme último edital';
+            const bannerHeight = parseInt(appState.config.banner_height) || 500;
 
             mainContent.innerHTML = `
                 <!-- Hero Banner -->
-                <section class="hero">
+                <section class="hero" style="height:${bannerHeight}px">
                     ${bannerUrl ? `<img src="${bannerUrl}" alt="Banner" class="hero-image">` : ''}
                     <div class="hero-overlay">
                         <div class="hero-content">
@@ -2466,6 +2489,16 @@
                 // Apply favicon immediately if changed
                 if (appState.config.favicon_url) {
                     document.getElementById('site-favicon').href = appState.config.favicon_url;
+                }
+
+                // Apply logo immediately
+                if (appState.config.logo_url) {
+                    const logoEl = document.getElementById('site-logo');
+                    logoEl.src = appState.config.logo_url;
+                    logoEl.style.display = 'block';
+                    const logoH = parseInt(appState.config.logo_height) || 50;
+                    logoEl.style.height = logoH + 'px';
+                    logoEl.style.width = 'auto';
                 }
 
                 showAlert('Configurações salvas com sucesso!', 'success');
