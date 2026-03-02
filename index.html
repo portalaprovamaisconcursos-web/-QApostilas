@@ -3,9 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
+    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital. Apostilas para Prefeituras, Polícia, Saúde, Bancos, Educação e muito mais.">
+    <meta name="keywords" content="apostilas concursos públicos, apostila concurso, apostila digital, apostila prefeitura, apostila policia militar, apostila saúde, apostila banco, apostila educação, concurso público 2025, material de estudo concurso, apostila atualizada, apostila edital">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="+QApostilas">
     <title>+QApostilas - Apostilas para Concursos Públicos</title>
-    
+
+    <!-- ==================== SEO: Canonical & Open Graph ==================== -->
+    <link rel="canonical" href="https://maisqapostilas.vercel.app/">
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://maisqapostilas.vercel.app/">
+    <meta property="og:site_name" content="+QApostilas">
+    <meta property="og:title" content="+QApostilas - Apostilas para Concursos Públicos">
+    <meta property="og:description" content="Apostilas 100% digitais, atualizadas conforme o último edital. Encontre material completo para Prefeituras, Polícia, Saúde, Bancos, Educação e mais!">
+    <meta property="og:image" content="https://maisqapostilas.vercel.app/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="+QApostilas - Apostilas para Concursos Públicos">
+    <meta name="twitter:description" content="Apostilas 100% digitais, atualizadas conforme o último edital. Material para Prefeituras, Polícia, Saúde, Bancos e muito mais!">
+    <meta name="twitter:image" content="https://maisqapostilas.vercel.app/og-image.jpg">
+
+    <!-- ==================== JSON-LD: Dados Estruturados ==================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "+QApostilas",
+      "url": "https://maisqapostilas.vercel.app/",
+      "logo": "https://maisqapostilas.vercel.app/logo.png",
+      "description": "Apostilas digitais atualizadas para concursos públicos. Material 100% digital conforme último edital.",
+      "email": "contato@qapostilas.com.br",
+      "sameAs": [
+        "https://maisqapostilas.blogspot.com/"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "+QApostilas",
+      "url": "https://maisqapostilas.vercel.app/",
+      "description": "Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://maisqapostilas.vercel.app/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "+QApostilas",
+      "url": "https://maisqapostilas.vercel.app/",
+      "description": "Loja de apostilas digitais para concursos públicos",
+      "priceRange": "R$30 - R$150",
+      "currenciesAccepted": "BRL",
+      "paymentAccepted": "Cartão de crédito, PIX, Boleto",
+      "areaServed": "BR"
+    }
+    </script>
+
     <!-- Favicon dinâmico (configurado via painel admin) -->
     <link rel="icon" id="site-favicon" href="" type="image/x-icon">
     
@@ -1501,14 +1567,6 @@
                 </div>
             </div>
         </nav>
-
-        <!-- Strip de Categorias (estilo Maxi Educa) -->
-        <div class="category-strip">
-            <div class="category-strip-inner" id="categoryStripInner">
-                <!-- Populado dinamicamente por JS -->
-            </div>
-        </div>
-
         <!-- Mobile menu expandido (categorias + links) -->
         <div class="nav-menu" id="navMenu" style="display:none;">
             <ul id="mobileNavList" style="list-style:none;padding:10px 20px;display:flex;flex-direction:column;gap:8px;background:var(--white);border-top:1px solid var(--border);">
@@ -1686,16 +1744,6 @@
                     </div>
 
                     <hr style="margin:24px 0;border:none;border-top:2px solid var(--border);">
-                    <h4 style="margin-bottom:16px;color:var(--primary);">💳 Parcelamento</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-credit-card" style="color:var(--primary)"></i> Número de Parcelas (sem juros)</label>
-                            <input type="number" name="parcelas_max" id="config_parcelas_max" placeholder="6" min="1" max="24" value="6">
-                            <small style="color:var(--text-muted)">Exibido nos cards dos produtos. Ex: 6 = "6x de R$ X,XX sem juros"</small>
-                        </div>
-                    </div>
-
-                    <hr style="margin:24px 0;border:none;border-top:2px solid var(--border);">
                     <h4 style="margin-bottom:16px;color:var(--primary);">📱 Redes Sociais</h4>
                     <div class="form-row">
                         <div class="form-group">
@@ -1811,6 +1859,13 @@
                             <div class="form-group">
                                 <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
                                 <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class=\"form-row\">
+                            <div class=\"form-group\">
+                                <label>💳 Parcelamento (sem juros) <small style=\"font-weight:400;color:var(--text-muted)\">(por produto)</small></label>
+                                <input type=\"number\" name=\"parcelas_max\" id=\"product_parcelas_max\" placeholder=\"6\" min=\"1\" max=\"24\" value=\"1\">
+                                <small style=\"color:var(--text-muted)\">Ex.: 6 para exibir “6x de R$ X,XX sem juros” no card. Se deixar 1, não mostra parcelamento.</small>
                             </div>
                         </div>
                         <div class="form-row">
@@ -2210,7 +2265,6 @@
                 email: 'contato@qapostilas.com.br',
                 sobre_nos: 'Somos especializados em apostilas para concursos públicos. Todo nosso material é cuidadosamente preparado e atualizado conforme os editais mais recentes.',
                 admin_password: 'admin123',
-                parcelas_max: '6',
                 instagram_url: '',
                 facebook_url: '',
                 youtube_url: '',
@@ -2283,21 +2337,25 @@
             
             switch(view) {
                 case 'home':
+                    resetSEO();
                     renderHome();
                     break;
                 case 'produto':
                     renderProductDetail(data);
                     break;
                 case 'sobre':
+                    resetSEO();
                     renderSobre();
                     break;
                 case 'contato':
+                    resetSEO();
                     renderContato();
                     break;
             }
 
             // Close mobile menu
-            document.getElementById('navMenu').classList.remove('active');
+            const _navMenu = document.getElementById('navMenu');
+            if (_navMenu) _navMenu.style.display = 'none';
             
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2376,7 +2434,7 @@
                 p.cargo.toLowerCase().includes(searchText) ||
                 (p.cidade && p.cidade.toLowerCase().includes(searchText))
             );
-            renderFilteredProducts(filtered, `Resultados para: "${searchText}"`);
+            renderFilteredResults(filtered, `Resultados para: "${searchText}"`);
         }
 
         // ==================== TOGGLE MOBILE MENU ====================
@@ -2411,7 +2469,28 @@
                     </div>
                 </section>
 
-                <!-- Sem seção de busca/categorias aqui (estão no header agora) -->
+                <!-- Categorias (layout antigo: logo após o banner) -->
+                <section class="categories-section"> 
+                    <div class="container"> 
+                        <div class="section-header"> 
+                            <h2 class="section-title">Categorias</h2> 
+                            <p class="section-subtitle">Encontre apostilas por área de interesse</p> 
+                        </div> 
+                        <div class="categories-grid"> 
+                            ${appState.categorias.map(cat => `
+                                <div class="category-card" onclick="filterByCategory(${cat.id})"> 
+                                    <div class="category-icon">
+                                        ${cat.imagem_url
+                                            ? `<img src="${cat.imagem_url}" alt="${cat.nome}" style="width:60px;height:60px;object-fit:cover;border-radius:12px;">`
+                                            : `<i class="fas ${cat.icone || 'fa-book'}"></i>`
+                                        }
+                                    </div>
+                                    <div class="category-name">${cat.nome}</div> 
+                                </div>
+                            `).join('')} 
+                        </div> 
+                    </div> 
+                </section>
 
                 <!-- Destaques -->
                 ${renderProductsSection('destaques', '🔥 Destaques', appState.produtos.filter(p => p.destaque))}
@@ -2457,7 +2536,7 @@
 
         function renderProductCard(produto) {
             // Parcelamento
-            const parcMax = parseInt(appState.config.parcelas_max) || 1;
+            const parcMax = parseInt(produto.parcelas_max) || 1;
             const preco = parseFloat(produto.preco) || 0;
             const precoOriginal = parseFloat(produto.preco_original) || 0;
             const valorParcela = parcMax > 1 ? (preco / parcMax) : 0;
@@ -2538,7 +2617,9 @@
             const produto = appState.produtos.find(p => p.id === productId);
             if (!produto) return;
 
-            const stars = renderStars(produto.avaliacao_media || 5);
+            // Atualiza SEO dinâmico para este produto
+            updateSEOForProduct(produto);
+
             const categoria = produto.categorias ? produto.categorias.nome : '';
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
 
@@ -3427,6 +3508,94 @@
             const cardWidth = card.offsetWidth + 18; // 18 = gap
             const scrollAmount = cardWidth * 2; // avança 2 cards por clique
             grid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        // ==================== SEO DINÂMICO ====================
+        // Atualiza meta tags e JSON-LD para cada produto visualizado (melhora indexação)
+        function updateSEOForProduct(produto) {
+            if (!produto) return;
+            const title = `${produto.titulo} - ${produto.orgao} | +QApostilas`;
+            const desc = produto.descricao
+                ? produto.descricao.substring(0, 155) + (produto.descricao.length > 155 ? '...' : '')
+                : `Apostila para ${produto.cargo} - ${produto.orgao}. Material atualizado conforme o último edital.`;
+            const img = produto.capa_url || 'https://maisqapostilas.vercel.app/og-image.jpg';
+            const url = `https://maisqapostilas.vercel.app/?produto=${produto.slug || produto.id}`;
+
+            document.title = title;
+            const descEl = document.querySelector('meta[name="description"]');
+            if (descEl) descEl.setAttribute('content', desc);
+
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            const ogImg = document.querySelector('meta[property="og:image"]');
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            const twTitle = document.querySelector('meta[name="twitter:title"]');
+            const twDesc = document.querySelector('meta[name="twitter:description"]');
+            const twImg = document.querySelector('meta[name="twitter:image"]');
+            const canonical = document.querySelector('link[rel="canonical"]');
+
+            if (ogTitle) ogTitle.setAttribute('content', title);
+            if (ogDesc) ogDesc.setAttribute('content', desc);
+            if (ogImg) ogImg.setAttribute('content', img);
+            if (ogUrl) ogUrl.setAttribute('content', url);
+            if (twTitle) twTitle.setAttribute('content', title);
+            if (twDesc) twDesc.setAttribute('content', desc);
+            if (twImg) twImg.setAttribute('content', img);
+            if (canonical) canonical.setAttribute('href', url);
+
+            // JSON-LD do produto
+            const existingLdProduct = document.getElementById('ld-product');
+            if (existingLdProduct) existingLdProduct.remove();
+
+            const preco = parseFloat(produto.preco) || 0;
+            const precoOriginal = parseFloat(produto.preco_original) || preco;
+            const ldScript = document.createElement('script');
+            ldScript.type = 'application/ld+json';
+            ldScript.id = 'ld-product';
+            ldScript.textContent = JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                'name': produto.titulo,
+                'description': desc,
+                'image': img,
+                'brand': {
+                    '@type': 'Brand',
+                    'name': '+QApostilas'
+                },
+                'offers': {
+                    '@type': 'Offer',
+                    'url': url,
+                    'priceCurrency': 'BRL',
+                    'price': preco.toFixed(2),
+                    'availability': 'https://schema.org/InStock',
+                    'seller': {
+                        '@type': 'Organization',
+                        'name': '+QApostilas'
+                    }
+                },
+                'aggregateRating': produto.avaliacao_media ? {
+                    '@type': 'AggregateRating',
+                    'ratingValue': produto.avaliacao_media,
+                    'reviewCount': produto.total_avaliacoes || 1,
+                    'bestRating': 5,
+                    'worstRating': 1
+                } : undefined
+            });
+            document.head.appendChild(ldScript);
+        }
+
+        function resetSEO() {
+            document.title = '+QApostilas - Apostilas para Concursos Públicos';
+            const descEl = document.querySelector('meta[name="description"]');
+            if (descEl) descEl.setAttribute('content', '+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital. Apostilas para Prefeituras, Polícia, Saúde, Bancos, Educação e muito mais.');
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', '+QApostilas - Apostilas para Concursos Públicos');
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            if (ogUrl) ogUrl.setAttribute('content', 'https://maisqapostilas.vercel.app/');
+            const canonical = document.querySelector('link[rel="canonical"]');
+            if (canonical) canonical.setAttribute('href', 'https://maisqapostilas.vercel.app/');
+            const existingLdProduct = document.getElementById('ld-product');
+            if (existingLdProduct) existingLdProduct.remove();
         }
     </script>
 </body>
