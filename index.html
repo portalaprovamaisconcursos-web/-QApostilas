@@ -203,7 +203,7 @@
         }
 
         .nav-menu {
-            display: flex;
+            display: none; /* movido para nav-secondary */
             align-items: center;
             gap: 30px;
             list-style: none;
@@ -1116,6 +1116,7 @@
             }
 
             .nav-menu.active {
+                display: flex !important;
                 display: flex;
             }
 
@@ -1251,41 +1252,46 @@
         }
         .navbar-search {
             flex: 1;
-            max-width: 600px;
-            min-width: 200px;
+            max-width: 700px;
+            min-width: 260px;
             display: flex;
             align-items: center;
             background: #1a3a6b;
-            border-radius: 30px;
+            border-radius: 50px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(30,90,200,0.18);
+            box-shadow: 0 4px 16px rgba(30,90,200,0.25);
+            height: 54px;
+            border: 2px solid rgba(255,255,255,0.15);
         }
         .navbar-search input {
             flex: 1;
             background: transparent;
             border: none;
             outline: none;
-            padding: 12px 18px;
+            padding: 14px 22px;
             color: #fff;
-            font-size: 15px;
+            font-size: 16px;
             font-family: inherit;
         }
         .navbar-search input::placeholder {
             color: rgba(255,255,255,0.65);
+            font-size: 15px;
         }
         .navbar-search button {
-            background: none;
+            background: rgba(255,255,255,0.13);
             border: none;
-            padding: 0 18px;
-            color: rgba(255,255,255,0.8);
-            font-size: 18px;
+            border-left: 1px solid rgba(255,255,255,0.18);
+            padding: 0 22px;
+            color: rgba(255,255,255,0.9);
+            font-size: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
             height: 100%;
-            transition: color 0.2s;
+            transition: background 0.2s, color 0.2s;
         }
         .navbar-search button:hover {
+            background: rgba(255,255,255,0.22);
             color: #fff;
         }
         @media (max-width: 768px) {
@@ -1300,15 +1306,16 @@
                 right: 0;
                 max-width: 100%;
                 border-radius: 0;
+                height: 50px;
                 z-index: 999;
             }
         }
 
         /* ==================== NAV TOP BAR (Blog / links topo) ==================== */
         .header-top {
-            background: #f0f4ff;
-            border-bottom: 1px solid var(--border);
-            padding: 6px 20px;
+            background: #1a3a6b;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            padding: 7px 20px;
             display: flex;
             justify-content: flex-end;
             align-items: center;
@@ -1316,7 +1323,7 @@
         }
         .header-top a {
             font-size: 13px;
-            color: var(--primary-dark);
+            color: rgba(255,255,255,0.88);
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -1324,7 +1331,7 @@
             transition: color 0.2s;
         }
         .header-top a:hover {
-            color: var(--primary);
+            color: #fff;
         }
 
         /* ==================== WHATSAPP FLUTUANTE ==================== */
@@ -1427,6 +1434,93 @@
             padding: 10px 12px 12px;
         }
 
+
+        /* ==================== BARRA DE NAVEGAÇÃO SECUNDÁRIA (estilo Maxi Educa) ==================== */
+        .nav-secondary {
+            background: #1a3a6b;
+            border-top: 1px solid rgba(255,255,255,0.10);
+        }
+        .nav-secondary-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .nav-secondary-inner li {
+            position: relative;
+        }
+        .nav-secondary-inner li a,
+        .nav-secondary-inner li span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 22px;
+            color: rgba(255,255,255,0.92);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .nav-secondary-inner li a:hover,
+        .nav-secondary-inner li span:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+        .nav-secondary-inner li a i,
+        .nav-secondary-inner li span i {
+            font-size: 15px;
+            opacity: 0.85;
+        }
+        /* dropdown na barra secundária */
+        .nav-secondary-inner .dropdown-secondary {
+            position: relative;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            min-width: 220px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .nav-secondary-inner .dropdown-secondary:hover .dropdown-secondary-menu {
+            display: block;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            color: #1a3a6b;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0;
+            text-transform: none;
+            transition: background 0.18s;
+            cursor: pointer;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu a:hover {
+            background: #e8f0fb;
+            color: #0d2a55;
+        }
+        @media (max-width: 900px) {
+            .nav-secondary {
+                display: none;
+            }
+        }
+
         /* ==================== ADMIN SECTION LABEL ==================== */
         .admin-section-label {
             font-size: 13px;
@@ -1495,6 +1589,45 @@
         </nav>
     </header>
 
+    <!-- ==================== BARRA NAVEGAÇÃO SECUNDÁRIA (estilo Maxi Educa) ==================== -->
+    <nav class="nav-secondary">
+        <ul class="nav-secondary-inner" id="navSecondary">
+            <li>
+                <a href="#" onclick="navigateTo('home'); return false;">
+                    <i class="fas fa-home"></i> Início
+                </a>
+            </li>
+            <li class="dropdown-secondary">
+                <span>
+                    <i class="fas fa-th-large"></i> Categorias <i class="fas fa-chevron-down" style="font-size:11px;margin-left:2px;"></i>
+                </span>
+                <div class="dropdown-secondary-menu" id="categoriesDropdown2">
+                    <!-- Populado dinamicamente -->
+                </div>
+            </li>
+            <li>
+                <a href="#" onclick="filterProducts('lancamento'); return false;">
+                    <i class="fas fa-rocket"></i> Lançamentos
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="filterProducts('mais_vendida'); return false;">
+                    <i class="fas fa-fire"></i> Mais Vendidas
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="navigateTo('sobre'); return false;">
+                    <i class="fas fa-info-circle"></i> Sobre Nós
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="navigateTo('contato'); return false;">
+                    <i class="fas fa-headset"></i> Contato
+                </a>
+            </li>
+        </ul>
+    </nav>
+
     <!-- ==================== MAIN CONTENT ==================== -->
     <main id="mainContent">
         <!-- Content will be dynamically injected -->
@@ -1528,6 +1661,18 @@
                         <li><a href="#" onclick="showModal('termos')">Termos de Uso</a></li>
                     </ul>
                 </div>
+            </div>
+            <!-- Horário de atendimento -->
+            <div style="text-align:center; margin-bottom: 28px; padding: 20px; background: rgba(255,255,255,0.06); border-radius: 12px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                <p style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px;">
+                    <i class="fas fa-clock" style="color: #1E90FF; margin-right: 7px;"></i>Horário de Atendimento
+                </p>
+                <p style="font-size: 14px; color: rgba(255,255,255,0.80); line-height: 1.7;">
+                    Segunda a Sexta &nbsp;|&nbsp; <strong style="color:#fff;">09h00 às 17h00</strong>
+                </p>
+                <p style="font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px;">
+                    Atendimento exclusivamente via WhatsApp e e-mail
+                </p>
             </div>
             <div class="footer-bottom">
                 <p>© 2026 +QApostilas. Todos os direitos reservados.</p>
@@ -2675,11 +2820,14 @@
 
         function updateCategoriesDropdown() {
             const dropdown = document.getElementById('categoriesDropdown');
-            dropdown.innerHTML = appState.categorias.map(cat => `
+            const dropdown2 = document.getElementById('categoriesDropdown2');
+            const html = appState.categorias.map(cat => `
                 <a href="#" onclick="event.preventDefault(); filterByCategory(${cat.id})">
                     <i class="fas ${cat.icone}"></i> ${cat.nome}
                 </a>
             `).join('');
+            dropdown.innerHTML = html;
+            if (dropdown2) dropdown2.innerHTML = html;
         }
 
         function renderStars(rating) {
