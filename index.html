@@ -2119,8 +2119,12 @@
         </div>
     </div>
 
-    <!-- ==================== SUPABASE CONFIG ==================== -->
-    <script src="supabase-config.js"></script>
+    <!-- ==================== SUPABASE CONFIG (inline) ==================== -->
+    <script>
+        const SUPABASE_URL = 'https://cjawxciaybhgabxrrtdh.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_FxH-lFqnf-q0n_mq8sGqTg_eXN23k3Z';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
