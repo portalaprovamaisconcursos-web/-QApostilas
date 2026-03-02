@@ -3,75 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital. Apostilas para Prefeituras, Polícia, Saúde, Bancos, Educação e muito mais.">
-    <meta name="keywords" content="apostilas concursos públicos, apostila concurso, apostila digital, apostila prefeitura, apostila policia militar, apostila saúde, apostila banco, apostila educação, concurso público 2025, material de estudo concurso, apostila atualizada, apostila edital">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="+QApostilas">
+    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
     <title>+QApostilas - Apostilas para Concursos Públicos</title>
-
-    <!-- ==================== SEO: Canonical & Open Graph ==================== -->
-    <link rel="canonical" href="https://maisqapostilas.vercel.app/">
-
-    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://maisqapostilas.vercel.app/">
-    <meta property="og:site_name" content="+QApostilas">
-    <meta property="og:title" content="+QApostilas - Apostilas para Concursos Públicos">
-    <meta property="og:description" content="Apostilas 100% digitais, atualizadas conforme o último edital. Encontre material completo para Prefeituras, Polícia, Saúde, Bancos, Educação e mais!">
-    <meta property="og:image" content="https://maisqapostilas.vercel.app/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="pt_BR">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="+QApostilas - Apostilas para Concursos Públicos">
-    <meta name="twitter:description" content="Apostilas 100% digitais, atualizadas conforme o último edital. Material para Prefeituras, Polícia, Saúde, Bancos e muito mais!">
-    <meta name="twitter:image" content="https://maisqapostilas.vercel.app/og-image.jpg">
-
-    <!-- ==================== JSON-LD: Dados Estruturados ==================== -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "+QApostilas",
-      "url": "https://maisqapostilas.vercel.app/",
-      "logo": "https://maisqapostilas.vercel.app/logo.png",
-      "description": "Apostilas digitais atualizadas para concursos públicos. Material 100% digital conforme último edital.",
-      "email": "contato@qapostilas.com.br",
-      "sameAs": [
-        "https://maisqapostilas.blogspot.com/"
-      ]
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "+QApostilas",
-      "url": "https://maisqapostilas.vercel.app/",
-      "description": "Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://maisqapostilas.vercel.app/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Store",
-      "name": "+QApostilas",
-      "url": "https://maisqapostilas.vercel.app/",
-      "description": "Loja de apostilas digitais para concursos públicos",
-      "priceRange": "R$30 - R$150",
-      "currenciesAccepted": "BRL",
-      "paymentAccepted": "Cartão de crédito, PIX, Boleto",
-      "areaServed": "BR"
-    }
-    </script>
-
+    
     <!-- Favicon dinâmico (configurado via painel admin) -->
     <link rel="icon" id="site-favicon" href="" type="image/x-icon">
     
@@ -1305,279 +1239,44 @@
             font-weight: 800;
             color: #7C3AED;
         }
-
-        /* ==================== CATEGORY STRIP (NOVO) ==================== */
-        .category-strip {
-            background: var(--primary);
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        .category-strip::-webkit-scrollbar { display: none; }
-        .category-strip-inner {
-            display: flex;
-            align-items: center;
-            min-width: max-content;
-            padding: 0 10px;
-        }
-        .cat-strip-item {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 11px 16px;
-            color: rgba(255,255,255,0.9);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            text-decoration: none;
-        }
-        .cat-strip-item:last-child { border-right: none; }
-        .cat-strip-item:hover {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-        }
-        .cat-strip-item i { font-size: 13px; }
-        .cat-strip-blog {
-            background: rgba(255,255,255,0.12);
-            color: #fff !important;
-        }
-        .cat-strip-blog:hover {
-            background: rgba(255,255,255,0.25) !important;
-        }
-
-        /* ==================== NAVBAR NOVA (logo + busca) ==================== */
-        .navbar-search-bar {
-            flex: 1;
-            max-width: 560px;
-            display: flex;
-            align-items: center;
-            background: var(--bg);
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            padding: 0 16px;
-            gap: 10px;
-            transition: border-color 0.3s;
-        }
-        .navbar-search-bar:focus-within {
-            border-color: var(--primary);
-            background: var(--white);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        .navbar-search-bar input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 0;
-            font-size: 14px;
-            font-family: inherit;
-            outline: none;
-            color: var(--text);
-        }
-        .navbar-search-bar button {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 4px;
-        }
-
-        /* ==================== WHATSAPP FLOAT ==================== */
-        .whatsapp-float {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 9990;
-            width: 62px;
-            height: 62px;
-            background: #25D366;
-            border-radius: 50%;
-            box-shadow: 0 6px 20px rgba(37,211,102,0.5);
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: none;
-        }
-        .whatsapp-float.visible { display: flex !important; align-items: center; justify-content: center; }
-        .whatsapp-float:hover {
-            transform: scale(1.12);
-            box-shadow: 0 8px 28px rgba(37,211,102,0.65);
-        }
-        .whatsapp-float a {
-            color: #fff;
-            font-size: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-        }
-        .whatsapp-float-tooltip {
-            position: absolute;
-            right: 72px;
-            background: #075E54;
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 8px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
-        .whatsapp-float:hover .whatsapp-float-tooltip { opacity: 1; }
-
-        /* ==================== PRODUCT CARD SIMPLIFICADO ==================== */
-        .product-cargo-tag {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .price-box {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .price-a-vista {
-            font-size: 19px;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1.1;
-        }
-        .price-parcelas-text {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .price-de {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-decoration: line-through;
-        }
-
-        /* ==================== FOOTER MELHORADO ==================== */
-        .footer-social {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-        .footer-social a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 18px;
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-        .footer-social a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
-        .footer-horario {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-top: 14px;
-        }
-        .footer-horario i {
-            color: var(--primary);
-            font-size: 18px;
-            margin-top: 2px;
-            flex-shrink: 0;
-        }
-        .footer-horario-text strong {
-            display: block;
-            font-size: 13px;
-            margin-bottom: 2px;
-        }
-        .footer-horario-text span {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        .footer-reclame {
-            margin-top: 16px;
-        }
-        .footer-reclame a img {
-            max-height: 60px;
-            width: auto;
-            border-radius: 6px;
-            transition: opacity 0.2s;
-        }
-        .footer-reclame a img:hover { opacity: 0.85; }
-
-        /* ==================== RESPONSIVO NOVO HEADER ==================== */
-        @media (max-width: 768px) {
-            .navbar-search-bar { max-width: 100%; }
-            #mobileMenuBtn { display: flex !important; }
-            .admin-btn-text { display: none; }
-            .whatsapp-float { bottom: 20px; right: 16px; width: 54px; height: 54px; }
-            .whatsapp-float a { font-size: 28px; }
-        }
-        @media (max-width: 480px) {
-            .navbar { padding: 10px 12px; gap: 10px; }
-            .navbar-search-bar input { font-size: 13px; }
-        }
     </style>
 </head>
 <body>
     
     <!-- ==================== HEADER ==================== -->
     <header class="header">
-        <!-- Barra principal: Logo + Busca + Admin -->
         <nav class="navbar container">
             <div class="logo-container">
                 <img id="site-logo" class="logo" alt="Logo" style="display:none;">
-                <span id="logo-text-fallback" class="logo-text">+QApostilas</span>
             </div>
-
-            <!-- Busca inline no header -->
-            <div class="navbar-search-bar" id="headerSearchBar">
-                <input type="text" id="headerSearchInput" placeholder="Busque por concurso, cargo, órgão..." onkeyup="handleHeaderSearch()" onkeydown="if(event.key==='Enter') handleHeaderSearch()">
-                <button onclick="handleHeaderSearch()" aria-label="Buscar"><i class="fas fa-search"></i></button>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-                <button class="btn-admin" onclick="openAdminLogin()">
-                    <i class="fas fa-lock"></i>
-                    <span class="admin-btn-text">Admin</span>
-                </button>
-                <div class="menu-toggle" onclick="toggleMobileMenu()" id="mobileMenuBtn" style="display:none;">
-                    <span></span><span></span><span></span>
-                </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" onclick="navigateTo('home')">Início</a></li>
+                <li class="dropdown">
+                    <span class="dropdown-toggle">
+                        Categorias <i class="fas fa-chevron-down"></i>
+                    </span>
+                    <div class="dropdown-menu" id="categoriesDropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </li>
+                <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
+                <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
+                <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
+                <li><a href="#" onclick="navigateTo('contato')">Contato</a></li>
+            </ul>
+            
+            <button class="btn-admin" onclick="openAdminLogin()">
+                <i class="fas fa-lock"></i>
+                Admin
+            </button>
+            
+            <div class="menu-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </nav>
-        <!-- Mobile menu expandido (categorias + links) -->
-        <div class="nav-menu" id="navMenu" style="display:none;">
-            <ul id="mobileNavList" style="list-style:none;padding:10px 20px;display:flex;flex-direction:column;gap:8px;background:var(--white);border-top:1px solid var(--border);">
-                <li><a href="#" onclick="navigateTo('home');toggleMobileMenu()">🏠 Início</a></li>
-                <li><a href="#" onclick="filterProducts('lancamento');toggleMobileMenu()">🆕 Lançamentos</a></li>
-                <li><a href="#" onclick="filterProducts('mais_vendida');toggleMobileMenu()">⭐ Mais Vendidas</a></li>
-                <li><a href="#" onclick="navigateTo('sobre');toggleMobileMenu()">ℹ️ Sobre Nós</a></li>
-                <li><a href="#" onclick="navigateTo('contato');toggleMobileMenu()">📞 Contato</a></li>
-                <li><a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer">📝 Blog</a></li>
-            </ul>
-        </div>
     </header>
 
     <!-- ==================== MAIN CONTENT ==================== -->
@@ -1589,62 +1288,32 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <!-- Coluna 1: Sobre + Horário + Reclame Aqui -->
                 <div class="footer-section">
                     <h3>+QApostilas</h3>
                     <p>Sua melhor fonte de apostilas atualizadas para concursos públicos. Material 100% digital e sempre conforme o último edital.</p>
-                    <div class="footer-horario">
-                        <i class="fas fa-clock"></i>
-                        <div class="footer-horario-text">
-                            <strong>Horário de Atendimento</strong>
-                            <span>Segunda a Sexta: 9h às 18h</span>
-                        </div>
-                    </div>
-                    <div class="footer-reclame" id="footerReclameSeal">
-                        <!-- Seal dinâmico via JS -->
-                    </div>
                 </div>
-
-                <!-- Coluna 2: Links Úteis -->
                 <div class="footer-section">
                     <h3>Links Úteis</h3>
                     <ul class="footer-links">
                         <li><a href="#" onclick="navigateTo('home')">Início</a></li>
-                        <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
-                        <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
                         <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
                         <li><a href="#" onclick="navigateTo('contato')">Contato</a></li>
-                        <li><a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a></li>
                     </ul>
                 </div>
-
-                <!-- Coluna 3: Informações + Redes Sociais -->
                 <div class="footer-section">
                     <h3>Informações</h3>
                     <ul class="footer-links">
                         <li><a href="#" onclick="showModal('privacidade')">Política de Privacidade</a></li>
                         <li><a href="#" onclick="showModal('termos')">Termos de Uso</a></li>
                     </ul>
-                    <h3 style="margin-top:24px;">Redes Sociais</h3>
-                    <div class="footer-social" id="footerSocial">
-                        <!-- Populado via JS -->
-                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 +QApostilas. Todos os direitos reservados.</p>
+                <p>© 2025 +QApostilas. Todos os direitos reservados.</p>
                 <p style="margin-top: 8px; font-size: 14px;">Os produtos de parceiros são adquiridos diretamente no site oficial do parceiro. Somos apenas uma vitrine de organização.</p>
             </div>
         </div>
     </footer>
-
-    <!-- ==================== WHATSAPP FLUTUANTE ==================== -->
-    <div class="whatsapp-float" id="whatsappFloat">
-        <span class="whatsapp-float-tooltip">Fale conosco!</span>
-        <a href="#" id="whatsappFloatLink" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-            <i class="fab fa-whatsapp"></i>
-        </a>
-    </div>
 
     <!-- ==================== MODAL ==================== -->
     <div class="modal" id="globalModal">
@@ -1742,43 +1411,6 @@
                         <label>Senha Admin</label>
                         <input type="password" name="admin_password" id="config_admin_password">
                     </div>
-
-                    <hr style="margin:24px 0;border:none;border-top:2px solid var(--border);">
-                    <h4 style="margin-bottom:16px;color:var(--primary);">📱 Redes Sociais</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fab fa-instagram" style="color:#E1306C"></i> Instagram URL</label>
-                            <input type="url" name="instagram_url" id="config_instagram_url" placeholder="https://instagram.com/seuperfil">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fab fa-facebook" style="color:#1877F2"></i> Facebook URL</label>
-                            <input type="url" name="facebook_url" id="config_facebook_url" placeholder="https://facebook.com/suapagina">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fab fa-youtube" style="color:#FF0000"></i> YouTube URL</label>
-                            <input type="url" name="youtube_url" id="config_youtube_url" placeholder="https://youtube.com/@seucanal">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fab fa-tiktok" style="color:#010101"></i> TikTok URL</label>
-                            <input type="url" name="tiktok_url" id="config_tiktok_url" placeholder="https://tiktok.com/@seuperfil">
-                        </div>
-                    </div>
-
-                    <hr style="margin:24px 0;border:none;border-top:2px solid var(--border);">
-                    <h4 style="margin-bottom:16px;color:var(--primary);">🏆 Reclame Aqui</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-link" style="color:var(--primary)"></i> URL do Perfil no Reclame Aqui</label>
-                            <input type="url" name="reclame_aqui_url" id="config_reclame_aqui_url" placeholder="https://www.reclameaqui.com.br/empresa/...">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL da Imagem do Selo Reclame Aqui</label>
-                            <input type="url" name="reclame_aqui_image" id="config_reclame_aqui_image" placeholder="https://...imagem-do-selo.png">
-                            <small style="color:var(--text-muted)">Suba a imagem do selo em qualquer serviço (Imgur, Google Drive público, etc.) e cole a URL aqui.</small>
-                        </div>
-                    </div>
                     
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save"></i> Salvar Configurações
@@ -1859,13 +1491,6 @@
                             <div class="form-group">
                                 <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
                                 <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class=\"form-row\">
-                            <div class=\"form-group\">
-                                <label>💳 Parcelamento (sem juros) <small style=\"font-weight:400;color:var(--text-muted)\">(por produto)</small></label>
-                                <input type=\"number\" name=\"parcelas_max\" id=\"product_parcelas_max\" placeholder=\"6\" min=\"1\" max=\"24\" value=\"1\">
-                                <small style=\"color:var(--text-muted)\">Ex.: 6 para exibir “6x de R$ X,XX sem juros” no card. Se deixar 1, não mostra parcelamento.</small>
                             </div>
                         </div>
                         <div class="form-row">
@@ -2119,12 +1744,8 @@
         </div>
     </div>
 
-    <!-- ==================== SUPABASE CONFIG (inline) ==================== -->
-    <script>
-        const SUPABASE_URL = 'https://cjawxciaybhgabxrrtdh.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_FxH-lFqnf-q0n_mq8sGqTg_eXN23k3Z';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
+    <!-- ==================== SUPABASE CONFIG ==================== -->
+    <script src="supabase-config.js"></script>
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
@@ -2193,7 +1814,6 @@
             });
 
             // Update logo if exists
-            const logoFallback = document.getElementById('logo-text-fallback');
             if (appState.config.logo_url) {
                 const logoEl = document.getElementById('site-logo');
                 logoEl.src = appState.config.logo_url;
@@ -2202,9 +1822,6 @@
                 const logoH = parseInt(appState.config.logo_height) || 50;
                 logoEl.style.height = logoH + 'px';
                 logoEl.style.width = 'auto';
-                if (logoFallback) logoFallback.style.display = 'none';
-            } else {
-                if (logoFallback) logoFallback.style.display = 'block';
             }
 
             // Update favicon if exists
@@ -2212,10 +1829,6 @@
                 const faviconEl = document.getElementById('site-favicon');
                 faviconEl.href = appState.config.favicon_url;
             }
-
-            // Atualizar footer e category strip
-            updateFooter();
-            updateCategoryStrip();
         }
 
         async function loadCategorias() {
@@ -2231,8 +1844,6 @@
             
             // Update dropdown
             updateCategoriesDropdown();
-            updateCategoryStrip();
-            updateFooter();
         }
 
         async function loadProdutos() {
@@ -2268,13 +1879,7 @@
                 whatsapp: '5511999999999',
                 email: 'contato@qapostilas.com.br',
                 sobre_nos: 'Somos especializados em apostilas para concursos públicos. Todo nosso material é cuidadosamente preparado e atualizado conforme os editais mais recentes.',
-                admin_password: 'admin123',
-                instagram_url: '',
-                facebook_url: '',
-                youtube_url: '',
-                tiktok_url: '',
-                reclame_aqui_url: '',
-                reclame_aqui_image: ''
+                admin_password: 'admin123'
             };
 
             appState.categorias = [
@@ -2331,8 +1936,6 @@
             ];
 
             updateCategoriesDropdown();
-            updateCategoryStrip();
-            updateFooter();
         }
 
         // ==================== NAVIGATION ====================
@@ -2341,113 +1944,28 @@
             
             switch(view) {
                 case 'home':
-                    resetSEO();
                     renderHome();
                     break;
                 case 'produto':
                     renderProductDetail(data);
                     break;
                 case 'sobre':
-                    resetSEO();
                     renderSobre();
                     break;
                 case 'contato':
-                    resetSEO();
                     renderContato();
                     break;
             }
 
             // Close mobile menu
-            const _navMenu = document.getElementById('navMenu');
-            if (_navMenu) _navMenu.style.display = 'none';
+            document.getElementById('navMenu').classList.remove('active');
             
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ==================== CATEGORY STRIP ====================
-        function updateCategoryStrip() {
-            const strip = document.getElementById('categoryStripInner');
-            if (!strip) return;
-            const items = appState.categorias.map(cat => {
-                const icon = cat.imagem_url
-                    ? `<img src="${cat.imagem_url}" alt="${cat.nome}" style="width:16px;height:16px;object-fit:cover;border-radius:3px;">`
-                    : `<i class="fas ${cat.icone || 'fa-book'}"></i>`;
-                return `<span class="cat-strip-item" onclick="filterByCategory(${cat.id})">${icon} ${cat.nome}</span>`;
-            }).join('');
-            strip.innerHTML = items + `
-                <a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer" class="cat-strip-item cat-strip-blog">
-                    <i class="fas fa-newspaper"></i> Blog
-                </a>`;
-        }
-
-        // ==================== FOOTER DINÂMICO ====================
-        function updateFooter() {
-            const cfg = appState.config;
-            // Redes sociais
-            const socialEl = document.getElementById('footerSocial');
-            if (socialEl) {
-                const socials = [
-                    { key: 'instagram_url', icon: 'fab fa-instagram', label: 'Instagram' },
-                    { key: 'facebook_url', icon: 'fab fa-facebook-f', label: 'Facebook' },
-                    { key: 'youtube_url', icon: 'fab fa-youtube', label: 'YouTube' },
-                    { key: 'tiktok_url', icon: 'fab fa-tiktok', label: 'TikTok' }
-                ];
-                socialEl.innerHTML = socials
-                    .filter(s => cfg[s.key])
-                    .map(s => `<a href="${cfg[s.key]}" target="_blank" rel="noopener noreferrer" title="${s.label}"><i class="${s.icon}"></i></a>`)
-                    .join('');
-            }
-
-            // Reclame Aqui seal
-            const reclamaEl = document.getElementById('footerReclameSeal');
-            if (reclamaEl) {
-                if (cfg.reclame_aqui_image) {
-                    const link = cfg.reclame_aqui_url || '#';
-                    reclamaEl.innerHTML = `
-                        <a href="${link}" target="_blank" rel="noopener noreferrer" title="Ver perfil no Reclame Aqui">
-                            <img src="${cfg.reclame_aqui_image}" alt="Reclame Aqui" style="max-height:64px;width:auto;margin-top:12px;border-radius:6px;">
-                        </a>`;
-                } else {
-                    reclamaEl.innerHTML = '';
-                }
-            }
-
-            // WhatsApp float
-            const waFloat = document.getElementById('whatsappFloat');
-            const waLink = document.getElementById('whatsappFloatLink');
-            if (waFloat && waLink && cfg.whatsapp) {
-                waLink.href = 'https://wa.me/' + cfg.whatsapp;
-                waFloat.classList.add('visible');
-            } else if (waFloat) {
-                waFloat.classList.remove('visible');
-            }
-        }
-
-        // ==================== HEADER SEARCH ====================
-        function handleHeaderSearch() {
-            const searchText = document.getElementById('headerSearchInput').value.toLowerCase();
-            if (!searchText.trim()) {
-                navigateTo('home');
-                return;
-            }
-            appState.filters = { search: searchText, estado: '', categoria: '', type: '' };
-            let filtered = appState.produtos.filter(p =>
-                p.titulo.toLowerCase().includes(searchText) ||
-                p.orgao.toLowerCase().includes(searchText) ||
-                p.cargo.toLowerCase().includes(searchText) ||
-                (p.cidade && p.cidade.toLowerCase().includes(searchText))
-            );
-            renderFilteredResults(filtered, `Resultados para: "${searchText}"`);
-        }
-
-        // ==================== TOGGLE MOBILE MENU ====================
         function toggleMobileMenu() {
-            const navMenu = document.getElementById('navMenu');
-            if (navMenu) {
-                const isVisible = navMenu.style.display === 'block';
-                navMenu.style.display = isVisible ? 'none' : 'block';
-            }
+            document.getElementById('navMenu').classList.toggle('active');
         }
 
         // ==================== RENDER HOME ====================
@@ -2473,27 +1991,47 @@
                     </div>
                 </section>
 
-                <!-- Categorias (layout antigo: logo após o banner) -->
-                <section class="categories-section"> 
-                    <div class="container"> 
-                        <div class="section-header"> 
-                            <h2 class="section-title">Categorias</h2> 
-                            <p class="section-subtitle">Encontre apostilas por área de interesse</p> 
-                        </div> 
-                        <div class="categories-grid"> 
+                <!-- Search Section -->
+                <div class="container">
+                    <div class="search-section">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Busque por concurso, cargo, órgão..." onkeyup="handleSearch()">
+                            <select class="search-select" id="searchEstado" onchange="handleSearch()">
+                                <option value="">Todos os Estados</option>
+                                ${getUniqueEstados().map(e => `<option value="${e}">${e}</option>`).join('')}
+                            </select>
+                            <select class="search-select" id="searchCategoria" onchange="handleSearch()">
+                                <option value="">Todas as Categorias</option>
+                                ${appState.categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')}
+                            </select>
+                            <button class="btn btn-primary" onclick="handleSearch()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <section class="categories-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Categorias</h2>
+                            <p class="section-subtitle">Encontre apostilas por área de interesse</p>
+                        </div>
+                        <div class="categories-grid">
                             ${appState.categorias.map(cat => `
-                                <div class="category-card" onclick="filterByCategory(${cat.id})"> 
+                                <div class="category-card" onclick="filterByCategory(${cat.id})">
                                     <div class="category-icon">
                                         ${cat.imagem_url
                                             ? `<img src="${cat.imagem_url}" alt="${cat.nome}" style="width:60px;height:60px;object-fit:cover;border-radius:12px;">`
-                                            : `<i class="fas ${cat.icone || 'fa-book'}"></i>`
+                                            : `<i class="fas ${cat.icone}"></i>`
                                         }
                                     </div>
-                                    <div class="category-name">${cat.nome}</div> 
+                                    <div class="category-name">${cat.nome}</div>
                                 </div>
-                            `).join('')} 
-                        </div> 
-                    </div> 
+                            `).join('')}
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Destaques -->
@@ -2539,20 +2077,10 @@
         }
 
         function renderProductCard(produto) {
-            // Parcelamento
-            const parcMax = parseInt(produto.parcelas_max) || 1;
-            const preco = parseFloat(produto.preco) || 0;
-            const precoOriginal = parseFloat(produto.preco_original) || 0;
-            const valorParcela = parcMax > 1 ? (preco / parcMax) : 0;
-
-            const parcelaHtml = parcMax > 1
-                ? `<div class="price-parcelas-text">${parcMax}x de R$ ${formatPrice(valorParcela)} sem juros</div>`
-                : '';
-            const deHtml = precoOriginal > preco
-                ? `<div class="price-de">de R$ ${formatPrice(precoOriginal)}</div>`
-                : '';
-
-            return ` 
+            const categoria = produto.categorias ? produto.categorias.nome : '';
+            const stars = renderStars(produto.avaliacao_media || 5);
+            
+            return `
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
                     <div class="product-image-container">
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
@@ -2563,16 +2091,34 @@
                         </div>
                     </div>
                     <div class="product-content">
+                        <div class="product-category">${categoria}</div>
                         <h3 class="product-title">${produto.titulo}</h3>
-                        <div class="product-cargo-tag">
-                            <i class="fas fa-briefcase"></i>
-                            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${produto.cargo}</span>
+                        <div class="product-meta">
+                            <div><i class="fas fa-building"></i> ${produto.orgao}</div>
+                            <div><i class="fas fa-briefcase"></i> ${produto.cargo}</div>
+                            ${produto.estado ? `<div><i class="fas fa-map-marker-alt"></i> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
                         </div>
-                        <div class="price-box">
-                            ${deHtml}
-                            <div class="price-a-vista">R$ ${formatPrice(preco)}</div>
-                            ${parcelaHtml}
+                        <div class="product-rating">
+                            <div class="stars">${stars}</div>
+                            <span>(${produto.total_avaliacoes || 0})</span>
                         </div>
+                        <div class="product-prices">
+                            <div class="price-version-row">
+                                <span class="price-version-icon">📱</span>
+                                <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                                ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                            </div>
+                            ${produto.preco_impresso ? `
+                            <div class="price-version-row">
+                                <span class="price-version-icon">📖</span>
+                                <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" onclick="buyProduct(event, '${produto.link_compra}')">
+                            <i class="fas fa-shopping-cart"></i> 
+                            ${produto.tipo_botao === 'hotmart' ? 'Comprar Agora' : 'Comprar no Site'}
+                        </button>
                     </div>
                 </div>
             `;
@@ -2621,9 +2167,7 @@
             const produto = appState.produtos.find(p => p.id === productId);
             if (!produto) return;
 
-            // Atualiza SEO dinâmico para este produto
-            updateSEOForProduct(produto);
-
+            const stars = renderStars(produto.avaliacao_media || 5);
             const categoria = produto.categorias ? produto.categorias.nome : '';
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
 
@@ -3512,94 +3056,6 @@
             const cardWidth = card.offsetWidth + 18; // 18 = gap
             const scrollAmount = cardWidth * 2; // avança 2 cards por clique
             grid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-        }
-
-        // ==================== SEO DINÂMICO ====================
-        // Atualiza meta tags e JSON-LD para cada produto visualizado (melhora indexação)
-        function updateSEOForProduct(produto) {
-            if (!produto) return;
-            const title = `${produto.titulo} - ${produto.orgao} | +QApostilas`;
-            const desc = produto.descricao
-                ? produto.descricao.substring(0, 155) + (produto.descricao.length > 155 ? '...' : '')
-                : `Apostila para ${produto.cargo} - ${produto.orgao}. Material atualizado conforme o último edital.`;
-            const img = produto.capa_url || 'https://maisqapostilas.vercel.app/og-image.jpg';
-            const url = `https://maisqapostilas.vercel.app/?produto=${produto.slug || produto.id}`;
-
-            document.title = title;
-            const descEl = document.querySelector('meta[name="description"]');
-            if (descEl) descEl.setAttribute('content', desc);
-
-            const ogTitle = document.querySelector('meta[property="og:title"]');
-            const ogDesc = document.querySelector('meta[property="og:description"]');
-            const ogImg = document.querySelector('meta[property="og:image"]');
-            const ogUrl = document.querySelector('meta[property="og:url"]');
-            const twTitle = document.querySelector('meta[name="twitter:title"]');
-            const twDesc = document.querySelector('meta[name="twitter:description"]');
-            const twImg = document.querySelector('meta[name="twitter:image"]');
-            const canonical = document.querySelector('link[rel="canonical"]');
-
-            if (ogTitle) ogTitle.setAttribute('content', title);
-            if (ogDesc) ogDesc.setAttribute('content', desc);
-            if (ogImg) ogImg.setAttribute('content', img);
-            if (ogUrl) ogUrl.setAttribute('content', url);
-            if (twTitle) twTitle.setAttribute('content', title);
-            if (twDesc) twDesc.setAttribute('content', desc);
-            if (twImg) twImg.setAttribute('content', img);
-            if (canonical) canonical.setAttribute('href', url);
-
-            // JSON-LD do produto
-            const existingLdProduct = document.getElementById('ld-product');
-            if (existingLdProduct) existingLdProduct.remove();
-
-            const preco = parseFloat(produto.preco) || 0;
-            const precoOriginal = parseFloat(produto.preco_original) || preco;
-            const ldScript = document.createElement('script');
-            ldScript.type = 'application/ld+json';
-            ldScript.id = 'ld-product';
-            ldScript.textContent = JSON.stringify({
-                '@context': 'https://schema.org',
-                '@type': 'Product',
-                'name': produto.titulo,
-                'description': desc,
-                'image': img,
-                'brand': {
-                    '@type': 'Brand',
-                    'name': '+QApostilas'
-                },
-                'offers': {
-                    '@type': 'Offer',
-                    'url': url,
-                    'priceCurrency': 'BRL',
-                    'price': preco.toFixed(2),
-                    'availability': 'https://schema.org/InStock',
-                    'seller': {
-                        '@type': 'Organization',
-                        'name': '+QApostilas'
-                    }
-                },
-                'aggregateRating': produto.avaliacao_media ? {
-                    '@type': 'AggregateRating',
-                    'ratingValue': produto.avaliacao_media,
-                    'reviewCount': produto.total_avaliacoes || 1,
-                    'bestRating': 5,
-                    'worstRating': 1
-                } : undefined
-            });
-            document.head.appendChild(ldScript);
-        }
-
-        function resetSEO() {
-            document.title = '+QApostilas - Apostilas para Concursos Públicos';
-            const descEl = document.querySelector('meta[name="description"]');
-            if (descEl) descEl.setAttribute('content', '+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital. Apostilas para Prefeituras, Polícia, Saúde, Bancos, Educação e muito mais.');
-            const ogTitle = document.querySelector('meta[property="og:title"]');
-            if (ogTitle) ogTitle.setAttribute('content', '+QApostilas - Apostilas para Concursos Públicos');
-            const ogUrl = document.querySelector('meta[property="og:url"]');
-            if (ogUrl) ogUrl.setAttribute('content', 'https://maisqapostilas.vercel.app/');
-            const canonical = document.querySelector('link[rel="canonical"]');
-            if (canonical) canonical.setAttribute('href', 'https://maisqapostilas.vercel.app/');
-            const existingLdProduct = document.getElementById('ld-product');
-            if (existingLdProduct) existingLdProduct.remove();
         }
     </script>
 </body>
