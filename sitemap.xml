@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Página Principal -->
+  <url>
+    <loc>https://maisqapostilas.vercel.app/</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Categorias -->
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=prefeituras</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=policial</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=saude</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=bancos</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=educacao</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=administrativo</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?categoria=pre-venda</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Seções -->
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?view=sobre</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://maisqapostilas.vercel.app/?view=contato</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Blog -->
+  <url>
+    <loc>https://maisqapostilas.blogspot.com/</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
