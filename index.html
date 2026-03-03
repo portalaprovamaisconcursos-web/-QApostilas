@@ -1233,13 +1233,78 @@
         .price-impresso {
             font-size: 18px;
             font-weight: 800;
-            color: #7C3AED;
+            color: #1565C0;
         }
         .price-impresso-detail {
             font-size: 26px;
             font-weight: 800;
-            color: #7C3AED;
+            color: #1565C0;
         }
+
+
+        /* ==================== MODAL CAROUSEL ==================== */
+        .modal-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .modal-carousel-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+        }
+        .modal-carousel-slide {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-carousel-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .modal-car-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.92);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            color: var(--primary);
+        }
+        .modal-car-btn:hover { background: var(--primary); color: #fff; }
+        .modal-car-prev { left: 6px; }
+        .modal-car-next { right: 6px; }
+        .modal-car-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .modal-car-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-car-dot.active { background: var(--primary); }
 
         /* ==================== NAVBAR SEARCH (estilo Maxi Educa) ==================== */
         .navbar {
@@ -1912,11 +1977,14 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Categoria *</label>
-                                <select name="categoria_id" id="product_categoria_id" required>
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <label>Categorias <small style="font-weight:400;color:var(--text-muted)">(selecione uma ou mais — a primeira marcada será a categoria principal)</small></label>
+                                <div id="product_categorias_checkboxes" style="display:flex;flex-wrap:wrap;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;background:var(--bg-card);margin-top:4px;">
                                     <!-- Populated dynamically -->
-                                </select>
+                                </div>
+                                <!-- Hidden fields for compatibility -->
+                                <input type="hidden" id="product_categoria_id" name="categoria_id">
+                                <input type="hidden" id="product_categorias_ids" name="categorias_ids">
                             </div>
                         </div>
                         
@@ -2484,7 +2552,21 @@
         }
 
         function renderProductCard(produto) {
-            const categoria = produto.categorias ? produto.categorias.nome : '';
+            // Resolver nomes de todas as categorias do produto
+            let categoriasNomes = [];
+            if (produto.categorias_ids) {
+                try {
+                    const ids = JSON.parse(produto.categorias_ids);
+                    ids.forEach(id => {
+                        const cat = appState.categorias.find(c => c.id === id);
+                        if (cat) categoriasNomes.push(cat.nome);
+                    });
+                } catch(e) {}
+            }
+            if (categoriasNomes.length === 0 && produto.categorias) {
+                categoriasNomes.push(produto.categorias.nome);
+            }
+            const categoria = categoriasNomes.join(' · ');
             // Calcular parcela se disponível
             let parcelaHtml = '';
             if (produto.parcelas && produto.parcelas >= 2 && produto.preco) {
@@ -2567,20 +2649,48 @@
             if (!produto) return;
 
             const stars = renderStars(produto.avaliacao_media || 5);
-            const categoria = produto.categorias ? produto.categorias.nome : '';
+            // Resolver nomes de todas as categorias
+            let categoriasNomesDetail = [];
+            if (produto.categorias_ids) {
+                try {
+                    const idsDetail = JSON.parse(produto.categorias_ids);
+                    idsDetail.forEach(id => {
+                        const cat = appState.categorias.find(c => c.id === id);
+                        if (cat) categoriasNomesDetail.push(cat.nome);
+                    });
+                } catch(e) {}
+            }
+            if (categoriasNomesDetail.length === 0 && produto.categorias) {
+                categoriasNomesDetail.push(produto.categorias.nome);
+            }
+            const categoria = categoriasNomesDetail.join(' · ');
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
 
-            // Capas: digital obrigatória, impressa opcional
-            const coverHtml = produto.capa_url_impresso
-                ? `<div>
-                    <p style="text-align:center;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📱 Digital</p>
-                    <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
-                  </div>
-                  <div style="margin-top:16px;">
-                    <p style="text-align:center;font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📖 Impressa</p>
-                    <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/7C3AED/FFFFFF?text=Impressa'">
-                  </div>`
-                : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
+            // Capas: digital obrigatória, impressa opcional — carrossel quando ambas existem
+            let coverHtml;
+            if (produto.capa_url_impresso) {
+                coverHtml = `
+                <div class="modal-carousel" id="modalCarousel_${produto.id}">
+                    <div class="modal-carousel-track" id="modalCarouselTrack_${produto.id}">
+                        <div class="modal-carousel-slide">
+                            <p class="modal-carousel-label" style="color:var(--primary);">📱 Digital</p>
+                            <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                        </div>
+                        <div class="modal-carousel-slide">
+                            <p class="modal-carousel-label" style="color:#1565C0;">📖 Impressa</p>
+                            <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1565C0/FFFFFF?text=Impressa'">
+                        </div>
+                    </div>
+                    <button class="modal-car-btn modal-car-prev" onclick="modalCarMove('${produto.id}', -1)" aria-label="Anterior">&#8249;</button>
+                    <button class="modal-car-btn modal-car-next" onclick="modalCarMove('${produto.id}', 1)" aria-label="Próximo">&#8250;</button>
+                    <div class="modal-car-dots" id="modalCarDots_${produto.id}">
+                        <span class="modal-car-dot active" onclick="modalCarGo('${produto.id}', 0)"></span>
+                        <span class="modal-car-dot" onclick="modalCarGo('${produto.id}', 1)"></span>
+                    </div>
+                </div>`;
+            } else {
+                coverHtml = `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
+            }
 
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
@@ -2613,13 +2723,14 @@
                         <div class="product-prices" style="margin-bottom:16px;">
                             <div style="margin-bottom:8px;">
                                 <span style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📱 Versão Digital</span>
-                                <div style="display:flex;align-items:center;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                                     <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
                                     ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
                                 </div>
+                                ${produto.parcelas && produto.parcelas >= 2 && produto.preco ? `<div class="product-installment" style="margin-top:4px;">ou ${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco) / parseInt(produto.parcelas))} sem juros</div>` : ''}
                             </div>
                             ${produto.preco_impresso ? `<div>
-                                <span style="font-size:11px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
+                                <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
                                 <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
                             </div>` : ''}
                         </div>
@@ -2748,7 +2859,16 @@
 
         function filterByCategory(categoriaId) {
             appState.filters = { search: '', estado: '', categoria: categoriaId, type: '' };
-            const filtered = appState.produtos.filter(p => p.categoria_id === categoriaId);
+            const filtered = appState.produtos.filter(p => {
+                if (p.categoria_id === categoriaId) return true;
+                if (p.categorias_ids) {
+                    try {
+                        const ids = JSON.parse(p.categorias_ids);
+                        return ids.includes(categoriaId);
+                    } catch(e) {}
+                }
+                return false;
+            });
             const cat = appState.categorias.find(c => c.id === categoriaId);
             const titulo = cat ? cat.nome : 'Categoria';
             renderFilteredResults(filtered, titulo);
@@ -2955,11 +3075,8 @@
                 if (el) el.value = appState.config[key] || '';
             });
 
-            // Load categories for product form
-            const categorySelect = document.getElementById('product_categoria_id');
-            categorySelect.innerHTML = appState.categorias.map(c => 
-                `<option value="${c.id}">${c.nome}</option>`
-            ).join('');
+            // Load categories for product form (checkboxes)
+            populateCategoryCheckboxes();
 
             // Load tables
             loadProductsTable();
@@ -3007,6 +3124,40 @@
         }
 
         // ==================== PRODUCTS CRUD ====================
+        function populateCategoryCheckboxes(selectedIds = []) {
+            const container = document.getElementById('product_categorias_checkboxes');
+            if (!container) return;
+            container.innerHTML = appState.categorias.map(c => `
+                <label style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;background:${selectedIds.includes(c.id) ? 'var(--primary)' : 'transparent'};color:${selectedIds.includes(c.id) ? '#fff' : 'var(--text)'}" 
+                      onclick="toggleCatCheckbox(this, ${c.id})">
+                    <input type="checkbox" value="${c.id}" ${selectedIds.includes(c.id) ? 'checked' : ''} style="display:none;">
+                    <i class="fas ${c.icone || 'fa-tag'}" style="font-size:11px;"></i> ${c.nome}
+                </label>
+            `).join('');
+            syncCatHiddenFields();
+        }
+
+        function toggleCatCheckbox(label, catId) {
+            const cb = label.querySelector('input[type=checkbox]');
+            cb.checked = !cb.checked;
+            if (cb.checked) {
+                label.style.background = 'var(--primary)';
+                label.style.color = '#fff';
+            } else {
+                label.style.background = 'transparent';
+                label.style.color = 'var(--text)';
+            }
+            syncCatHiddenFields();
+        }
+
+        function syncCatHiddenFields() {
+            const container = document.getElementById('product_categorias_checkboxes');
+            if (!container) return;
+            const checked = Array.from(container.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
+            document.getElementById('product_categoria_id').value = checked.length > 0 ? checked[0] : '';
+            document.getElementById('product_categorias_ids').value = JSON.stringify(checked);
+        }
+
         function showProductForm(productId = null) {
             document.getElementById('productFormContainer').classList.remove('hidden');
             document.getElementById('productsTableContainer').classList.add('hidden');
@@ -3016,7 +3167,7 @@
                 if (produto) {
                     Object.keys(produto).forEach(key => {
                         const el = document.getElementById(`product_${key}`);
-                        if (el) {
+                        if (el && el.type !== 'hidden') {
                             if (el.type === 'checkbox') {
                                 el.checked = produto[key];
                             } else {
@@ -3024,10 +3175,19 @@
                             }
                         }
                     });
+                    // Rebuild category checkboxes with saved categories
+                    let savedIds = [];
+                    if (produto.categorias_ids) {
+                        try { savedIds = JSON.parse(produto.categorias_ids); } catch(e) {}
+                    } else if (produto.categoria_id) {
+                        savedIds = [parseInt(produto.categoria_id)];
+                    }
+                    populateCategoryCheckboxes(savedIds);
                 }
             } else {
                 document.getElementById('productForm').reset();
                 document.getElementById('product_id').value = '';
+                populateCategoryCheckboxes([]);
             }
         }
 
@@ -3501,6 +3661,32 @@
         });
 
         // ===== FUNÇÕES DO CARROSSEL =====
+
+        // ==================== MODAL CAROUSEL JS ====================
+        const _modalCarState = {};
+        function modalCarMove(pid, dir) {
+            if (!_modalCarState[pid]) _modalCarState[pid] = { idx: 0, total: 2 };
+            const state = _modalCarState[pid];
+            state.idx = Math.max(0, Math.min(state.total - 1, state.idx + dir));
+            modalCarApply(pid, state.idx);
+        }
+        function modalCarGo(pid, idx) {
+            if (!_modalCarState[pid]) _modalCarState[pid] = { idx: 0, total: 2 };
+            _modalCarState[pid].idx = idx;
+            modalCarApply(pid, idx);
+        }
+        function modalCarApply(pid, idx) {
+            const track = document.getElementById('modalCarouselTrack_' + pid);
+            if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+            const dotsEl = document.getElementById('modalCarDots_' + pid);
+            if (dotsEl) {
+                dotsEl.querySelectorAll('.modal-car-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === idx);
+                });
+            }
+            if (_modalCarState[pid]) _modalCarState[pid].idx = idx;
+        }
+
         function carouselScroll(gridId, direction) {
             const grid = document.getElementById(gridId);
             if (!grid) return;
