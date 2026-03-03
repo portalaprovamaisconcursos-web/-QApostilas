@@ -1190,6 +1190,73 @@
             display: none !important;
         }
 
+
+        /* ==================== DETAIL CAROUSEL ==================== */
+        .detail-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .detail-carousel-track {
+            display: flex;
+            transition: transform 0.4s ease;
+            will-change: transform;
+        }
+        .detail-carousel-slide {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .slide-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .slide-label.digital { color: var(--primary); }
+        .slide-label.impressa { color: #1565C0; }
+        .detail-carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.92);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        .detail-carousel-btn:hover { background: var(--primary); color: #fff; }
+        .detail-carousel-btn.prev { left: 6px; }
+        .detail-carousel-btn.next { right: 6px; }
+        .detail-carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .detail-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .detail-dot.active { background: var(--primary); }
+
         /* ==================== GRID ESTÁTICO (categoria / busca) ==================== */
         .products-grid-static {
             display: grid;
@@ -1233,12 +1300,12 @@
         .price-impresso {
             font-size: 18px;
             font-weight: 800;
-            color: #7C3AED;
+            color: #1565C0;
         }
         .price-impresso-detail {
             font-size: 26px;
             font-weight: 800;
-            color: #7C3AED;
+            color: #1565C0;
         }
 
         /* ==================== NAVBAR SEARCH (estilo Maxi Educa) ==================== */
@@ -1913,8 +1980,15 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Categoria *</label>
+                                <label>Categoria Principal *</label>
                                 <select name="categoria_id" id="product_categoria_id" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria Adicional <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: marca/editora)</small></label>
+                                <select name="categoria_id_2" id="product_categoria_id_2">
+                                    <option value="">-- Nenhuma --</option>
                                     <!-- Populated dynamically -->
                                 </select>
                             </div>
@@ -2206,17 +2280,25 @@
 
         // ==================== DATA LOADING ====================
         async function loadData() {
-            try {
-                await Promise.all([
-                    loadConfig(),
-                    loadCategorias(),
-                    loadProdutos(),
-                    loadDepoimentos()
-                ]);
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                showAlert('Erro ao carregar dados. Usando dados de demonstração.', 'error');
-                loadDemoData();
+            // ✅ Mais resiliente: se UMA consulta falhar, não derruba tudo.
+            // Só cai para dados de demonstração se TODAS falharem.
+            const results = await Promise.allSettled([
+                loadConfig(),
+                loadCategorias(),
+                loadProdutos(),
+                loadDepoimentos()
+            ]);
+
+            const rejected = results.filter(r => r.status === 'rejected');
+            if (rejected.length) {
+                console.error('Erro ao carregar dados (algumas consultas falharam):', rejected);
+
+                if (rejected.length === results.length) {
+                    showAlert('Erro ao carregar dados. Usando dados de demonstração.', 'error');
+                    loadDemoData();
+                } else {
+                    showAlert('Alguns dados não puderam ser carregados. Verifique o Supabase/console.', 'warning');
+                }
             }
         }
 
@@ -2266,14 +2348,20 @@
         }
 
         async function loadProdutos() {
+            // ✅ Correção importante:
+            // - Agora existem 2 FKs para categorias (categoria_id e categoria_id_2).
+            // - Fazer embed .select('*, categorias(...)') pode dar erro de relacionamento ambíguo no Supabase/PostgREST.
+            // Então carregamos apenas a tabela produtos e resolvemos nomes de categoria via lookup em appState.categorias.
+
             const { data, error } = await supabaseClient
                 .from('produtos')
-                .select('*, categorias(nome, slug)')
-                .eq('ativo', true)
+                .select('*')
                 .order('created_at', { ascending: false });
-            
+
             if (error) throw error;
-            appState.produtos = data;
+
+            appState.allProdutos = data || [];
+            appState.produtos = (data || []).filter(p => p.ativo);
         }
 
         async function loadDepoimentos() {
@@ -2484,7 +2572,14 @@
         }
 
         function renderProductCard(produto) {
-            const categoria = produto.categorias ? produto.categorias.nome : '';
+            // Categoria principal por lookup (evita depender de embed do Supabase)
+            const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
+            const categoria = cat1obj ? cat1obj.nome : '';
+
+            // Categoria adicional por lookup
+            const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
+            const categoria2 = cat2obj ? cat2obj.nome : '';
+
             // Calcular parcela se disponível
             let parcelaHtml = '';
             if (produto.parcelas && produto.parcelas >= 2 && produto.preco) {
@@ -2492,7 +2587,7 @@
                 parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
             }
             
-            return `
+            return `;
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
                     <div class="product-image-container">
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
@@ -2503,7 +2598,7 @@
                         </div>
                     </div>
                     <div class="product-content">
-                        <div class="product-category">${categoria}</div>
+                        <div class="product-category">${categoria}${categoria2 ? `<span style="margin:0 4px;opacity:0.5;">•</span>${categoria2}` : ''}</div>
                         <h3 class="product-title">${produto.titulo}</h3>
                         <div class="product-prices">
                             <div class="price-version-row">
@@ -2567,19 +2662,35 @@
             if (!produto) return;
 
             const stars = renderStars(produto.avaliacao_media || 5);
-            const categoria = produto.categorias ? produto.categorias.nome : '';
+
+            const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
+            const categoria = cat1obj ? cat1obj.nome : '';
+
+            const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
+            const categoria2 = cat2obj ? cat2obj.nome : '';
+
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
 
-            // Capas: digital obrigatória, impressa opcional
+            // Capas: digital obrigatória, impressa opcional — exibidas em carrossel
             const coverHtml = produto.capa_url_impresso
-                ? `<div>
-                    <p style="text-align:center;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📱 Digital</p>
-                    <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
-                  </div>
-                  <div style="margin-top:16px;">
-                    <p style="text-align:center;font-size:11px;font-weight:700;color:#7C3AED;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">📖 Impressa</p>
-                    <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/7C3AED/FFFFFF?text=Impressa'">
-                  </div>`
+                ? `<div class="detail-carousel" id="detailCarousel_${produto.id}">
+                    <div class="detail-carousel-track" id="detailCarouselTrack_${produto.id}">
+                        <div class="detail-carousel-slide">
+                            <p class="slide-label digital">📱 Digital</p>
+                            <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
+                        </div>
+                        <div class="detail-carousel-slide">
+                            <p class="slide-label impressa">📖 Impressa</p>
+                            <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1565C0/FFFFFF?text=Impressa'">
+                        </div>
+                    </div>
+                    <button class="detail-carousel-btn prev" onclick="detailCarouselPrev(${produto.id})" aria-label="Anterior">&#8249;</button>
+                    <button class="detail-carousel-btn next" onclick="detailCarouselNext(${produto.id})" aria-label="Próximo">&#8250;</button>
+                    <div class="detail-carousel-dots">
+                        <span class="detail-dot active" onclick="detailCarouselGoTo(${produto.id}, 0)"></span>
+                        <span class="detail-dot" onclick="detailCarouselGoTo(${produto.id}, 1)"></span>
+                    </div>
+                   </div>`
                 : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
 
             const modalBody = document.getElementById('modalBody');
@@ -2589,7 +2700,7 @@
                         ${coverHtml}
                     </div>
                     <div class="product-detail-info">
-                        <span class="product-category">${categoria}</span>
+                        <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
                         <h2>${produto.titulo}</h2>
                         
                         <div class="product-detail-badges">
@@ -2617,9 +2728,10 @@
                                     <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
                                     ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
                                 </div>
+                                ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
                             </div>
                             ${produto.preco_impresso ? `<div>
-                                <span style="font-size:11px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
+                                <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
                                 <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
                             </div>` : ''}
                         </div>
@@ -2748,7 +2860,10 @@
 
         function filterByCategory(categoriaId) {
             appState.filters = { search: '', estado: '', categoria: categoriaId, type: '' };
-            const filtered = appState.produtos.filter(p => p.categoria_id === categoriaId);
+            const filtered = appState.produtos.filter(p => 
+                p.categoria_id === categoriaId || 
+                (p.categoria_id_2 && p.categoria_id_2 === categoriaId)
+            );
             const cat = appState.categorias.find(c => c.id === categoriaId);
             const titulo = cat ? cat.nome : 'Categoria';
             renderFilteredResults(filtered, titulo);
@@ -2960,6 +3075,15 @@
             categorySelect.innerHTML = appState.categorias.map(c => 
                 `<option value="${c.id}">${c.nome}</option>`
             ).join('');
+            
+            // Populate second category select
+            const categorySelect2 = document.getElementById('product_categoria_id_2');
+            if (categorySelect2) {
+                categorySelect2.innerHTML = '<option value="">-- Nenhuma --</option>' +
+                    appState.categorias.map(c => 
+                        `<option value="${c.id}">${c.nome}</option>`
+                    ).join('');
+            }
 
             // Load tables
             loadProductsTable();
@@ -3043,37 +3167,52 @@
 
             for (let [key, value] of formData.entries()) {
                 if (key === 'id') continue;
-                
+
                 const el = document.getElementById(`product_${key}`);
                 if (el && el.type === 'checkbox') {
                     productData[key] = el.checked;
-                } else if (value) {
+                } else if (value !== null && value !== undefined && value !== '') {
                     productData[key] = value;
                 }
             }
 
+            // Tipagem básica (evita falhas de insert/update por tipo)
+            if (productData.categoria_id) productData.categoria_id = parseInt(productData.categoria_id);
+            if (productData.paginas) productData.paginas = parseInt(productData.paginas);
+            if (productData.parcelas) productData.parcelas = parseInt(productData.parcelas);
+            if (productData.preco) productData.preco = parseFloat(productData.preco);
+            if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
+            if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
+
             // Generate slug
-            if (!productData.slug) {
+            if (!productData.slug && productData.titulo) {
                 productData.slug = productData.titulo.toLowerCase()
                     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                    .replace(/[^a-z0-9]+/g, '-');
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/(^-|-$)/g, '');
+            }
+
+            // Handle optional categoria_id_2: if empty, set to null explicitly
+            const catId2El = document.getElementById('product_categoria_id_2');
+            if (catId2El) {
+                productData.categoria_id_2 = catId2El.value ? parseInt(catId2El.value) : null;
             }
 
             try {
                 const id = document.getElementById('product_id').value;
-                
+
                 if (id) {
-                    // Update
-                    await supabaseClient
+                    const { error } = await supabaseClient
                         .from('produtos')
                         .update(productData)
                         .eq('id', id);
+                    if (error) throw error;
                     showAlert('Produto atualizado com sucesso!', 'success');
                 } else {
-                    // Insert
-                    await supabaseClient
+                    const { error } = await supabaseClient
                         .from('produtos')
                         .insert([productData]);
+                    if (error) throw error;
                     showAlert('Produto criado com sucesso!', 'success');
                 }
 
@@ -3082,7 +3221,7 @@
                 hideProductForm();
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao salvar produto', 'error');
+                showAlert('Erro ao salvar produto: ' + (error.message || error), 'error');
             }
         }
 
@@ -3090,23 +3229,25 @@
             if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
             try {
-                await supabaseClient
+                const { error } = await supabaseClient
                     .from('produtos')
                     .delete()
                     .eq('id', id);
-                
+                if (error) throw error;
+
                 showAlert('Produto excluído com sucesso!', 'success');
                 await loadProdutos();
                 loadProductsTable();
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao excluir produto', 'error');
+                showAlert('Erro ao excluir produto: ' + (error.message || error), 'error');
             }
         }
 
         function loadProductsTable() {
             const tbody = document.getElementById('productsTableBody');
-            tbody.innerHTML = appState.produtos.map(p => `
+            const list = appState.allProdutos || appState.produtos;
+            tbody.innerHTML = (list || []).map(p => `
                 <tr>
                     <td>${p.titulo}</td>
                     <td>${p.orgao}</td>
@@ -3510,6 +3651,37 @@
             const scrollAmount = cardWidth * 2; // avança 2 cards por clique
             grid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         }
+
+        // ==================== DETAIL IMAGE CAROUSEL ====================
+        let detailCarouselState = {};
+
+        function detailCarouselPrev(productId) {
+            const state = detailCarouselState[productId] || { current: 0, total: 2 };
+            const newIdx = state.current > 0 ? state.current - 1 : state.total - 1;
+            detailCarouselGoTo(productId, newIdx);
+        }
+
+        function detailCarouselNext(productId) {
+            const state = detailCarouselState[productId] || { current: 0, total: 2 };
+            const newIdx = state.current < state.total - 1 ? state.current + 1 : 0;
+            detailCarouselGoTo(productId, newIdx);
+        }
+
+        function detailCarouselGoTo(productId, idx) {
+            const track = document.getElementById('detailCarouselTrack_' + productId);
+            if (!track) return;
+            const slides = track.querySelectorAll('.detail-carousel-slide');
+            const totalSlides = slides.length;
+            track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+            detailCarouselState[productId] = { current: idx, total: totalSlides };
+            const carousel = document.getElementById('detailCarousel_' + productId);
+            if (carousel) {
+                carousel.querySelectorAll('.detail-dot').forEach(function(dot, i) {
+                    dot.classList.toggle('active', i === idx);
+                });
+            }
+        }
+
     </script>
 </body>
 </html>
