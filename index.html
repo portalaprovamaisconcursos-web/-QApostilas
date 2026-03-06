@@ -5,7 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
     <title>+QApostilas - Apostilas para Concursos Públicos</title>
-    
+
+    <!-- ✅ SEO: URL Canônica -->
+    <link rel="canonical" href="https://www.maisqapostilas.com.br/" />
+
+    <!-- ✅ SEO: Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.maisqapostilas.com.br/" />
+    <meta property="og:title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta property="og:description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital. Encontre sua apostila agora!" />
+    <meta property="og:image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="+QApostilas" />
+
+    <!-- ✅ SEO: Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta name="twitter:description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital." />
+    <meta name="twitter:image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
+
+    <!-- ✅ SEO: Schema.org - Organização -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "+QApostilas",
+      "url": "https://www.maisqapostilas.com.br",
+      "description": "Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.",
+      "logo": "https://www.maisqapostilas.com.br/og-image.jpg"
+    }
+    </script>
+
+    <!-- ✅ SEO: Schema.org - WebSite com SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "+QApostilas",
+      "url": "https://www.maisqapostilas.com.br",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.maisqapostilas.com.br/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <!-- Favicon dinâmico (configurado via painel admin) -->
     <link rel="icon" id="site-favicon" href="" type="image/x-icon">
     
@@ -1497,10 +1542,6 @@
             color: var(--text-muted);
             margin-top: 2px;
         }
-        .product-installment.impresso {
-            color: #1565C0;
-            opacity: 0.9;
-        }
         .product-card .product-content {
             padding: 10px 12px 12px;
         }
@@ -1968,29 +2009,18 @@
                             </div>
                             <div class="form-group">
                                 <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00" oninput="calcularParcela()">
+                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>💳 Número de Parcelas (Digital) <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 6 para 6x sem juros)</small></label>
+                                <label>💳 Número de Parcelas <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 6 para 6x sem juros)</small></label>
                                 <input type="number" min="2" max="24" name="parcelas" id="product_parcelas" placeholder="Ex: 6" oninput="calcularParcela()">
                             </div>
                             <div class="form-group">
-                                <label>💳 Valor da Parcela (Digital) <small style="font-weight:400;color:var(--text-muted)">(calculado automaticamente)</small></label>
+                                <label>💳 Valor da Parcela (calculado automaticamente)</label>
                                 <input type="text" id="product_parcela_preview" placeholder="Ex: 6x de R$ 8,32 s/ juros" readonly style="background:#f5f5f5;cursor:default;">
                                 <small style="color:var(--text-muted)">Calculado automaticamente com base no preço digital ÷ número de parcelas.</small>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>💳 Número de Parcelas (Impresso) <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 10 para 10x sem juros)</small></label>
-                                <input type="number" min="2" max="24" name="parcelas_impresso" id="product_parcelas_impresso" placeholder="Ex: 10" oninput="calcularParcela()">
-                            </div>
-                            <div class="form-group">
-                                <label>💳 Valor da Parcela (Impresso) <small style="font-weight:400;color:var(--text-muted)">(calculado automaticamente)</small></label>
-                                <input type="text" id="product_parcela_preview_impresso" placeholder="Ex: 10x de R$ 9,58 s/ juros" readonly style="background:#f5f5f5;cursor:default;">
-                                <small style="color:var(--text-muted)">Calculado automaticamente com base no preço impresso ÷ número de parcelas.</small>
                             </div>
                         </div>
                         <div class="form-row">
@@ -2595,21 +2625,14 @@
             const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
             const categoria2 = cat2obj ? cat2obj.nome : '';
 
-            // Calcular parcela (digital)
+            // Calcular parcela se disponível
             let parcelaHtml = '';
             if (produto.parcelas && produto.parcelas >= 2 && produto.preco) {
                 const valorParcela = parseFloat(produto.preco) / parseInt(produto.parcelas);
                 parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
             }
-
-            // Calcular parcela (impresso)
-            let parcelaHtmlImpresso = '';
-            if (produto.parcelas_impresso && produto.parcelas_impresso >= 2 && produto.preco_impresso) {
-                const valorParcelaImpresso = parseFloat(produto.preco_impresso) / parseInt(produto.parcelas_impresso);
-                parcelaHtmlImpresso = `<div class=\"product-installment impresso\">${produto.parcelas_impresso}x de R$ ${formatPrice(valorParcelaImpresso)} s/ juros</div>`;
-            }
             
-            return `
+            return `;
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
                     <div class="product-image-container">
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
@@ -2633,7 +2656,6 @@
                                 <span class="price-version-icon">📖</span>
                                 <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
                             </div>
-                            ${parcelaHtmlImpresso}
                             ` : ''}
                         </div>
                     </div>
@@ -2756,7 +2778,6 @@
                             ${produto.preco_impresso ? `<div>
                                 <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
                                 <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
-                                ${produto.parcelas_impresso && produto.parcelas_impresso >= 2 ? `<div class="product-installment impresso" style="margin-top:4px;font-size:13px;">${produto.parcelas_impresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parseInt(produto.parcelas_impresso))} s/ juros</div>` : ''}
                             </div>` : ''}
                         </div>
 
@@ -3177,9 +3198,6 @@
                 document.getElementById('productForm').reset();
                 document.getElementById('product_id').value = '';
             }
-
-            // Atualiza previews de parcelamento ao abrir o formulário
-            setTimeout(() => calcularParcela(), 0);
         }
 
         function hideProductForm() {
@@ -3207,7 +3225,6 @@
             if (productData.categoria_id) productData.categoria_id = parseInt(productData.categoria_id);
             if (productData.paginas) productData.paginas = parseInt(productData.paginas);
             if (productData.parcelas) productData.parcelas = parseInt(productData.parcelas);
-            if (productData.parcelas_impresso) productData.parcelas_impresso = parseInt(productData.parcelas_impresso);
             if (productData.preco) productData.preco = parseFloat(productData.preco);
             if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
             if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
@@ -3650,30 +3667,15 @@
 
         // ==================== CALCULAR PARCELA (admin form) ====================
         function calcularParcela() {
-            // Digital
-            const preco = parseFloat(document.getElementById('product_preco')?.value) || 0;
-            const parcelas = parseInt(document.getElementById('product_parcelas')?.value) || 0;
+            const preco = parseFloat(document.getElementById('product_preco').value) || 0;
+            const parcelas = parseInt(document.getElementById('product_parcelas').value) || 0;
             const preview = document.getElementById('product_parcela_preview');
-            if (preview) {
-                if (preco > 0 && parcelas >= 2) {
-                    const valorParcela = preco / parcelas;
-                    preview.value = `${parcelas}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
-                } else {
-                    preview.value = '';
-                }
-            }
-
-            // Impresso
-            const precoImpresso = parseFloat(document.getElementById('product_preco_impresso')?.value) || 0;
-            const parcelasImpresso = parseInt(document.getElementById('product_parcelas_impresso')?.value) || 0;
-            const previewImpresso = document.getElementById('product_parcela_preview_impresso');
-            if (previewImpresso) {
-                if (precoImpresso > 0 && parcelasImpresso >= 2) {
-                    const valorParcelaImpresso = precoImpresso / parcelasImpresso;
-                    previewImpresso.value = `${parcelasImpresso}x de R$ ${valorParcelaImpresso.toFixed(2).replace('.', ',')} s/ juros`;
-                } else {
-                    previewImpresso.value = '';
-                }
+            if (!preview) return;
+            if (preco > 0 && parcelas >= 2) {
+                const valorParcela = preco / parcelas;
+                preview.value = `${parcelas}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
+            } else {
+                preview.value = '';
             }
         }
 
