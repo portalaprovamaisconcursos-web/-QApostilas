@@ -2009,7 +2009,7 @@
                             </div>
                             <div class="form-group">
                                 <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00">
+                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00" oninput="calcularParcela()">
                             </div>
                         </div>
                         <div class="form-row">
@@ -2023,6 +2023,19 @@
                                 <small style="color:var(--text-muted)">Calculado automaticamente com base no preço digital ÷ número de parcelas.</small>
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>💳 Número de Parcelas (Impressa) <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 10 para 10x sem juros)</small></label>
+                                <input type="number" min="2" max="24" name="parcelas_impresso" id="product_parcelas_impresso" placeholder="Ex: 10" oninput="calcularParcela()">
+                            </div>
+                            <div class="form-group">
+                                <label>💳 Valor da Parcela (Impressa) (calculado automaticamente)</label>
+                                <input type="text" id="product_parcela_preview_impresso" placeholder="Ex: 10x de R$ 12,34 s/ juros" readonly style="background:#f5f5f5;cursor:default;">
+                                <small style="color:var(--text-muted)">Calculado automaticamente com base no preço impresso ÷ número de parcelas (impressa).</small>
+                            </div>
+                        </div>
+                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Categoria Principal *</label>
@@ -2631,6 +2644,9 @@
                 const valorParcela = parseFloat(produto.preco) / parseInt(produto.parcelas);
                 parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
             }
+
+            // Parcelas separadas para impressa (fallback: usa parcelas do digital)
+            const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
             
             return `
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
@@ -2656,7 +2672,7 @@
                                 <span class="price-version-icon">📖</span>
                                 <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
                             </div>
-                            ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:2px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
+                            ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:2px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
                             ` : ''}
                         </div>
                     </div>
@@ -2716,6 +2732,9 @@
             const categoria2 = cat2obj ? cat2obj.nome : '';
 
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
+
+            // Parcelas separadas para impressa (fallback: usa parcelas do digital)
+            const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
 
             // Capas: digital obrigatória, impressa opcional — exibidas em carrossel
             const coverHtml = produto.capa_url_impresso
@@ -2779,7 +2798,7 @@
                             ${produto.preco_impresso ? `<div>
                                 <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
                                 <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
-                                ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
+                                ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
                             </div>` : ''}
                         </div>
 
@@ -3227,6 +3246,7 @@
             if (productData.categoria_id) productData.categoria_id = parseInt(productData.categoria_id);
             if (productData.paginas) productData.paginas = parseInt(productData.paginas);
             if (productData.parcelas) productData.parcelas = parseInt(productData.parcelas);
+            if (productData.parcelas_impresso) productData.parcelas_impresso = parseInt(productData.parcelas_impresso);
             if (productData.preco) productData.preco = parseFloat(productData.preco);
             if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
             if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
@@ -3669,15 +3689,32 @@
 
         // ==================== CALCULAR PARCELA (admin form) ====================
         function calcularParcela() {
-            const preco = parseFloat(document.getElementById('product_preco').value) || 0;
-            const parcelas = parseInt(document.getElementById('product_parcelas').value) || 0;
-            const preview = document.getElementById('product_parcela_preview');
-            if (!preview) return;
-            if (preco > 0 && parcelas >= 2) {
-                const valorParcela = preco / parcelas;
-                preview.value = `${parcelas}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
-            } else {
-                preview.value = '';
+            // ===== Digital =====
+            const precoDigital = parseFloat(document.getElementById('product_preco')?.value) || 0;
+            const parcelasDigital = parseInt(document.getElementById('product_parcelas')?.value) || 0;
+            const previewDigital = document.getElementById('product_parcela_preview');
+
+            if (previewDigital) {
+                if (precoDigital > 0 && parcelasDigital >= 2) {
+                    const valorParcela = precoDigital / parcelasDigital;
+                    previewDigital.value = `${parcelasDigital}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
+                } else {
+                    previewDigital.value = '';
+                }
+            }
+
+            // ===== Impressa =====
+            const precoImpresso = parseFloat(document.getElementById('product_preco_impresso')?.value) || 0;
+            const parcelasImpresso = parseInt(document.getElementById('product_parcelas_impresso')?.value) || 0;
+            const previewImpresso = document.getElementById('product_parcela_preview_impresso');
+
+            if (previewImpresso) {
+                if (precoImpresso > 0 && parcelasImpresso >= 2) {
+                    const valorParcela = precoImpresso / parcelasImpresso;
+                    previewImpresso.value = `${parcelasImpresso}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
+                } else {
+                    previewImpresso.value = '';
+                }
             }
         }
 
