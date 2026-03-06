@@ -1,13 +1,4 @@
-# robots.txt - +QApostilas
-# https://maisqapostilas.vercel.app/
-
 User-agent: *
 Allow: /
 
-# Arquivos que não precisam ser indexados
-Disallow: /supabase-config.js
-Disallow: /admin
-Disallow: /*.json$
-
-# Sitemap
-Sitemap: https://maisqapostilas.vercel.app/sitemap.xml
+Sitemap: https://www.maisqapostilas.com.br/sitemap.xml
