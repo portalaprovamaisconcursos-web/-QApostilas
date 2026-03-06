@@ -2632,7 +2632,7 @@
                 parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
             }
             
-            return `;
+            return `
                 <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
                     <div class="product-image-container">
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
@@ -2656,6 +2656,7 @@
                                 <span class="price-version-icon">📖</span>
                                 <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
                             </div>
+                            ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:2px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
                             ` : ''}
                         </div>
                     </div>
@@ -2778,6 +2779,7 @@
                             ${produto.preco_impresso ? `<div>
                                 <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
                                 <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
+                                ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
                             </div>` : ''}
                         </div>
 
