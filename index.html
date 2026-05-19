@@ -906,21 +906,41 @@
         /* ==================== PÁGINA DE PRODUTO ==================== */
         .product-detail {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(290px, 360px);
+            gap: 32px;
             margin-bottom: 40px;
+            align-items: start;
+        }
+
+        .product-detail-media {
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-detail-image,
+        .detail-carousel {
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto;
+            border-radius: 18px;
+            box-shadow: var(--shadow-md);
+            background: var(--white);
         }
 
         .product-detail-image {
-            width: 100%;
-            border-radius: 16px;
-            box-shadow: var(--shadow-md);
+            display: block;
         }
 
         .product-detail-info {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .product-detail-sidebar {
+            position: sticky;
+            top: 110px;
         }
 
         .product-detail-badges {
@@ -929,36 +949,161 @@
             gap: 10px;
         }
 
-        .content-programatico {
-            background: var(--primary-light);
-            padding: 24px;
-            border-radius: 12px;
-            margin-top: 30px;
+        .product-rating-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 18px;
         }
 
-        .content-programatico h3 {
-            margin-bottom: 16px;
-            color: var(--primary-dark);
+        .product-sku {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
+        .product-benefits {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .product-benefit-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .product-benefit-item i {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .product-benefit-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .product-benefit-text {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .product-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .product-summary-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+
+        .product-summary-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .product-summary-value {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .product-info-section {
+            margin-top: 32px;
+            background: var(--white);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .product-info-section h2 {
+            margin-bottom: 18px;
+        }
+
+        .description-list,
         .content-programatico ul {
             list-style: none;
             display: grid;
-            gap: 8px;
+            gap: 12px;
+        }
+
+        .description-item,
+        .content-programatico li {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 18px;
+        }
+
+        .description-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .description-value {
+            display: block;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        .description-paragraphs {
+            display: grid;
+            gap: 12px;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        .content-programatico {
+            background: var(--white);
+            padding: 28px;
+            border-radius: 24px;
+            margin-top: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .content-programatico h2 {
+            margin-bottom: 18px;
+            color: var(--primary-dark);
         }
 
         .content-programatico li {
-            padding: 8px 0;
-            padding-left: 24px;
             position: relative;
+            padding-left: 48px;
         }
 
         .content-programatico li::before {
             content: '✓';
             position: absolute;
-            left: 0;
+            left: 18px;
+            top: 16px;
             color: var(--success);
-            font-weight: bold;
+            font-weight: 900;
         }
 
         /* ==================== ADMIN PANEL ==================== */
@@ -1182,6 +1327,20 @@
             }
 
             .product-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .product-detail-media,
+            .product-detail-sidebar {
+                justify-content: center;
+            }
+
+            .product-detail-sidebar {
+                position: static;
+            }
+
+            .product-benefits,
+            .product-summary-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -3192,6 +3351,7 @@
 
             const mainContent = document.getElementById('mainContent');
             const stars = renderStars(produto.avaliacao_media || 5);
+            const ratingValue = formatRatingValue(produto.avaliacao_media || 5);
 
             const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
             const categoria = cat1obj ? cat1obj.nome : '';
@@ -3200,7 +3360,24 @@
             const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
             const categoria2 = cat2obj ? cat2obj.nome : '';
 
-            const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\\n').filter(c => c.trim()) : [];
+            const conteudos = parseContentProgramatico(produto.conteudo_programatico);
+            const descricaoHtml = renderDescriptionContent(produto.descricao);
+            const formats = getProductFormats(produto);
+            const currentOffer = getCurrentProductOffer(produto);
+            const deliveryText = formats.length > 1
+                ? 'Escolha entre digital e impressa'
+                : 'Liberação rápida após a compra';
+            const contentText = produto.atualizado_edital
+                ? 'Atualizado conforme o último edital'
+                : 'Material organizado por matérias';
+
+            const summaryItems = [
+                produto.orgao ? { label: 'Órgão', value: produto.orgao } : null,
+                produto.cargo ? { label: 'Cargo', value: produto.cargo } : null,
+                produto.estado ? { label: 'Localização', value: `${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}` } : null,
+                produto.paginas ? { label: 'Páginas', value: produto.paginas } : null
+            ].filter(Boolean);
+
             const coverHtml = produto.capa_url_impresso
                 ? `<div class="detail-carousel" id="detailCarousel_${produto.id}">
                     <div class="detail-carousel-track" id="detailCarouselTrack_${produto.id}">
@@ -3219,7 +3396,7 @@
                         <span class="detail-dot active" onclick="detailCarouselGoTo(${produto.id}, 0)"></span>
                         <span class="detail-dot" onclick="detailCarouselGoTo(${produto.id}, 1)"></span>
                     </div>
-                   </div>`
+                </div>`
                 : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
 
             mainContent.innerHTML = `
@@ -3235,12 +3412,20 @@
                         </div>
 
                         <div class="product-detail" style="background: var(--white); padding: 28px; border-radius: 24px; box-shadow: var(--shadow-md);">
-                            <div>
+                            <div class="product-detail-media">
                                 ${coverHtml}
                             </div>
+
                             <div class="product-detail-info">
                                 <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
-                                <h1 style="font-size: clamp(28px, 4vw, 42px); margin-top: 10px;">${produto.titulo}</h1>
+                                <h1 style="font-size: clamp(26px, 3.2vw, 38px); margin-top: 4px; line-height: 1.2;">${produto.titulo}</h1>
+
+                                <div class="product-rating-inline">
+                                    <div class="stars">${stars}</div>
+                                    <span><strong>${ratingValue}</strong></span>
+                                </div>
+
+                                ${produto.sku ? `<div class="product-sku">SKU: ${produto.sku}</div>` : ''}
 
                                 <div class="product-detail-badges">
                                     ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
@@ -3248,35 +3433,57 @@
                                     ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
                                 </div>
 
-                                <div class="product-meta" style="font-size: 16px; gap: 8px;">
-                                    <div><strong><i class="fas fa-building"></i> Órgão:</strong> ${produto.orgao}</div>
-                                    <div><strong><i class="fas fa-briefcase"></i> Cargo:</strong> ${produto.cargo}</div>
-                                    ${produto.estado ? `<div><strong><i class="fas fa-map-marker-alt"></i> Localização:</strong> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
-                                    ${produto.paginas ? `<div><strong><i class="fas fa-file-alt"></i> Páginas:</strong> ${produto.paginas}</div>` : ''}
+                                <div class="product-benefits">
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-bolt"></i>
+                                        <span class="product-benefit-title">Entrega</span>
+                                        <span class="product-benefit-text">${deliveryText}</span>
+                                    </div>
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-book-open"></i>
+                                        <span class="product-benefit-title">Conteúdo</span>
+                                        <span class="product-benefit-text">${contentText}</span>
+                                    </div>
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span class="product-benefit-title">Segurança</span>
+                                        <span class="product-benefit-text">Compra em ambiente protegido</span>
+                                    </div>
                                 </div>
 
-                                <div class="product-rating" style="font-size: 18px;">
-                                    <div class="stars">${stars}</div>
-                                    <span><strong>${produto.avaliacao_media || 5.0}</strong> (${produto.total_avaliacoes || 0} avaliações)</span>
-                                </div>
+                                ${summaryItems.length ? `
+                                    <div class="product-summary-grid">
+                                        ${summaryItems.map(item => `
+                                            <div class="product-summary-item">
+                                                <span class="product-summary-label">${item.label}</span>
+                                                <span class="product-summary-value">${item.value}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
 
+                            <aside class="product-detail-sidebar">
                                 <div id="productPurchaseBox_${produto.id}">
                                     ${renderProductPurchaseBox(produto)}
                                 </div>
 
-                                <p style="text-align: center; margin-top: -6px; margin-bottom: 10px; font-size: 13px; color: var(--text-muted); max-width: 380px;">
+                                <p style="text-align: center; margin-top: -6px; margin-bottom: 10px; font-size: 13px; color: var(--text-muted);">
                                     <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
                                 </p>
-                            </div>
+                                ${currentOffer?.badge ? `<p style="text-align: center; font-size: 13px; color: var(--text-muted);">Formato selecionado: <strong>${currentOffer.badge}</strong></p>` : ''}
+                            </aside>
                         </div>
 
-                        <div style="margin-top: 40px; background: var(--white); padding: 28px; border-radius: 24px; box-shadow: var(--shadow-sm);">
-                            <h2 style="margin-bottom: 16px;"><i class="fas fa-align-left"></i> Descrição</h2>
-                            <div style="line-height: 1.8; color: var(--text-muted);">${produto.descricao ? produto.descricao.replace(/\\n/g, '<br>') : ''}</div>
-                        </div>
+                        ${descricaoHtml ? `
+                            <div class="product-info-section">
+                                <h2><i class="fas fa-align-left"></i> Descrição do concurso</h2>
+                                ${descricaoHtml}
+                            </div>
+                        ` : ''}
 
                         ${conteudos.length > 0 ? `
-                            <div class="content-programatico" style="margin-top: 32px;">
+                            <div class="content-programatico">
                                 <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
                                 <ul>
                                     ${conteudos.map(c => `<li>${c}</li>`).join('')}
@@ -3291,7 +3498,7 @@
             appState.currentView = 'produto';
             setSeoMeta({
                 title: `${produto.titulo} | +QApostilas`,
-                description: produto.descricao ? produto.descricao.slice(0, 155) : `Confira os detalhes da apostila ${produto.titulo} na +QApostilas.`,
+                description: produto.descricao ? normalizeMultilineText(produto.descricao).replace(/\n/g, ' ').slice(0, 155) : `Confira os detalhes da apostila ${produto.titulo} na +QApostilas.`,
                 path: `/produto/${produto.slug}`,
                 image: produto.capa_url || DEFAULT_OG_IMAGE,
                 type: 'product',
@@ -3570,6 +3777,101 @@
 
         function formatPrice(price) {
             return parseFloat(price).toFixed(2).replace('.', ',');
+        }
+
+        function escapeRegExp(value) {
+            return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function normalizeMultilineText(text) {
+            return String(text || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\u2022/g, '\n')
+                .replace(/\s*[•·]\s*/g, '\n')
+                .replace(/\n{2,}/g, '\n')
+                .trim();
+        }
+
+        function formatRatingValue(rating) {
+            return Number(rating || 0).toFixed(1);
+        }
+
+        function parseContentProgramatico(text) {
+            return normalizeMultilineText(text)
+                .replace(/\s*[;|]+\s*/g, '\n')
+                .split('\n')
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
+        const PRODUCT_DESCRIPTION_FIELDS = [
+            'Vagas',
+            'Inscrições',
+            'Salário',
+            'Taxa de inscrição',
+            'Prova',
+            'Banca organizadora'
+        ];
+
+        function parseStructuredDescription(text) {
+            const normalized = normalizeMultilineText(text);
+            if (!normalized) return [];
+
+            const flattened = normalized
+                .replace(/\n+/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+
+            const labelPatterns = PRODUCT_DESCRIPTION_FIELDS.map(label => ({
+                label,
+                pattern: escapeRegExp(label).replace(/\s+/g, '\\s+')
+            }));
+            const allLabelsPattern = labelPatterns.map(item => item.pattern).join('|');
+
+            return labelPatterns.map(({ label, pattern }) => {
+                const regex = new RegExp(`${pattern}\\s*[:\\-–]?\\s*([\\s\\S]*?)(?=(?:${allLabelsPattern})\\s*[:\\-–]?|$)`, 'i');
+                const match = flattened.match(regex);
+                if (!match) return null;
+
+                const value = match[1]
+                    .trim()
+                    .replace(/^[:\\-–]+/, '')
+                    .replace(/[|•;,]+$/, '')
+                    .trim();
+
+                return value ? { label, value } : null;
+            }).filter(Boolean);
+        }
+
+        function renderDescriptionContent(text) {
+            const structuredItems = parseStructuredDescription(text);
+            if (structuredItems.length) {
+                return `
+                    <ul class="description-list">
+                        ${structuredItems.map(item => `
+                            <li class="description-item">
+                                <span class="description-label">${item.label}</span>
+                                <span class="description-value">${item.value}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            }
+
+            const lines = normalizeMultilineText(text)
+                .split('\n')
+                .map(line => line.trim())
+                .filter(Boolean);
+
+            if (!lines.length) return '';
+
+            return `
+                <div class="description-paragraphs">
+                    ${lines.map(line => `<p>${line}</p>`).join('')}
+                </div>
+            `;
         }
 
         function buyProduct(event, url) {
@@ -4311,6 +4613,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
