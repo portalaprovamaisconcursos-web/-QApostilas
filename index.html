@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
+    <meta name="description" id="meta-description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
     <title>+QApostilas - Apostilas para Concursos Públicos</title>
 
     <!-- ✅ SEO: URL Canônica -->
-    <link rel="canonical" href="https://www.maisqapostilas.com.br/" />
+    <link rel="canonical" id="canonical-link" href="https://www.maisqapostilas.com.br/" />
 
     <!-- ✅ SEO: Open Graph (Facebook, WhatsApp, LinkedIn) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.maisqapostilas.com.br/" />
-    <meta property="og:title" content="+QApostilas - Apostilas para Concursos Públicos" />
-    <meta property="og:description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital. Encontre sua apostila agora!" />
-    <meta property="og:image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
+    <meta property="og:type" id="meta-og-type" content="website" />
+    <meta property="og:url" id="meta-og-url" content="https://www.maisqapostilas.com.br/" />
+    <meta property="og:title" id="meta-og-title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta property="og:description" id="meta-og-description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital. Encontre sua apostila agora!" />
+    <meta property="og:image" id="meta-og-image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:site_name" content="+QApostilas" />
 
     <!-- ✅ SEO: Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="+QApostilas - Apostilas para Concursos Públicos" />
-    <meta name="twitter:description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital." />
-    <meta name="twitter:image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
+    <meta name="twitter:title" id="meta-twitter-title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta name="twitter:description" id="meta-twitter-description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital." />
+    <meta name="twitter:image" id="meta-twitter-image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
 
     <!-- ✅ SEO: Schema.org - Organização -->
     <script type="application/ld+json">
@@ -35,6 +35,8 @@
       "logo": "https://www.maisqapostilas.com.br/og-image.jpg"
     }
     </script>
+
+    <script type="application/ld+json" id="dynamic-schema"></script>
 
     <!-- ✅ SEO: Schema.org - WebSite com SearchAction -->
     <script type="application/ld+json">
@@ -1655,7 +1657,7 @@
             <a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer">
                 <i class="fas fa-newspaper"></i> Blog
             </a>
-            <a href="#" onclick="navigateTo('contato'); return false;">
+            <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
                 <i class="fas fa-headset"></i> Contato
             </a>
         </div>
@@ -1674,7 +1676,7 @@
             </div>
             
             <ul class="nav-menu" id="navMenu">
-                <li><a href="#" onclick="navigateTo('home')">Início</a></li>
+                <li><a href="/" onclick="event.preventDefault(); navigateTo('home')">Início</a></li>
                 <li class="dropdown">
                     <span class="dropdown-toggle">
                         Categorias <i class="fas fa-chevron-down"></i>
@@ -1685,7 +1687,7 @@
                 </li>
                 <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
                 <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
-                <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
+                <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
             </ul>
             
             <button class="btn-admin" onclick="openAdminLogin()">
@@ -1705,7 +1707,7 @@
     <nav class="nav-secondary">
         <ul class="nav-secondary-inner" id="navSecondary">
             <li>
-                <a href="#" onclick="navigateTo('home'); return false;">
+                <a href="/" onclick="event.preventDefault(); navigateTo('home');">
                     <i class="fas fa-home"></i> Início
                 </a>
             </li>
@@ -1728,12 +1730,12 @@
                 </a>
             </li>
             <li>
-                <a href="#" onclick="navigateTo('sobre'); return false;">
+                <a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre');">
                     <i class="fas fa-info-circle"></i> Sobre Nós
                 </a>
             </li>
             <li>
-                <a href="#" onclick="navigateTo('contato'); return false;">
+                <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
                     <i class="fas fa-headset"></i> Contato
                 </a>
             </li>
@@ -1760,9 +1762,9 @@
                 <div class="footer-section">
                     <h3>Links Úteis</h3>
                     <ul class="footer-links">
-                        <li><a href="#" onclick="navigateTo('home')">Início</a></li>
-                        <li><a href="#" onclick="navigateTo('sobre')">Sobre Nós</a></li>
-                        <li><a href="#" onclick="navigateTo('contato')">Contato</a></li>
+                        <li><a href="/" onclick="event.preventDefault(); navigateTo('home')">Início</a></li>
+                        <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
+                        <li><a href="/contato" onclick="event.preventDefault(); navigateTo('contato')">Contato</a></li>
                         <li><a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper"></i> Blog</a></li>
                     </ul>
                 </div>
@@ -2315,13 +2317,155 @@
             }
         };
 
+        const SITE_URL = 'https://www.maisqapostilas.com.br';
+        const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+        const DEFAULT_SEO = {
+            title: '+QApostilas - Apostilas para Concursos Públicos',
+            description: '+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.',
+            path: '/',
+            image: DEFAULT_OG_IMAGE,
+            type: 'website'
+        };
+
+        function normalizePath(pathname = '/') {
+            const clean = (pathname || '/').replace(/\/+$|^$/, '');
+            return clean ? (clean.startsWith('/') ? clean : `/${clean}`) : '/';
+        }
+
+        function getAbsoluteUrl(path = '/') {
+            return `${SITE_URL}${normalizePath(path)}`;
+        }
+
+        function buildRoute(viewOrPath, data = null) {
+            if (typeof viewOrPath === 'string' && viewOrPath.startsWith('/')) return normalizePath(viewOrPath);
+
+            switch (viewOrPath) {
+                case 'home':
+                    return '/';
+                case 'sobre':
+                    return '/sobre';
+                case 'contato':
+                    return '/contato';
+                case 'categoria': {
+                    const categoria = appState.categorias.find(c => c.id === data || c.slug === data);
+                    return categoria?.slug ? `/categoria/${categoria.slug}` : '/';
+                }
+                case 'produto': {
+                    const produto = appState.produtos.find(p => p.id === data || p.slug === data);
+                    return produto?.slug ? `/produto/${produto.slug}` : '/';
+                }
+                default:
+                    return '/';
+            }
+        }
+
+        function setSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, type = 'website', schema = null }) {
+            const absoluteUrl = getAbsoluteUrl(path);
+            document.title = title;
+
+            const mappings = [
+                ['meta-description', description, 'content'],
+                ['canonical-link', absoluteUrl, 'href'],
+                ['meta-og-url', absoluteUrl, 'content'],
+                ['meta-og-title', title, 'content'],
+                ['meta-og-description', description, 'content'],
+                ['meta-og-image', image, 'content'],
+                ['meta-og-type', type, 'content'],
+                ['meta-twitter-title', title, 'content'],
+                ['meta-twitter-description', description, 'content'],
+                ['meta-twitter-image', image, 'content']
+            ];
+
+            mappings.forEach(([id, value, attr]) => {
+                const el = document.getElementById(id);
+                if (el && value) el.setAttribute(attr, value);
+            });
+
+            const schemaEl = document.getElementById('dynamic-schema');
+            if (schemaEl) {
+                const fallbackSchema = {
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: title,
+                    description,
+                    url: absoluteUrl
+                };
+                schemaEl.textContent = JSON.stringify(schema || fallbackSchema, null, 2);
+            }
+        }
+
+        function closeNavMenu() {
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) navMenu.classList.remove('active');
+        }
+
+        function renderNotFound() {
+            appState.currentView = 'notfound';
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 80px 20px; min-height: 60vh;">
+                    <div class="container">
+                        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+                            <div style="font-size: 72px; color: var(--primary); margin-bottom: 18px;"><i class="fas fa-map-signs"></i></div>
+                            <h1 style="margin-bottom: 12px;">Página não encontrada</h1>
+                            <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 28px;">O endereço acessado não foi encontrado. Você pode voltar para a página inicial e continuar navegando normalmente.</p>
+                            <button class="btn btn-primary" onclick="navigateTo('home')">
+                                <i class="fas fa-home"></i> Ir para a Home
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            `;
+            setSeoMeta({
+                title: 'Página não encontrada | +QApostilas',
+                description: 'A página solicitada não foi encontrada no site +QApostilas.',
+                path: normalizePath(window.location.pathname),
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: 'Página não encontrada',
+                    description: 'A página solicitada não foi encontrada no site +QApostilas.',
+                    url: getAbsoluteUrl(normalizePath(window.location.pathname))
+                }
+            });
+        }
+
+        function router(options = {}) {
+            const { scroll = false } = options;
+            closeModal();
+            closeNavMenu();
+
+            const currentPath = normalizePath(window.location.pathname);
+            const parts = currentPath.split('/').filter(Boolean);
+
+            if (currentPath === '/') {
+                renderHome();
+            } else if (currentPath === '/sobre') {
+                renderSobre();
+            } else if (currentPath === '/contato') {
+                renderContato();
+            } else if (parts[0] === 'categoria' && parts[1]) {
+                filterByCategory(decodeURIComponent(parts[1]), { navigate: false });
+            } else if (parts[0] === 'produto' && parts[1]) {
+                renderProductDetail(decodeURIComponent(parts[1]), { navigate: false });
+            } else {
+                renderNotFound();
+            }
+
+            if (scroll) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', async () => {
             // Check if Supabase is configured
             if (typeof supabaseClient === 'undefined') {
                 showAlert('Supabase não configurado. Configure o arquivo supabase-config.js', 'warning');
                 loadDemoData();
-                renderHome();
+                window.addEventListener('popstate', () => router());
+                router();
+                updateFooterSocials();
                 return;
             }
 
@@ -2332,7 +2476,8 @@
             }
 
             await loadData();
-            renderHome();
+            window.addEventListener('popstate', () => router());
+            router();
             updateFooterSocials();
         });
 
@@ -2510,29 +2655,17 @@
         }
 
         // ==================== NAVIGATION ====================
-        function navigateTo(view, data = null) {
-            appState.currentView = view;
-            
-            switch(view) {
-                case 'home':
-                    renderHome();
-                    break;
-                case 'produto':
-                    renderProductDetail(data);
-                    break;
-                case 'sobre':
-                    renderSobre();
-                    break;
-                case 'contato':
-                    renderContato();
-                    break;
+        function navigateTo(viewOrPath, data = null, options = {}) {
+            const path = buildRoute(viewOrPath, data);
+            const shouldReplace = options.replace === true;
+
+            if (shouldReplace) {
+                window.history.replaceState({}, '', path);
+            } else if (window.location.pathname !== path) {
+                window.history.pushState({}, '', path);
             }
 
-            // Close mobile menu
-            document.getElementById('navMenu').classList.remove('active');
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            router({ scroll: options.scroll !== false });
         }
 
         function toggleMobileMenu() {
@@ -2541,6 +2674,7 @@
 
         // ==================== RENDER HOME ====================
         function renderHome() {
+            appState.currentView = 'home';
             const mainContent = document.getElementById('mainContent');
             const bannerUrl = appState.config.banner_url || '';
             const bannerTitle = appState.config.banner_title || 'Apostilas Atualizadas para Concursos Públicos';
@@ -2573,7 +2707,7 @@
                         </div>
                         <div class="categories-grid">
                             ${appState.categorias.map(cat => `
-                                <div class="category-card" onclick="filterByCategory(${cat.id})">
+                                <div class="category-card" onclick="navigateTo('categoria', '${cat.slug}')">
                                     <div class="category-icon">
                                         ${cat.imagem_url
                                             ? `<img src="${cat.imagem_url}" alt="${cat.nome}" style="width:60px;height:60px;object-fit:cover;border-radius:12px;">`
@@ -2602,6 +2736,17 @@
                 <!-- Depoimentos -->
                 ${renderTestimonialsSection()}
             `;
+
+            setSeoMeta({
+                ...DEFAULT_SEO,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: '+QApostilas - Apostilas para Concursos Públicos',
+                    description: DEFAULT_SEO.description,
+                    url: getAbsoluteUrl('/')
+                }
+            });
         }
 
         function renderProductsSection(id, title, produtos) {
@@ -2649,7 +2794,7 @@
             const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
             
             return `
-                <div class="product-card" onclick="navigateTo('produto', ${produto.id})">
+                <div class="product-card" onclick="navigateTo('produto', '${produto.slug}')">
                     <div class="product-image-container">
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
                         <div class="product-badges">
@@ -2719,24 +2864,25 @@
         }
 
         // ==================== RENDER PRODUCT DETAIL ====================
-        function renderProductDetail(productId) {
-            const produto = appState.produtos.find(p => p.id === productId);
-            if (!produto) return;
+        function renderProductDetail(productRef, options = {}) {
+            const produto = appState.produtos.find(p => p.id === productRef || p.slug === productRef);
+            if (!produto) {
+                renderNotFound();
+                return;
+            }
 
+            const mainContent = document.getElementById('mainContent');
             const stars = renderStars(produto.avaliacao_media || 5);
 
             const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
             const categoria = cat1obj ? cat1obj.nome : '';
+            const categoriaSlug = cat1obj ? cat1obj.slug : '';
 
             const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
             const categoria2 = cat2obj ? cat2obj.nome : '';
 
             const conteudos = produto.conteudo_programatico ? produto.conteudo_programatico.split('\n').filter(c => c.trim()) : [];
-
-            // Parcelas separadas para impressa (fallback: usa parcelas do digital)
             const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
-
-            // Capas: digital obrigatória, impressa opcional — exibidas em carrossel
             const coverHtml = produto.capa_url_impresso
                 ? `<div class="detail-carousel" id="detailCarousel_${produto.id}">
                     <div class="detail-carousel-track" id="detailCarouselTrack_${produto.id}">
@@ -2758,82 +2904,121 @@
                    </div>`
                 : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
 
-            const modalBody = document.getElementById('modalBody');
-            modalBody.innerHTML = `
-                <div class="product-detail">
-                    <div>
-                        ${coverHtml}
-                    </div>
-                    <div class="product-detail-info">
-                        <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
-                        <h2>${produto.titulo}</h2>
-                        
-                        <div class="product-detail-badges">
-                            ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
-                            <span class="badge badge-info"><i class="fas fa-mobile-alt"></i> 100% Digital - Envio automático após compra</span>
-                            ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 60px 20px; min-height: 60vh;">
+                    <div class="container">
+                        <div style="margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <button class="btn btn-primary" onclick="navigateTo('home')" style="padding: 12px 18px;">
+                                <i class="fas fa-arrow-left"></i> Voltar para a Home
+                            </button>
+                            ${categoriaSlug ? `<button class="btn" onclick="navigateTo('categoria', '${categoriaSlug}')" style="padding: 12px 18px; background: var(--white); border: 1px solid var(--border);">
+                                <i class="fas fa-folder-open"></i> Ver categoria ${categoria}
+                            </button>` : ''}
                         </div>
 
-                        <div class="product-meta" style="font-size: 16px; gap: 8px;">
-                            <div><strong><i class="fas fa-building"></i> Órgão:</strong> ${produto.orgao}</div>
-                            <div><strong><i class="fas fa-briefcase"></i> Cargo:</strong> ${produto.cargo}</div>
-                            ${produto.estado ? `<div><strong><i class="fas fa-map-marker-alt"></i> Localização:</strong> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
-                            ${produto.paginas ? `<div><strong><i class="fas fa-file-alt"></i> Páginas:</strong> ${produto.paginas}</div>` : ''}
-                        </div>
-
-                        <div class="product-rating" style="font-size: 18px;">
-                            <div class="stars">${stars}</div>
-                            <span><strong>${produto.avaliacao_media || 5.0}</strong> (${produto.total_avaliacoes || 0} avaliações)</span>
-                        </div>
-
-                        <div class="product-prices" style="margin-bottom:16px;">
-                            <div style="margin-bottom:8px;">
-                                <span style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📱 Versão Digital</span>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
-                                    ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
-                                </div>
-                                ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
+                        <div class="product-detail" style="background: var(--white); padding: 28px; border-radius: 24px; box-shadow: var(--shadow-md);">
+                            <div>
+                                ${coverHtml}
                             </div>
-                            ${produto.preco_impresso ? `<div>
-                                <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
-                                <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
-                                ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
-                            </div>` : ''}
+                            <div class="product-detail-info">
+                                <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
+                                <h1 style="font-size: clamp(28px, 4vw, 42px); margin-top: 10px;">${produto.titulo}</h1>
+
+                                <div class="product-detail-badges">
+                                    ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
+                                    <span class="badge badge-info"><i class="fas fa-mobile-alt"></i> 100% Digital - Envio automático após compra</span>
+                                    ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+                                </div>
+
+                                <div class="product-meta" style="font-size: 16px; gap: 8px;">
+                                    <div><strong><i class="fas fa-building"></i> Órgão:</strong> ${produto.orgao}</div>
+                                    <div><strong><i class="fas fa-briefcase"></i> Cargo:</strong> ${produto.cargo}</div>
+                                    ${produto.estado ? `<div><strong><i class="fas fa-map-marker-alt"></i> Localização:</strong> ${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}</div>` : ''}
+                                    ${produto.paginas ? `<div><strong><i class="fas fa-file-alt"></i> Páginas:</strong> ${produto.paginas}</div>` : ''}
+                                </div>
+
+                                <div class="product-rating" style="font-size: 18px;">
+                                    <div class="stars">${stars}</div>
+                                    <span><strong>${produto.avaliacao_media || 5.0}</strong> (${produto.total_avaliacoes || 0} avaliações)</span>
+                                </div>
+
+                                <div class="product-prices" style="margin-bottom:16px;">
+                                    <div style="margin-bottom:8px;">
+                                        <span style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📱 Versão Digital</span>
+                                        <div style="display:flex;align-items:center;gap:10px; flex-wrap: wrap;">
+                                            <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                                            ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                                        </div>
+                                        ${produto.parcelas && produto.parcelas >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${produto.parcelas}x de R$ ${formatPrice(parseFloat(produto.preco) / parseInt(produto.parcelas))} s/ juros</div>` : ''}
+                                    </div>
+                                    ${produto.preco_impresso ? `<div>
+                                        <span style="font-size:11px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;">📖 Versão Impressa</span>
+                                        <span class="price-impresso-detail">R$ ${formatPrice(produto.preco_impresso)}</span>
+                                        ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:4px;font-size:13px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
+                                    </div>` : ''}
+                                </div>
+
+                                <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" style="width: 100%; padding: 18px; font-size: 18px;" onclick="buyProduct(event, '${produto.link_compra}')">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    ${produto.tipo_botao === 'hotmart' ? '🛒 Comprar Agora na Hotmart' : '🌐 Comprar no Site Oficial'}
+                                </button>
+
+                                <p style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+                                    <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
+                                </p>
+                            </div>
                         </div>
 
-                        <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" style="width: 100%; padding: 18px; font-size: 18px;" onclick="buyProduct(event, '${produto.link_compra}')">
-                            <i class="fas fa-shopping-cart"></i> 
-                            ${produto.tipo_botao === 'hotmart' ? '🛒 Comprar Agora na Hotmart' : '🌐 Comprar no Site Oficial'}
-                        </button>
+                        <div style="margin-top: 40px; background: var(--white); padding: 28px; border-radius: 24px; box-shadow: var(--shadow-sm);">
+                            <h2 style="margin-bottom: 16px;"><i class="fas fa-align-left"></i> Descrição</h2>
+                            <div style="line-height: 1.8; color: var(--text-muted);">${produto.descricao ? produto.descricao.replace(/\n/g, '<br>') : ''}</div>
+                        </div>
 
-                        <p style="text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted);">
-                            <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
-                        </p>
+                        ${conteudos.length > 0 ? `
+                            <div class="content-programatico" style="margin-top: 32px;">
+                                <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
+                                <ul>
+                                    ${conteudos.map(c => `<li>${c}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
                     </div>
-                </div>
-
-                <div style="margin-top: 40px;">
-                    <h3 style="margin-bottom: 16px;"><i class="fas fa-align-left"></i> Descrição</h3>
-                    <div style="line-height: 1.8; color: var(--text-muted);">${produto.descricao ? produto.descricao.replace(/\n/g, '<br>') : ''}</div>
-                </div>
-
-                ${conteudos.length > 0 ? `
-                    <div class="content-programatico">
-                        <h3><i class="fas fa-list-check"></i> Conteúdo Programático</h3>
-                        <ul>
-                            ${conteudos.map(c => `<li>${c}</li>`).join('')}
-                        </ul>
-                    </div>
-                ` : ''}
+                </section>
             `;
 
-            document.getElementById('modalTitle').textContent = produto.titulo;
-            document.getElementById('globalModal').classList.add('active');
+            appState.currentView = 'produto';
+            setSeoMeta({
+                title: `${produto.titulo} | +QApostilas`,
+                description: produto.descricao ? produto.descricao.slice(0, 155) : `Confira os detalhes da apostila ${produto.titulo} na +QApostilas.`,
+                path: `/produto/${produto.slug}`,
+                image: produto.capa_url || DEFAULT_OG_IMAGE,
+                type: 'product',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'Product',
+                    name: produto.titulo,
+                    description: produto.descricao || `Apostila para ${produto.cargo}`,
+                    image: produto.capa_url ? [produto.capa_url] : [DEFAULT_OG_IMAGE],
+                    category: [categoria, categoria2].filter(Boolean).join(' / '),
+                    brand: {
+                        '@type': 'Brand',
+                        name: '+QApostilas'
+                    },
+                    offers: {
+                        '@type': 'Offer',
+                        priceCurrency: 'BRL',
+                        price: produto.preco,
+                        availability: 'https://schema.org/InStock',
+                        url: getAbsoluteUrl(`/produto/${produto.slug}`)
+                    },
+                    url: getAbsoluteUrl(`/produto/${produto.slug}`)
+                }
+            });
         }
 
         // ==================== RENDER SOBRE ====================
         function renderSobre() {
+            appState.currentView = 'sobre';
             const mainContent = document.getElementById('mainContent');
             const sobreText = appState.config.sobre_nos || 'Somos especializados em apostilas para concursos públicos.';
 
@@ -2851,10 +3036,24 @@
                     </div>
                 </section>
             `;
+
+            setSeoMeta({
+                title: 'Sobre Nós | +QApostilas',
+                description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' ').slice(0, 155),
+                path: '/sobre',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'AboutPage',
+                    name: 'Sobre Nós | +QApostilas',
+                    description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' '),
+                    url: getAbsoluteUrl('/sobre')
+                }
+            });
         }
 
         // ==================== RENDER CONTATO ====================
         function renderContato() {
+            appState.currentView = 'contato';
             const mainContent = document.getElementById('mainContent');
             const whatsapp = appState.config.whatsapp || '';
             const email = appState.config.email || '';
@@ -2895,6 +3094,19 @@
                     </div>
                 </section>
             `;
+
+            setSeoMeta({
+                title: 'Contato | +QApostilas',
+                description: 'Entre em contato com a +QApostilas por WhatsApp ou e-mail para tirar dúvidas sobre apostilas e concursos públicos.',
+                path: '/contato',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'ContactPage',
+                    name: 'Contato | +QApostilas',
+                    description: 'Entre em contato com a +QApostilas por WhatsApp ou e-mail.',
+                    url: getAbsoluteUrl('/contato')
+                }
+            });
         }
 
         // ==================== FILTERS & SEARCH ====================
@@ -2924,15 +3136,37 @@
             renderFilteredResults(filtered, 'Resultados para: "' + searchText + '"');
         }
 
-        function filterByCategory(categoriaId) {
-            appState.filters = { search: '', estado: '', categoria: categoriaId, type: '' };
+        function filterByCategory(categoriaRef, options = {}) {
+            const categoria = appState.categorias.find(c => c.id === categoriaRef || c.slug === categoriaRef);
+            if (!categoria) {
+                renderNotFound();
+                return;
+            }
+
+            if (options.navigate !== false) {
+                navigateTo('categoria', categoria.slug);
+                return;
+            }
+
+            appState.currentView = 'categoria';
+            appState.filters = { search: '', estado: '', categoria: categoria.id, type: '' };
             const filtered = appState.produtos.filter(p => 
-                p.categoria_id === categoriaId || 
-                (p.categoria_id_2 && p.categoria_id_2 === categoriaId)
+                p.categoria_id === categoria.id || 
+                (p.categoria_id_2 && p.categoria_id_2 === categoria.id)
             );
-            const cat = appState.categorias.find(c => c.id === categoriaId);
-            const titulo = cat ? cat.nome : 'Categoria';
-            renderFilteredResults(filtered, titulo);
+
+            renderFilteredResults(filtered, categoria.nome, {
+                title: `${categoria.nome} | +QApostilas`,
+                description: `Confira as apostilas da categoria ${categoria.nome} na +QApostilas.`,
+                path: `/categoria/${categoria.slug}`,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: `${categoria.nome} | +QApostilas`,
+                    description: `Confira as apostilas da categoria ${categoria.nome} na +QApostilas.`,
+                    url: getAbsoluteUrl(`/categoria/${categoria.slug}`)
+                }
+            });
         }
 
         function filterProducts(type) {
@@ -2963,7 +3197,7 @@
             renderFilteredResults(filtered, titulos[type] || 'Resultados');
         }
 
-        function renderFilteredResults(produtos, titulo = 'Resultados da Busca') {
+        function renderFilteredResults(produtos, titulo = 'Resultados da Busca', seo = null) {
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = `
                 <section class="products-section" style="padding: 60px 20px; min-height: 60vh;">
@@ -2989,6 +3223,10 @@
                     </div>
                 </section>
             `;
+
+            if (seo) {
+                setSeoMeta(seo);
+            }
         }
 
         // ==================== UTILITIES ====================
@@ -3003,7 +3241,7 @@
             const dropdown = document.getElementById('categoriesDropdown');
             const dropdown2 = document.getElementById('categoriesDropdown2');
             const html = appState.categorias.map(cat => `
-                <a href="#" onclick="event.preventDefault(); filterByCategory(${cat.id})">
+                <a href="/categoria/${cat.slug}" onclick="event.preventDefault(); filterByCategory('${cat.slug}')">
                     <i class="fas ${cat.icone}"></i> ${cat.nome}
                 </a>
             `).join('');
