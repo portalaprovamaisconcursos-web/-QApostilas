@@ -906,9 +906,9 @@
         /* ==================== PÁGINA DE PRODUTO ==================== */
         .product-detail {
             display: grid;
-            grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(290px, 360px);
-            gap: 32px;
-            margin-bottom: 40px;
+            grid-template-columns: minmax(260px, 360px) minmax(0, 1fr) minmax(270px, 320px);
+            gap: 28px;
+            margin-bottom: 32px;
             align-items: start;
         }
 
@@ -920,7 +920,7 @@
 
         .product-cover-shell {
             width: 100%;
-            max-width: 340px;
+            max-width: 380px;
             margin: 0 auto;
             display: flex;
             justify-content: center;
@@ -931,25 +931,37 @@
         .product-detail-image,
         .detail-carousel {
             width: 100%;
-            max-width: 340px;
+            max-width: 380px;
             margin: 0 auto;
-            border-radius: 0;
-            box-shadow: none;
-            background: transparent;
+            border-radius: 18px;
+            box-shadow: var(--shadow-sm);
+            background: var(--white);
+            border: 1px solid var(--border);
         }
 
         .product-detail-image {
             display: block;
             width: 100%;
             height: auto;
+            aspect-ratio: 21 / 29.7;
             object-fit: contain;
+            padding: 10px;
         }
 
         .product-detail-info {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             min-width: 0;
+            padding-top: 4px;
+        }
+
+        .product-detail-title {
+            font-size: clamp(22px, 2.4vw, 30px);
+            line-height: 1.22;
+            letter-spacing: -0.02em;
+            margin: 2px 0 0;
+            color: var(--text);
         }
 
         .product-detail-sidebar {
@@ -960,19 +972,24 @@
         .product-detail-badges {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+        }
+
+        .product-detail-badges .badge {
+            font-size: 12px;
+            padding: 7px 12px;
         }
 
         .product-rating-inline {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .product-sku {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
             font-weight: 600;
         }
@@ -980,11 +997,11 @@
         .product-benefits {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
 
         .product-benefit-item {
-            background: var(--bg);
+            background: var(--white);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 14px 12px;
@@ -992,7 +1009,7 @@
         }
 
         .product-benefit-item i {
-            font-size: 18px;
+            font-size: 17px;
             color: var(--primary);
             margin-bottom: 8px;
         }
@@ -1014,116 +1031,170 @@
 
         .product-summary-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-width: 340px;
         }
 
         .product-summary-item {
-            background: var(--white);
+            background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 14px 16px;
+            padding: 13px 15px;
         }
 
         .product-summary-label {
             display: block;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             letter-spacing: 0.4px;
             text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
         }
 
         .product-summary-value {
             display: block;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--text);
             line-height: 1.5;
         }
 
         .product-info-section {
-            margin-top: 32px;
+            margin-top: 28px;
             background: var(--white);
-            padding: 28px;
-            border-radius: 24px;
+            padding: 24px;
+            border-radius: 22px;
             box-shadow: var(--shadow-sm);
         }
 
         .product-info-section h2 {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .description-list,
-        .content-programatico ul {
+        .content-programatico ul,
+        .bonus-list {
             list-style: none;
             display: grid;
-            gap: 12px;
+            gap: 10px;
         }
 
         .description-item,
-        .content-programatico li {
+        .content-programatico li,
+        .bonus-list li {
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px 18px;
+            border-radius: 14px;
+            padding: 14px 16px;
         }
 
         .description-label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: 0.4px;
             text-transform: uppercase;
             color: var(--primary-dark);
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
 
         .description-value {
             display: block;
-            line-height: 1.7;
-            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text);
         }
 
         .description-paragraphs {
             display: grid;
-            gap: 12px;
-            line-height: 1.8;
+            gap: 10px;
+            line-height: 1.7;
             color: var(--text-muted);
+            font-size: 15px;
         }
 
         .content-programatico {
             background: var(--white);
-            padding: 28px;
-            border-radius: 24px;
-            margin-top: 32px;
+            padding: 24px;
+            border-radius: 22px;
+            margin-top: 28px;
             box-shadow: var(--shadow-sm);
         }
 
         .content-programatico h2 {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             color: var(--primary-dark);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .content-programatico li {
             position: relative;
-            padding-left: 48px;
+            padding-left: 42px;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .content-programatico li::before {
             content: '✓';
             position: absolute;
-            left: 18px;
-            top: 16px;
+            left: 16px;
+            top: 14px;
             color: var(--success);
+            font-weight: 900;
+        }
+
+        .product-bonus-box {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid #B7E4C7;
+            background: linear-gradient(180deg, #F2FBF6 0%, #FFFFFF 100%);
+        }
+
+        .product-bonus-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #167C3A;
+            margin-bottom: 12px;
+        }
+
+        .bonus-list li {
+            position: relative;
+            padding-left: 42px;
+            background: var(--white);
+            border-color: #D7F0DE;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .bonus-list li::before {
+            content: '★';
+            position: absolute;
+            left: 16px;
+            top: 14px;
+            color: #16A34A;
+            font-size: 14px;
             font-weight: 900;
         }
 
         .product-detail-sections {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 24px;
+            gap: 20px;
             align-items: start;
         }
 
@@ -1133,29 +1204,12 @@
         }
 
         .product-share-box {
-            margin-top: 16px;
-            padding: 18px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .product-share-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
-        .product-share-text {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 14px;
+            margin-top: 14px;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
         }
 
         .product-share-button {
@@ -1163,6 +1217,7 @@
             justify-content: center;
             border-radius: 999px;
             padding: 14px 18px;
+            font-weight: 700;
         }
 
         /* ==================== ADMIN PANEL ==================== */
@@ -1577,22 +1632,22 @@
         .purchase-box {
             background: var(--white);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 22px;
+            border-radius: 22px;
+            padding: 20px;
             box-shadow: var(--shadow-sm);
-            margin: 8px 0 20px;
-            max-width: 380px;
+            margin: 0 0 14px auto;
+            max-width: 320px;
         }
         .purchase-box-price-top {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            min-height: 22px;
-            margin-bottom: 6px;
+            min-height: auto;
+            margin-bottom: 4px;
         }
         .purchase-box-original {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-muted);
             text-decoration: line-through;
         }
@@ -1600,41 +1655,42 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 5px 10px;
+            padding: 4px 9px;
             border-radius: 999px;
             background: #FF4D4F;
             color: var(--white);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.3px;
         }
         .purchase-box-current {
-            font-size: clamp(34px, 4vw, 42px);
+            font-size: clamp(30px, 3.4vw, 38px);
             font-weight: 800;
             line-height: 1;
             color: var(--success);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .purchase-box-installment {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-muted);
-            margin-bottom: 16px;
+            line-height: 1.45;
+            margin-bottom: 14px;
         }
         .purchase-box-label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .purchase-box-select {
             width: 100%;
-            padding: 14px 16px;
-            border-radius: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
             border: 1.5px solid var(--border);
             background: var(--white);
-            font-size: 15px;
-            margin-bottom: 16px;
+            font-size: 14px;
+            margin-bottom: 14px;
         }
         .purchase-box-select:focus {
             border-color: var(--primary);
@@ -1645,23 +1701,30 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 999px;
             background: var(--primary-light);
             color: var(--primary-dark);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+        }
+        .purchase-box-action {
+            width: 100%;
+            padding: 15px 18px;
+            font-size: 16px;
+            border-radius: 999px;
         }
         .purchase-box-secure {
             text-align: center;
-            margin-top: 12px;
-            font-size: 13px;
+            margin-top: 10px;
+            font-size: 12px;
             color: var(--text-muted);
         }
         @media (max-width: 768px) {
             .purchase-box {
                 max-width: none;
+                margin-right: 0;
             }
         }
 
@@ -3041,7 +3104,7 @@
                     price: precoDigital,
                     originalPrice: precoOriginal > precoDigital ? precoOriginal : null,
                     installments: parseInt(produto?.parcelas) || 0,
-                    buttonText: produto.tipo_botao === 'hotmart' ? '🛒 Comprar versão digital' : '🌐 Comprar versão digital'
+                    buttonText: 'Comprar'
                 });
             }
 
@@ -3053,7 +3116,7 @@
                     price: precoImpresso,
                     originalPrice: precoOriginal > precoImpresso ? precoOriginal : null,
                     installments: parseInt(produto?.parcelas_impresso ?? produto?.parcelas) || 0,
-                    buttonText: produto.tipo_botao === 'hotmart' ? '🛒 Comprar versão impressa' : '🌐 Comprar versão impressa'
+                    buttonText: 'Comprar'
                 });
             }
 
@@ -3119,13 +3182,12 @@
                     <div class="purchase-box-current">R$ ${formatPrice(currentOffer.price)}</div>
                     ${installmentText ? `<div class="purchase-box-installment">${installmentText}</div>` : ''}
                     ${formats.length > 1 ? `
-                        <label class="purchase-box-label" for="format_selector_${produto.id}">Escolha o formato</label>
+                        <label class="purchase-box-label" for="format_selector_${produto.id}">Formato</label>
                         <select id="format_selector_${produto.id}" class="purchase-box-select" onchange="setProductFormat('${produto.slug}', this.value)">
                             ${formats.map(format => `<option value="${format.value}" ${format.value === currentOffer.value ? 'selected' : ''}>${format.label}</option>`).join('')}
                         </select>
                     ` : `<div class="purchase-box-label-static">${currentOffer.badge}</div>`}
-                    <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'}" style="width: 100%; padding: 18px; font-size: 18px; border-radius: 999px;" onclick="buyProduct(event, '${produto.link_compra}')">
-                        <i class="fas fa-shopping-cart"></i>
+                    <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'} purchase-box-action" onclick="buyProduct(event, '${produto.link_compra}')">
                         ${currentOffer.buttonText}
                     </button>
                     <p class="purchase-box-secure"><i class="fas fa-lock"></i> Compra segura</p>
@@ -3444,7 +3506,9 @@
             const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
             const categoria2 = cat2obj ? cat2obj.nome : '';
 
-            const conteudos = parseContentProgramatico(produto.conteudo_programatico);
+            const contentSections = parseProductContentSections(produto.conteudo_programatico);
+            const conteudos = contentSections.regular;
+            const bonusItems = contentSections.bonus;
             const descricaoHtml = renderDescriptionContent(produto.descricao);
             const formats = getProductFormats(produto);
             const currentOffer = getCurrentProductOffer(produto);
@@ -3486,14 +3550,14 @@
                             </button>` : ''}
                         </div>
 
-                        <div class="product-detail" style="background: var(--white); padding: 28px; border-radius: 24px; box-shadow: var(--shadow-md);">
+                        <div class="product-detail" style="background: var(--white); padding: 24px; border-radius: 24px; box-shadow: var(--shadow-md);">
                             <div class="product-detail-media">
                                 ${coverHtml}
                             </div>
 
                             <div class="product-detail-info">
                                 <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
-                                <h1 style="font-size: clamp(26px, 3.2vw, 38px); margin-top: 4px; line-height: 1.2;">${produto.titulo}</h1>
+                                <h1 class="product-detail-title">${produto.titulo}</h1>
 
                                 <div class="product-rating-inline">
                                     <div class="stars">${stars}</div>
@@ -3543,24 +3607,15 @@
                                     ${renderProductPurchaseBox(produto)}
                                 </div>
 
-                                <p style="text-align: center; margin-top: -6px; margin-bottom: 10px; font-size: 13px; color: var(--text-muted);">
-                                    <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
-                                </p>
-
                                 <div class="product-share-box">
-                                    <div class="product-share-title">
-                                        <i class="fab fa-whatsapp" style="color:#25D366;"></i>
-                                        Indique para um amigo
-                                    </div>
-                                    <p class="product-share-text">Compartilhe o link direto desta apostila no WhatsApp com um clique.</p>
                                     <a href="${getWhatsAppShareLink(produto)}" target="_blank" rel="noopener noreferrer" class="btn btn-success product-share-button">
-                                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                                        <i class="fab fa-whatsapp"></i> Indique para um amigo
                                     </a>
                                 </div>
                             </aside>
                         </div>
 
-                        ${(descricaoHtml || conteudos.length > 0) ? `
+                        ${(descricaoHtml || conteudos.length > 0 || bonusItems.length > 0) ? `
                             <div class="product-detail-sections">
                                 ${descricaoHtml ? `
                                     <div class="product-info-section product-detail-section">
@@ -3569,12 +3624,24 @@
                                     </div>
                                 ` : ''}
 
-                                ${conteudos.length > 0 ? `
+                                ${(conteudos.length > 0 || bonusItems.length > 0) ? `
                                     <div class="content-programatico product-detail-section">
-                                        <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
-                                        <ul>
-                                            ${conteudos.map(c => `<li>${c}</li>`).join('')}
-                                        </ul>
+                                        ${conteudos.length > 0 ? `
+                                            <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
+                                            <ul>
+                                                ${conteudos.map(c => `<li>${c}</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+                                        ${bonusItems.length > 0 ? `
+                                            <div class="product-bonus-box">
+                                                <div class="product-bonus-title">
+                                                    <i class="fas fa-gift"></i> Bônus inclusos
+                                                </div>
+                                                <ul class="bonus-list">
+                                                    ${bonusItems.map(item => `<li>${item}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 ` : ''}
                             </div>
@@ -3890,6 +3957,34 @@
                 .split('\n')
                 .map(item => item.trim())
                 .filter(Boolean);
+        }
+
+        function parseProductContentSections(text) {
+            const items = parseContentProgramatico(text);
+            const sections = { regular: [], bonus: [] };
+            let bonusMode = false;
+
+            items.forEach(item => {
+                const cleaned = item.replace(/^[•+\-–—]+\s*/, '').trim();
+                if (!cleaned) return;
+
+                const explicitBonus = cleaned.match(/^(?:b[oô]nus?)\s*[:\-–]?\s*(.*)$/i);
+                if (explicitBonus) {
+                    bonusMode = true;
+                    const inlineBonus = (explicitBonus[1] || '').trim();
+                    if (inlineBonus) sections.bonus.push(inlineBonus);
+                    return;
+                }
+
+                if (bonusMode) {
+                    sections.bonus.push(cleaned);
+                    return;
+                }
+
+                sections.regular.push(cleaned);
+            });
+
+            return sections;
         }
 
         const PRODUCT_DESCRIPTION_FIELDS = [
@@ -4676,6 +4771,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
