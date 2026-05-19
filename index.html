@@ -915,20 +915,34 @@
         .product-detail-media {
             display: flex;
             justify-content: center;
+            align-items: flex-start;
+        }
+
+        .product-cover-shell {
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: transparent;
         }
 
         .product-detail-image,
         .detail-carousel {
             width: 100%;
-            max-width: 280px;
+            max-width: 340px;
             margin: 0 auto;
-            border-radius: 18px;
-            box-shadow: var(--shadow-md);
-            background: var(--white);
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
         }
 
         .product-detail-image {
             display: block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
         .product-detail-info {
@@ -1104,6 +1118,51 @@
             top: 16px;
             color: var(--success);
             font-weight: 900;
+        }
+
+        .product-detail-sections {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            align-items: start;
+        }
+
+        .product-detail-section {
+            margin-top: 0;
+            height: 100%;
+        }
+
+        .product-share-box {
+            margin-top: 16px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .product-share-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .product-share-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .product-share-button {
+            width: 100%;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 14px 18px;
         }
 
         /* ==================== ADMIN PANEL ==================== */
@@ -1340,7 +1399,8 @@
             }
 
             .product-benefits,
-            .product-summary-grid {
+            .product-summary-grid,
+            .product-detail-sections {
                 grid-template-columns: 1fr;
             }
 
@@ -2547,7 +2607,7 @@
     </div>
 
     <!-- ==================== SUPABASE CONFIG ==================== -->
-    <script src="supabase-config.js"></script>
+    <script src="/supabase-config.js"></script>
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
@@ -3002,6 +3062,15 @@
             return formats.find(format => format.value === selectedValue) || formats[0];
         }
 
+        function getProductImageByFormat(produto, format = null) {
+            if (!produto) return 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
+            const selectedFormat = format || getSelectedProductFormat(produto);
+            if (selectedFormat === 'impressa' && produto.capa_url_impresso) {
+                return produto.capa_url_impresso;
+            }
+            return produto.capa_url || produto.capa_url_impresso || 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
+        }
+
         function getInstallmentText(price, installments) {
             if (!price || !installments || installments < 2) return '';
             return `em até ${installments}x de R$ ${formatPrice(Number(price) / Number(installments))} sem juros`;
@@ -3064,8 +3133,10 @@
                 purchaseBox.innerHTML = renderProductPurchaseBox(produto);
             }
 
-            if (produto.capa_url_impresso) {
-                detailCarouselGoTo(produto.id, format === 'impressa' ? 1 : 0);
+            const detailImage = document.getElementById(`productDetailImage_${produto.id}`);
+            if (detailImage) {
+                detailImage.src = getProductImageByFormat(produto, format);
+                detailImage.alt = `${produto.titulo} - ${format === 'impressa' ? 'Impressa' : 'Digital'}`;
             }
         }
 
@@ -3378,26 +3449,17 @@
                 produto.paginas ? { label: 'Páginas', value: produto.paginas } : null
             ].filter(Boolean);
 
-            const coverHtml = produto.capa_url_impresso
-                ? `<div class="detail-carousel" id="detailCarousel_${produto.id}">
-                    <div class="detail-carousel-track" id="detailCarouselTrack_${produto.id}">
-                        <div class="detail-carousel-slide">
-                            <p class="slide-label digital">📱 Digital</p>
-                            <img src="${produto.capa_url}" alt="${produto.titulo} - Digital" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">
-                        </div>
-                        <div class="detail-carousel-slide">
-                            <p class="slide-label impressa">📖 Impressa</p>
-                            <img src="${produto.capa_url_impresso}" alt="${produto.titulo} - Impressa" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1565C0/FFFFFF?text=Impressa'">
-                        </div>
-                    </div>
-                    <button class="detail-carousel-btn prev" onclick="detailCarouselPrev(${produto.id})" aria-label="Anterior">&#8249;</button>
-                    <button class="detail-carousel-btn next" onclick="detailCarouselNext(${produto.id})" aria-label="Próximo">&#8250;</button>
-                    <div class="detail-carousel-dots">
-                        <span class="detail-dot active" onclick="detailCarouselGoTo(${produto.id}, 0)"></span>
-                        <span class="detail-dot" onclick="detailCarouselGoTo(${produto.id}, 1)"></span>
-                    </div>
-                </div>`
-                : `<img src="${produto.capa_url}" alt="${produto.titulo}" class="product-detail-image" onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'">`;
+            const coverHtml = `
+                <div class="product-cover-shell">
+                    <img
+                        id="productDetailImage_${produto.id}"
+                        src="${getProductImageByFormat(produto)}"
+                        alt="${produto.titulo} - ${getSelectedProductFormat(produto) === 'impressa' ? 'Impressa' : 'Digital'}"
+                        class="product-detail-image"
+                        onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'"
+                    >
+                </div>
+            `;
 
             mainContent.innerHTML = `
                 <section class="products-section" style="padding: 60px 20px 32px; min-height: 60vh;">
@@ -3471,23 +3533,37 @@
                                 <p style="text-align: center; margin-top: -6px; margin-bottom: 10px; font-size: 13px; color: var(--text-muted);">
                                     <i class="fas fa-lock"></i> Você será redirecionado para o ambiente seguro de pagamento
                                 </p>
-                                ${currentOffer?.badge ? `<p style="text-align: center; font-size: 13px; color: var(--text-muted);">Formato selecionado: <strong>${currentOffer.badge}</strong></p>` : ''}
+
+                                <div class="product-share-box">
+                                    <div class="product-share-title">
+                                        <i class="fab fa-whatsapp" style="color:#25D366;"></i>
+                                        Indique para um amigo
+                                    </div>
+                                    <p class="product-share-text">Compartilhe o link direto desta apostila no WhatsApp com um clique.</p>
+                                    <a href="${getWhatsAppShareLink(produto)}" target="_blank" rel="noopener noreferrer" class="btn btn-success product-share-button">
+                                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                                    </a>
+                                </div>
                             </aside>
                         </div>
 
-                        ${descricaoHtml ? `
-                            <div class="product-info-section">
-                                <h2><i class="fas fa-align-left"></i> Descrição do concurso</h2>
-                                ${descricaoHtml}
-                            </div>
-                        ` : ''}
+                        ${(descricaoHtml || conteudos.length > 0) ? `
+                            <div class="product-detail-sections">
+                                ${descricaoHtml ? `
+                                    <div class="product-info-section product-detail-section">
+                                        <h2><i class="fas fa-align-left"></i> Descrição do concurso</h2>
+                                        ${descricaoHtml}
+                                    </div>
+                                ` : ''}
 
-                        ${conteudos.length > 0 ? `
-                            <div class="content-programatico">
-                                <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
-                                <ul>
-                                    ${conteudos.map(c => `<li>${c}</li>`).join('')}
-                                </ul>
+                                ${conteudos.length > 0 ? `
+                                    <div class="content-programatico product-detail-section">
+                                        <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
+                                        <ul>
+                                            ${conteudos.map(c => `<li>${c}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
                             </div>
                         ` : ''}
                     </div>
@@ -3524,9 +3600,6 @@
                 }
             });
 
-            if (produto.capa_url_impresso && getSelectedProductFormat(produto) === 'impressa') {
-                requestAnimationFrame(() => detailCarouselGoTo(produto.id, 1));
-            }
         }
 
         // ==================== RENDER SOBRE ====================
@@ -3807,12 +3880,12 @@
         }
 
         const PRODUCT_DESCRIPTION_FIELDS = [
-            'Vagas',
-            'Inscrições',
-            'Salário',
-            'Taxa de inscrição',
-            'Prova',
-            'Banca organizadora'
+            { label: 'Vagas', aliases: ['Vagas'] },
+            { label: 'Inscrições', aliases: ['Inscrições', 'Inscrição'] },
+            { label: 'Salário', aliases: ['Salário'] },
+            { label: 'Taxa de inscrição', aliases: ['Taxa de inscrição', 'Taxa inscrição'] },
+            { label: 'Prova', aliases: ['Prova', 'Data da prova'] },
+            { label: 'Organizadora', aliases: ['Organizadora', 'Banca organizadora', 'Banca'] }
         ];
 
         function parseStructuredDescription(text) {
@@ -3824,13 +3897,13 @@
                 .replace(/\s{2,}/g, ' ')
                 .trim();
 
-            const labelPatterns = PRODUCT_DESCRIPTION_FIELDS.map(label => ({
-                label,
-                pattern: escapeRegExp(label).replace(/\s+/g, '\\s+')
+            const fieldPatterns = PRODUCT_DESCRIPTION_FIELDS.map(field => ({
+                label: field.label,
+                pattern: `(?:${(field.aliases || [field.label]).map(alias => escapeRegExp(alias).replace(/\s+/g, '\\s+')).join('|')})`
             }));
-            const allLabelsPattern = labelPatterns.map(item => item.pattern).join('|');
+            const allLabelsPattern = fieldPatterns.map(item => item.pattern).join('|');
 
-            return labelPatterns.map(({ label, pattern }) => {
+            return fieldPatterns.map(({ label, pattern }) => {
                 const regex = new RegExp(`${pattern}\\s*[:\\-–]?\\s*([\\s\\S]*?)(?=(?:${allLabelsPattern})\\s*[:\\-–]?|$)`, 'i');
                 const match = flattened.match(regex);
                 if (!match) return null;
@@ -3874,43 +3947,20 @@
             `;
         }
 
+        function getProductShareUrl(produto) {
+            return getAbsoluteUrl(`/produto/${produto.slug}`);
+        }
+
+        function getWhatsAppShareLink(produto) {
+            const shareText = `Olá! Dá uma olhada nesta apostila da +QApostilas: ${produto.titulo} - ${getProductShareUrl(produto)}`;
+            return `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        }
+
         function buyProduct(event, url) {
             event.stopPropagation();
             window.open(url, '_blank', 'noopener,noreferrer');
         }
 
-        // ==================== MODAL ====================
-        function closeModal() {
-            document.getElementById('globalModal').classList.remove('active');
-        }
-
-        function showModal(type) {
-            const modalBody = document.getElementById('modalBody');
-            let content = '';
-
-            switch(type) {
-                case 'privacidade':
-                    content = `
-                        <h3>Política de Privacidade</h3>
-                        <p>Sua privacidade é importante para nós. Esta política descreve como coletamos e usamos seus dados.</p>
-                        <p>Coletamos apenas informações necessárias para processar suas compras e melhorar nossos serviços.</p>
-                    `;
-                    break;
-                case 'termos':
-                    content = `
-                        <h3>Termos de Uso</h3>
-                        <p>Ao utilizar nosso site, você concorda com nossos termos de uso.</p>
-                        <p>As apostilas são produtos digitais fornecidos por nós ou por parceiros.</p>
-                    `;
-                    break;
-            }
-
-            modalBody.innerHTML = content;
-            document.getElementById('modalTitle').textContent = type === 'privacidade' ? 'Política de Privacidade' : 'Termos de Uso';
-            document.getElementById('globalModal').classList.add('active');
-        }
-
-        // ==================== ADMIN ====================
         function openAdminLogin() {
             // Check if already logged in
             if (appState.isAdmin) {
@@ -4613,6 +4663,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
