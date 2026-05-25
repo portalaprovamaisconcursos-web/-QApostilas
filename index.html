@@ -2314,11 +2314,43 @@
             
             <!-- Produtos Section -->
             <div class="admin-section" id="admin-produtos">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
                     <h3>Gerenciar Produtos</h3>
                     <button class="btn btn-primary" onclick="showProductForm()">
                         <i class="fas fa-plus"></i> Novo Produto
                     </button>
+                </div>
+
+                <div class="table-container" style="padding: 20px; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg);">
+                    <div class="form-row" style="margin-bottom: 8px;">
+                        <div class="form-group">
+                            <label>Pesquisar por código</label>
+                            <input type="text" id="admin_product_filter_code" placeholder="Ex: PARC-12345 ou QAP-ORG-CARGO" oninput="applyAdminProductFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label>Pesquisar por produto / órgão / cargo</label>
+                            <input type="text" id="admin_product_filter_text" placeholder="Digite parte do título, órgão, cargo ou slug" oninput="applyAdminProductFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="admin_product_filter_status" onchange="applyAdminProductFilters()">
+                                <option value="todos">Todos</option>
+                                <option value="ativo">Somente ativos</option>
+                                <option value="inativo">Somente inativos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <small id="productsTableSummary" style="color: var(--text-muted);">Todos os produtos cadastrados</small>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-primary" onclick="applyAdminProductFilters()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button type="button" class="btn" onclick="clearAdminProductFilters()">
+                                <i class="fas fa-eraser"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div id="productFormContainer" class="hidden">
@@ -2328,18 +2360,18 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Título *</label>
-                                <input type="text" name="titulo" id="product_titulo" required>
+                                <input type="text" name="titulo" id="product_titulo" required oninput="handleProductTitleChange()">
                             </div>
                             <div class="form-group">
                                 <label>Órgão *</label>
-                                <input type="text" name="orgao" id="product_orgao" required>
+                                <input type="text" name="orgao" id="product_orgao" required oninput="handleProductTitleChange()">
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Cargo *</label>
-                                <input type="text" name="cargo" id="product_cargo" required>
+                                <input type="text" name="cargo" id="product_cargo" required oninput="handleProductTitleChange()">
                             </div>
                             <div class="form-group">
                                 <label>Estado</label>
@@ -2349,6 +2381,27 @@
                                 <label>Cidade</label>
                                 <input type="text" name="cidade" id="product_cidade">
                             </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Código do Produto <small style="font-weight:400;color:var(--text-muted)">(manual ou automático)</small></label>
+                                <input type="text" name="codigo" id="product_codigo" placeholder="Ex: PARC-12345">
+                                <small style="color: var(--text-muted);">Você pode informar o mesmo código do parceiro ou deixar o site gerar um código automaticamente.</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Origem do Código</label>
+                                <select name="codigo_origem" id="product_codigo_origem" onchange="handleProductCodeModeChange()">
+                                    <option value="automatico">Gerar automaticamente</option>
+                                    <option value="manual">Vou informar manualmente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; margin:-8px 0 18px;">
+                            <button type="button" class="btn" onclick="generateProductCode(true)">
+                                <i class="fas fa-barcode"></i> Gerar código agora
+                            </button>
+                            <small style="color: var(--text-muted); align-self:center;">Para produtos novos, o código pode ser criado automaticamente e você ainda pode editar manualmente quando quiser.</small>
                         </div>
                         
                         <div class="form-group">
@@ -2500,6 +2553,7 @@
                         <table class="admin-table">
                             <thead>
                                 <tr>
+                                    <th>Código</th>
                                     <th>Título</th>
                                     <th>Órgão</th>
                                     <th>Cargo</th>
@@ -2688,6 +2742,11 @@
                 categoria: '',
                 estado: '',
                 type: ''
+            },
+            adminProductFilters: {
+                code: '',
+                text: '',
+                status: 'todos'
             }
         };
 
@@ -3020,10 +3079,13 @@
                     mais_vendida: false,
                     pre_venda: false,
                     ativo: true,
+                    codigo: 'QAP-PREF-AGENTE',
+                    codigo_origem: 'automatico',
                     avaliacao_media: 4.8,
                     total_avaliacoes: 124
                 }
             ];
+            appState.allProdutos = [...appState.produtos];
 
             appState.depoimentos = [
                 {
@@ -3564,7 +3626,7 @@
                                     <span><strong>${ratingValue}</strong></span>
                                 </div>
 
-                                ${produto.sku ? `<div class="product-sku">SKU: ${produto.sku}</div>` : ''}
+                                ${produto.codigo ? `<div class="product-sku">Código: ${produto.codigo}</div>` : ''}
 
                                 <div class="product-detail-badges">
                                     ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
@@ -4201,28 +4263,147 @@
         }
 
         // ==================== PRODUCTS CRUD ====================
+        function slugifyText(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        function normalizeProductCode(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toUpperCase()
+                .replace(/[^A-Z0-9_-]+/g, '-')
+                .replace(/-{2,}/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        function ensureUniqueValue(baseValue, existingValues = [], fallbackPrefix = 'item') {
+            const base = (baseValue || fallbackPrefix).trim() || fallbackPrefix;
+            const existing = new Set((existingValues || []).filter(Boolean));
+            if (!existing.has(base)) return base;
+
+            let counter = 2;
+            while (existing.has(`${base}-${counter}`)) {
+                counter += 1;
+            }
+            return `${base}-${counter}`;
+        }
+
+        function getProductById(productId) {
+            const list = appState.allProdutos || appState.produtos || [];
+            return list.find(p => String(p.id) === String(productId));
+        }
+
+        function getExistingProductCodes(ignoreId = null) {
+            return (appState.allProdutos || [])
+                .filter(p => p && p.codigo && String(p.id) !== String(ignoreId))
+                .map(p => normalizeProductCode(p.codigo));
+        }
+
+        function buildAutomaticProductCode(ignoreId = null) {
+            const orgaoPart = slugifyText(document.getElementById('product_orgao')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 4);
+            const cargoPart = slugifyText(document.getElementById('product_cargo')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 6);
+            const titlePart = slugifyText(document.getElementById('product_titulo')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 6);
+            const base = normalizeProductCode(['QAP', orgaoPart || 'ORG', cargoPart || titlePart || 'PROD'].filter(Boolean).join('-'));
+            return ensureUniqueValue(base, getExistingProductCodes(ignoreId), 'QAP-PROD');
+        }
+
+        function handleProductCodeModeChange() {
+            const mode = document.getElementById('product_codigo_origem')?.value || 'automatico';
+            const codeInput = document.getElementById('product_codigo');
+            if (!codeInput) return;
+
+            const isAutomatic = mode === 'automatico';
+            codeInput.readOnly = isAutomatic;
+            codeInput.style.background = isAutomatic ? '#f5f5f5' : '';
+            codeInput.style.cursor = isAutomatic ? 'default' : '';
+
+            if (isAutomatic && (!codeInput.value || document.getElementById('product_id')?.value === '')) {
+                generateProductCode();
+            }
+        }
+
+        function handleProductTitleChange() {
+            const mode = document.getElementById('product_codigo_origem')?.value || 'automatico';
+            if (mode !== 'automatico') return;
+            generateProductCode();
+        }
+
+        function generateProductCode(forceRefresh = false) {
+            const codeInput = document.getElementById('product_codigo');
+            const currentId = document.getElementById('product_id')?.value || null;
+            if (!codeInput) return '';
+
+            if (!forceRefresh && codeInput.value && document.getElementById('product_codigo_origem')?.value !== 'automatico') {
+                return codeInput.value;
+            }
+
+            const nextCode = buildAutomaticProductCode(currentId || null);
+            codeInput.value = nextCode;
+            return nextCode;
+        }
+
+        function prepareProductFormDefaults() {
+            document.getElementById('productForm').reset();
+            document.getElementById('product_id').value = '';
+            document.getElementById('product_ativo').checked = true;
+            document.getElementById('product_atualizado_edital').checked = true;
+            document.getElementById('product_codigo_origem').value = 'automatico';
+            document.getElementById('product_codigo').value = '';
+            handleProductCodeModeChange();
+            calcularParcela();
+        }
+
+        function fillProductForm(produto = {}) {
+            Object.keys(produto).forEach(key => {
+                const el = document.getElementById(`product_${key}`);
+                if (!el) return;
+                if (el.type === 'checkbox') {
+                    el.checked = Boolean(produto[key]);
+                } else {
+                    el.value = produto[key] ?? '';
+                }
+            });
+            calcularParcela();
+            handleProductCodeModeChange();
+        }
+
         function showProductForm(productId = null) {
             document.getElementById('productFormContainer').classList.remove('hidden');
             document.getElementById('productsTableContainer').classList.add('hidden');
 
             if (productId) {
-                const produto = appState.produtos.find(p => p.id === productId);
+                const produto = getProductById(productId);
                 if (produto) {
-                    Object.keys(produto).forEach(key => {
-                        const el = document.getElementById(`product_${key}`);
-                        if (el) {
-                            if (el.type === 'checkbox') {
-                                el.checked = produto[key];
-                            } else {
-                                el.value = produto[key] || '';
-                            }
-                        }
-                    });
+                    fillProductForm(produto);
                 }
             } else {
-                document.getElementById('productForm').reset();
-                document.getElementById('product_id').value = '';
+                prepareProductFormDefaults();
             }
+        }
+
+        function duplicateProduct(productId) {
+            const produto = getProductById(productId);
+            if (!produto) return;
+
+            prepareProductFormDefaults();
+            const clone = { ...produto };
+            delete clone.id;
+            delete clone.created_at;
+            delete clone.updated_at;
+            clone.titulo = `${produto.titulo} - Cópia`;
+            clone.codigo = '';
+            clone.codigo_origem = 'automatico';
+
+            fillProductForm(clone);
+            document.getElementById('product_id').value = '';
+            generateProductCode(true);
+            showAlert('Produto duplicado no formulário. Agora é só ajustar as informações e salvar.', 'success');
         }
 
         function hideProductForm() {
@@ -4271,6 +4452,29 @@
 
             try {
                 const id = document.getElementById('product_id').value;
+                const isNewProduct = !id;
+
+                if (productData.codigo) {
+                    productData.codigo = normalizeProductCode(productData.codigo);
+                }
+
+                if ((!productData.codigo || !String(productData.codigo).trim()) && (isNewProduct || productData.codigo_origem === 'automatico')) {
+                    productData.codigo = buildAutomaticProductCode(id || null);
+                    productData.codigo_origem = 'automatico';
+                }
+
+                if (productData.codigo) {
+                    const duplicateCode = (appState.allProdutos || []).find(p => p.codigo && normalizeProductCode(p.codigo) === productData.codigo && String(p.id) !== String(id));
+                    if (duplicateCode) {
+                        showAlert(`Já existe outro produto com o código ${productData.codigo}.`, 'warning');
+                        return;
+                    }
+                }
+
+                if (!id) {
+                    const baseSlug = slugifyText(productData.titulo);
+                    productData.slug = ensureUniqueValue(baseSlug, (appState.allProdutos || []).map(p => p.slug), 'produto');
+                }
 
                 if (id) {
                     const { error } = await supabaseClient
@@ -4296,6 +4500,23 @@
             }
         }
 
+        async function toggleProductStatus(id, ativo) {
+            try {
+                const { error } = await supabaseClient
+                    .from('produtos')
+                    .update({ ativo })
+                    .eq('id', id);
+                if (error) throw error;
+
+                showAlert(`Produto ${ativo ? 'ativado' : 'inativado'} com sucesso!`, 'success');
+                await loadProdutos();
+                loadProductsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao atualizar status do produto: ' + (error.message || error), 'error');
+            }
+        }
+
         async function deleteProduct(id) {
             if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
@@ -4315,15 +4536,88 @@
             }
         }
 
+        function getAdminProductFilters() {
+            const code = document.getElementById('admin_product_filter_code')?.value || '';
+            const text = document.getElementById('admin_product_filter_text')?.value || '';
+            const status = document.getElementById('admin_product_filter_status')?.value || 'todos';
+
+            appState.adminProductFilters = { code, text, status };
+            return appState.adminProductFilters;
+        }
+
+        function getFilteredAdminProducts() {
+            const list = appState.allProdutos || appState.produtos || [];
+            const filters = getAdminProductFilters();
+            const codeTerm = normalizeSearchText(filters.code);
+            const textTerm = normalizeSearchText(filters.text);
+
+            return list.filter(produto => {
+                const statusMatch = filters.status === 'todos'
+                    || (filters.status === 'ativo' && produto.ativo)
+                    || (filters.status === 'inativo' && !produto.ativo);
+
+                if (!statusMatch) return false;
+
+                const searchableCode = normalizeSearchText(produto.codigo || '');
+                const searchableText = normalizeSearchText([
+                    produto.titulo,
+                    produto.orgao,
+                    produto.cargo,
+                    produto.slug,
+                    produto.codigo
+                ].filter(Boolean).join(' '));
+
+                const codeMatch = !codeTerm || searchableCode.includes(codeTerm);
+                const textMatch = !textTerm || searchableText.includes(textTerm);
+                return codeMatch && textMatch;
+            });
+        }
+
+        function applyAdminProductFilters() {
+            loadProductsTable();
+        }
+
+        function clearAdminProductFilters() {
+            const codeInput = document.getElementById('admin_product_filter_code');
+            const textInput = document.getElementById('admin_product_filter_text');
+            const statusSelect = document.getElementById('admin_product_filter_status');
+            if (codeInput) codeInput.value = '';
+            if (textInput) textInput.value = '';
+            if (statusSelect) statusSelect.value = 'todos';
+            appState.adminProductFilters = { code: '', text: '', status: 'todos' };
+            loadProductsTable();
+        }
+
         function loadProductsTable() {
             const tbody = document.getElementById('productsTableBody');
-            const list = appState.allProdutos || appState.produtos;
-            tbody.innerHTML = (list || []).map(p => `
+            const summary = document.getElementById('productsTableSummary');
+            const list = getFilteredAdminProducts();
+            const total = (appState.allProdutos || appState.produtos || []).length;
+
+            if (summary) {
+                summary.textContent = `${list.length} de ${total} produto(s) exibido(s)`;
+            }
+
+            if (!tbody) return;
+
+            if (!list.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">
+                            Nenhum produto encontrado com os filtros informados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(p => `
                 <tr>
+                    <td style="white-space:nowrap; font-weight:700;">${p.codigo || '—'}</td>
                     <td>${p.titulo}</td>
-                    <td>${p.orgao}</td>
-                    <td>${p.cargo}</td>
-                    <td>R$ ${formatPrice(p.preco)}</td>
+                    <td>${p.orgao || '—'}</td>
+                    <td>${p.cargo || '—'}</td>
+                    <td>R$ ${formatPrice(Number(p.preco || 0))}</td>
                     <td>
                         <span class="badge ${p.ativo ? 'badge-success' : 'badge-error'}">
                             ${p.ativo ? 'Ativo' : 'Inativo'}
@@ -4333,6 +4627,12 @@
                         <div class="action-buttons">
                             <button class="btn btn-sm btn-edit" onclick="showProductForm(${p.id})">
                                 <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm" onclick="duplicateProduct(${p.id})" style="background:#2563eb;color:#fff;">
+                                <i class="fas fa-copy"></i> Duplicar
+                            </button>
+                            <button class="btn btn-sm" onclick="toggleProductStatus(${p.id}, ${!p.ativo})" style="background:${p.ativo ? '#6b7280' : '#16a34a'}; color:#fff;">
+                                <i class="fas fa-${p.ativo ? 'eye-slash' : 'eye'}"></i> ${p.ativo ? 'Inativar' : 'Ativar'}
                             </button>
                             <button class="btn btn-sm btn-delete" onclick="deleteProduct(${p.id})">
                                 <i class="fas fa-trash"></i> Excluir
@@ -4771,6 +5071,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
