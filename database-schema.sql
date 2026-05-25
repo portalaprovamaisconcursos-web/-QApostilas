@@ -436,3 +436,27 @@ CREATE TRIGGER update_produtos_updated_at
 -- SENHA ADMIN PADRÃO: admin123
 -- ⚠️ IMPORTANTE: Altere a senha admin através do painel de configurações!
 --
+
+-- ==================== MIGRAÇÕES SEGURAS (NÃO APAGAM DADOS EXISTENTES) ====================
+-- Atualiza o schema para acompanhar o painel administrativo atual e os novos recursos de código/duplicação.
+
+ALTER TABLE categorias
+  ADD COLUMN IF NOT EXISTS imagem_url TEXT;
+
+ALTER TABLE produtos
+  ADD COLUMN IF NOT EXISTS categoria_id_2 INT REFERENCES categorias(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS capa_url_impresso TEXT,
+  ADD COLUMN IF NOT EXISTS preco_impresso DECIMAL(10,2),
+  ADD COLUMN IF NOT EXISTS parcelas INT,
+  ADD COLUMN IF NOT EXISTS parcelas_impresso INT,
+  ADD COLUMN IF NOT EXISTS codigo TEXT,
+  ADD COLUMN IF NOT EXISTS codigo_origem TEXT DEFAULT 'manual';
+
+CREATE INDEX IF NOT EXISTS idx_produtos_codigo ON produtos(codigo);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_codigo_unique ON produtos(codigo) WHERE codigo IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_produtos_categoria_2 ON produtos(categoria_id_2);
+
+UPDATE produtos
+SET codigo_origem = COALESCE(codigo_origem, 'manual')
+WHERE codigo_origem IS NULL;
+
