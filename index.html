@@ -358,20 +358,25 @@
         /* ==================== HERO / BANNER ==================== */
         .hero {
             position: relative;
+            min-height: 180px;
             height: 500px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             overflow: hidden;
             border-radius: 0 0 24px 24px;
+            transition: height 0.25s ease;
         }
 
         .hero-slider {
             position: relative;
             isolation: isolate;
+            height: auto;
+            background: #fff;
         }
 
         .hero-track {
             width: 100%;
             height: 100%;
+            min-height: inherit;
             position: relative;
         }
 
@@ -398,13 +403,23 @@
             display: block;
         }
 
-        .hero-slide picture,
+        .hero-slide picture {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
         .hero-slide img,
         .hero-image {
             width: 100%;
             height: 100%;
             display: block;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
+            background: #fff;
         }
 
         .hero-slide::after {
@@ -1460,6 +1475,15 @@
             border-bottom: 1px solid var(--border);
         }
 
+        .admin-code-preview {
+            display: inline-block;
+            max-width: 190px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: bottom;
+        }
+
         .admin-table tr:hover {
             background: var(--primary-light);
         }
@@ -1533,6 +1557,7 @@
             }
 
             .hero {
+                min-height: 140px;
                 height: 225px;
                 border-radius: 0 0 18px 18px;
             }
@@ -3594,7 +3619,7 @@
 
             const heroHtml = banners.length
                 ? `
-                    <section class="hero hero-slider" style="height:${bannerHeight}px">
+                    <section class="hero hero-slider" style="height:${bannerHeight}px" data-config-height="${bannerHeight}">
                         <div class="hero-track" id="heroBannerTrack">
                             ${banners.map((banner, indexBanner) => `
                                 <div class="hero-slide ${indexBanner === 0 ? 'active' : ''}">
@@ -3685,6 +3710,8 @@
                 <!-- Depoimentos -->
                 ${renderTestimonialsSection()}
             `;
+
+            initializeHeroBannerSizing();
 
             if (banners.length > 1) {
                 startHeroRotation();
@@ -4653,6 +4680,57 @@
             }
         }
 
+        function initializeHeroBannerSizing() {
+            const heroSection = document.querySelector('.hero-slider');
+            if (!heroSection) return;
+
+            const images = heroSection.querySelectorAll('.hero-slide img');
+            images.forEach(img => {
+                if (!img.dataset.heroSizingBound) {
+                    img.addEventListener('load', updateHeroBannerHeight);
+                    img.dataset.heroSizingBound = 'true';
+                }
+            });
+
+            updateHeroBannerHeight();
+        }
+
+        function updateHeroBannerHeight() {
+            const heroSection = document.querySelector('.hero-slider');
+            const heroTrack = document.getElementById('heroBannerTrack');
+            if (!heroSection || !heroTrack) return;
+
+            const activeImage = heroSection.querySelector('.hero-slide.active img');
+            const configuredHeight = Math.max(180, parseInt(heroSection.dataset.configHeight || appState.config.banner_height) || 300);
+            const minHeight = window.innerWidth <= 768 ? 140 : 180;
+            const mobileMaxHeight = Math.min(Math.max(configuredHeight, 220), 360);
+            const maxHeight = window.innerWidth <= 768 ? mobileMaxHeight : configuredHeight;
+            const fallbackHeight = window.innerWidth <= 768 ? Math.min(maxHeight, 225) : configuredHeight;
+
+            const applyHeight = (value) => {
+                const finalHeight = Math.max(minHeight, Math.round(value || fallbackHeight));
+                heroSection.style.height = `${finalHeight}px`;
+                heroTrack.style.height = `${finalHeight}px`;
+            };
+
+            if (!activeImage) {
+                applyHeight(fallbackHeight);
+                return;
+            }
+
+            const naturalWidth = activeImage.naturalWidth || activeImage.width;
+            const naturalHeight = activeImage.naturalHeight || activeImage.height;
+
+            if (!naturalWidth || !naturalHeight) {
+                applyHeight(fallbackHeight);
+                return;
+            }
+
+            const availableWidth = heroSection.clientWidth || heroTrack.clientWidth || window.innerWidth;
+            const calculatedHeight = availableWidth * (naturalHeight / naturalWidth);
+            applyHeight(Math.min(maxHeight, calculatedHeight));
+        }
+
         function setHeroSlide(indexNumber) {
             const slides = document.querySelectorAll('.hero-slide');
             const dots = document.querySelectorAll('.hero-dot');
@@ -4668,6 +4746,8 @@
             dots.forEach((dot, indexDot) => {
                 dot.classList.toggle('active', indexDot === nextIndex);
             });
+
+            updateHeroBannerHeight();
         }
 
         function changeHeroSlide(step = 1) {
@@ -4702,6 +4782,19 @@
                 .replace(/[^A-Z0-9_-]+/g, '-')
                 .replace(/-{2,}/g, '-')
                 .replace(/(^-|-$)/g, '');
+        }
+
+        function formatAdminProductCodePreview(value = '') {
+            const normalized = String(value || '').trim();
+            if (!normalized) return '—';
+
+            const segments = normalized.split('-').filter(Boolean);
+            if (segments.length >= 3 && /^MQA$/i.test(segments[0])) {
+                return `${segments.slice(0, 3).join('-')}...`;
+            }
+
+            const maxLength = 18;
+            return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}...` : normalized;
         }
 
         function ensureUniqueValue(baseValue, existingValues = [], fallbackPrefix = 'item') {
@@ -5106,7 +5199,7 @@
 
             tbody.innerHTML = list.map(p => `
                 <tr>
-                    <td style="white-space:nowrap; font-weight:700;">${p.codigo || '—'}</td>
+                    <td style="white-space:nowrap; font-weight:700;"><span class="admin-code-preview" title="${String(p.codigo || '').replace(/\"/g, '&quot;')}">${formatAdminProductCodePreview(p.codigo)}</span></td>
                     <td>${p.titulo}</td>
                     <td>${p.orgao || '—'}</td>
                     <td>${p.cargo || '—'}</td>
@@ -5515,6 +5608,13 @@
             }
         }
 
+        // Ajusta o banner principal quando a janela muda de tamanho
+        window.addEventListener('resize', () => {
+            if (document.querySelector('.hero-slider')) {
+                updateHeroBannerHeight();
+            }
+        });
+
         // Close modal on outside click
         document.getElementById('globalModal').addEventListener('click', (e) => {
             if (e.target.id === 'globalModal') {
@@ -5564,6 +5664,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
