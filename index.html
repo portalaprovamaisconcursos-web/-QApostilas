@@ -361,46 +361,147 @@
             height: 500px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             overflow: hidden;
+            border-radius: 0 0 24px 24px;
         }
 
+        .hero-slider {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .hero-track {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .hero-slide-button {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            display: block;
+        }
+
+        .hero-slide picture,
+        .hero-slide img,
         .hero-image {
             width: 100%;
             height: 100%;
+            display: block;
             object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
         }
 
-        .hero-overlay {
+        .hero-slide::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.18) 100%);
+            pointer-events: none;
+        }
+
+        .hero-slide-no-link {
+            cursor: default;
+        }
+
+        .hero-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+            width: 44px;
+            height: 44px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .hero-nav:hover {
+            background: #fff;
+            transform: translateY(-50%) scale(1.04);
+        }
+
+        .hero-nav.prev {
+            left: 24px;
+        }
+
+        .hero-nav.next {
+            right: 24px;
+        }
+
+        .hero-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.32);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 999px;
+            border: 0;
+            background: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .hero-dot.active {
+            background: #fff;
+            transform: scale(1.15);
+        }
+
+        .hero-fallback {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(30, 144, 255, 0.85) 0%, rgba(0, 102, 204, 0.75) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-        }
-
-        .hero-content {
+            padding: 32px;
             color: var(--white);
-            max-width: 800px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.92) 0%, rgba(0, 102, 204, 0.92) 100%);
         }
 
-        .hero-content h1 {
-            font-size: clamp(32px, 5vw, 56px);
-            margin-bottom: 16px;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        .hero-fallback h1 {
+            font-size: clamp(28px, 4vw, 52px);
+            margin-bottom: 14px;
         }
 
-        .hero-content p {
+        .hero-fallback p {
             font-size: clamp(16px, 2vw, 22px);
-            margin-bottom: 32px;
             opacity: 0.95;
+            margin-bottom: 24px;
         }
 
         /* ==================== BARRA DE PESQUISA ==================== */
@@ -1432,7 +1533,22 @@
             }
 
             .hero {
-                height: 400px;
+                height: 225px;
+                border-radius: 0 0 18px 18px;
+            }
+
+            .hero-nav {
+                width: 38px;
+                height: 38px;
+            }
+
+            .hero-nav.prev { left: 10px; }
+            .hero-nav.next { right: 10px; }
+
+            .hero-dots {
+                bottom: 12px;
+                gap: 8px;
+                padding: 8px 12px;
             }
 
             .search-section {
@@ -2221,15 +2337,101 @@
                         </div>
                     </div>
 
+                    <div class="admin-section-label"><i class="fas fa-images"></i> Banner principal rotativo</div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label><i class="fas fa-panorama" style="color:var(--primary)"></i> URL do Banner</label>
-                            <input type="url" name="banner_url" id="config_banner_url" placeholder="https://exemplo.com/banner.jpg">
+                            <label><i class="fas fa-arrows-alt-v" style="color:var(--primary)"></i> Altura do Banner (px)</label>
+                            <input type="number" name="banner_height" id="config_banner_height" placeholder="300" min="180" max="900" value="300">
+                            <small style="color:var(--text-muted)">Desktop sugerido: 1445 x 300 px. Mobile sugerido: 575 x 225 px.</small>
                         </div>
                         <div class="form-group">
-                            <label><i class="fas fa-arrows-alt-v" style="color:var(--primary)"></i> Altura do Banner (px)</label>
-                            <input type="number" name="banner_height" id="config_banner_height" placeholder="500" min="200" max="900" value="500">
-                            <small style="color:var(--text-muted)">Altura em pixels do banner hero. Recomendado: 400–600px.</small>
+                            <label><i class="fas fa-clock" style="color:var(--primary)"></i> Troca automática (segundos)</label>
+                            <input type="number" name="banner_autoplay_seconds" id="config_banner_autoplay_seconds" placeholder="5" min="3" max="15" value="5">
+                            <small style="color:var(--text-muted)">Defina o tempo entre um banner e outro na página inicial.</small>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:-4px;">
+                        <small style="color:var(--text-muted)">Você pode cadastrar até 3 banners. Se a imagem mobile ficar vazia, o site usa automaticamente a imagem desktop.</small>
+                    </div>
+
+                    <div style="display:grid; gap:16px; margin: 18px 0 24px;">
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 1</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_1_image_url" id="config_banner_1_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_1_mobile_url" id="config_banner_1_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_1_product_ref" id="config_banner_1_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_1_link_url" id="config_banner_1_link_url" placeholder="https://...">
+                                    <small style="color:var(--text-muted)">Se um produto for escolhido, o link alternativo será ignorado.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 2</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_2_image_url" id="config_banner_2_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_2_mobile_url" id="config_banner_2_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_2_product_ref" id="config_banner_2_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_2_link_url" id="config_banner_2_link_url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 3</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_3_image_url" id="config_banner_3_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_3_mobile_url" id="config_banner_3_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_3_product_ref" id="config_banner_3_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_3_link_url" id="config_banner_3_link_url" placeholder="https://...">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -2237,17 +2439,6 @@
                         <div class="form-group">
                             <label><i class="fas fa-image" style="color:var(--primary)"></i> URL do Favicon <small style="font-weight:400;color:var(--text-muted)">(ícone na aba do navegador, ex: .ico ou .png 32x32)</small></label>
                             <input type="url" name="favicon_url" id="config_favicon_url" placeholder="https://exemplo.com/favicon.ico">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Título do Banner</label>
-                            <input type="text" name="banner_title" id="config_banner_title">
-                        </div>
-                        <div class="form-group">
-                            <label>Subtítulo do Banner</label>
-                            <input type="text" name="banner_subtitle" id="config_banner_subtitle">
                         </div>
                     </div>
                     
@@ -2386,8 +2577,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Código do Produto <small style="font-weight:400;color:var(--text-muted)">(manual ou automático)</small></label>
-                                <input type="text" name="codigo" id="product_codigo" placeholder="Ex: PARC-12345">
-                                <small style="color: var(--text-muted);">Você pode informar o mesmo código do parceiro ou deixar o site gerar um código automaticamente.</small>
+                                <input type="text" name="codigo" id="product_codigo" placeholder="Ex: MQA-001-MA26-PREP-TJSP-ESC">
+                                <small style="color: var(--text-muted);">Produtos próprios podem gerar um código no padrão MQA + sequência + mês/ano + tipo + concurso + cargo.</small>
                             </div>
                             <div class="form-group">
                                 <label>Origem do Código</label>
@@ -2397,11 +2588,25 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo da Apostila</label>
+                                <select name="tipo_editorial" id="product_tipo_editorial" onchange="handleProductTitleChange()">
+                                    <option value="normal">Concurso normal</option>
+                                    <option value="preparatoria">Preparatória</option>
+                                    <option value="caderno_questoes">Caderno de questões</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sigla do Concurso <small style="font-weight:400;color:var(--text-muted)">(usada no código automático)</small></label>
+                                <input type="text" name="sigla_concurso" id="product_sigla_concurso" placeholder="Ex: TJSP, SEJUSP-MG, BB" oninput="handleProductTitleChange()">
+                            </div>
+                        </div>
                         <div style="display:flex; gap:12px; flex-wrap:wrap; margin:-8px 0 18px;">
                             <button type="button" class="btn" onclick="generateProductCode(true)">
                                 <i class="fas fa-barcode"></i> Gerar código agora
                             </button>
-                            <small style="color: var(--text-muted); align-self:center;">Para produtos novos, o código pode ser criado automaticamente e você ainda pode editar manualmente quando quiser.</small>
+                            <small style="color: var(--text-muted); align-self:center;">Para produtos Hotmart, o sistema sugere código automático. Para parceiros, você pode manter código manual.</small>
                         </div>
                         
                         <div class="form-group">
@@ -2488,7 +2693,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Tipo de Botão *</label>
-                                <select name="tipo_botao" id="product_tipo_botao" required>
+                                <select name="tipo_botao" id="product_tipo_botao" required onchange="handlePurchaseTypeChange(true)">
                                     <option value="hotmart">Hotmart</option>
                                     <option value="parceiro">Site Parceiro</option>
                                 </select>
@@ -2747,7 +2952,10 @@
                 code: '',
                 text: '',
                 status: 'todos'
-            }
+            },
+            homeBanners: [],
+            heroBannerIndex: 0,
+            bannerRotationTimer: null
         };
 
         const SITE_URL = 'https://www.maisqapostilas.com.br';
@@ -2759,6 +2967,8 @@
             image: DEFAULT_OG_IMAGE,
             type: 'website'
         };
+        const MONTH_CODE_MAP = ['JA', 'FE', 'MR', 'AB', 'MA', 'JN', 'JL', 'AG', 'SE', 'OU', 'NO', 'DE'];
+        const PRODUCT_CODE_STOP_WORDS = new Set(['A', 'O', 'AS', 'OS', 'DE', 'DA', 'DO', 'DAS', 'DOS', 'E', 'EM', 'PARA', 'POR', 'COM', 'NO', 'NA', 'NOS', 'NAS']);
 
         function normalizePath(pathname = '/') {
             const clean = (pathname || '/').replace(/\/+$|^$/, '');
@@ -2880,6 +3090,7 @@
             const { scroll = false } = options;
             closeModal();
             closeNavMenu();
+            stopHeroRotation();
 
             const currentPath = normalizePath(window.location.pathname);
             const parts = currentPath.split('/').filter(Boolean);
@@ -3011,6 +3222,7 @@
 
             appState.allProdutos = data || [];
             appState.produtos = (data || []).filter(p => p.ativo);
+            updateBannerProductSelects();
         }
 
         async function loadDepoimentos() {
@@ -3029,9 +3241,20 @@
                 logo_url: '',
                 logo_height: '50',
                 banner_url: '',
-                banner_height: '500',
-                banner_title: 'Apostilas Atualizadas para Concursos Públicos',
-                banner_subtitle: 'Material 100% digital, conforme último edital',
+                banner_height: '300',
+                banner_autoplay_seconds: '5',
+                banner_1_image_url: '',
+                banner_1_mobile_url: '',
+                banner_1_product_ref: '',
+                banner_1_link_url: '',
+                banner_2_image_url: '',
+                banner_2_mobile_url: '',
+                banner_2_product_ref: '',
+                banner_2_link_url: '',
+                banner_3_image_url: '',
+                banner_3_mobile_url: '',
+                banner_3_product_ref: '',
+                banner_3_link_url: '',
                 whatsapp: '5511999999999',
                 email: 'contato@qapostilas.com.br',
                 sobre_nos: 'Somos especializados em apostilas para concursos públicos. Todo nosso material é cuidadosamente preparado e atualizado conforme os editais mais recentes.',
@@ -3079,8 +3302,10 @@
                     mais_vendida: false,
                     pre_venda: false,
                     ativo: true,
-                    codigo: 'QAP-PREF-AGENTE',
+                    codigo: 'MQA-001-MA26-PREF-SP-AGE-ADM',
                     codigo_origem: 'automatico',
+                    tipo_editorial: 'normal',
+                    sigla_concurso: 'PREF-SP',
                     avaliacao_media: 4.8,
                     total_avaliacoes: 124
                 }
@@ -3357,32 +3582,70 @@
         function renderHome() {
             appState.currentView = 'home';
             const mainContent = document.getElementById('mainContent');
-            const bannerUrl = appState.config.banner_url || '';
-            const bannerTitle = appState.config.banner_title || 'Apostilas Atualizadas para Concursos Públicos';
-            const bannerSubtitle = appState.config.banner_subtitle || 'Material 100% digital, conforme último edital';
-            const bannerHeight = parseInt(appState.config.banner_height) || 500;
+            const bannerHeight = parseInt(appState.config.banner_height) || 300;
+            const banners = getHomeBanners();
+            appState.homeBanners = banners;
+            appState.heroBannerIndex = 0;
 
             const destaques = getHighlightedProductsByFlag('destaque', 8);
             const lancamentos = getHighlightedProductsByFlag('lancamento', 8);
             const maisVendidas = getHighlightedProductsByFlag('mais_vendida', 8);
             const preVenda = getHighlightedProductsByFlag('pre_venda', 8);
 
+            const heroHtml = banners.length
+                ? `
+                    <section class="hero hero-slider" style="height:${bannerHeight}px">
+                        <div class="hero-track" id="heroBannerTrack">
+                            ${banners.map((banner, indexBanner) => `
+                                <div class="hero-slide ${indexBanner === 0 ? 'active' : ''}">
+                                    ${banner.productRef || banner.linkUrl ? `
+                                        <button type="button" class="hero-slide-button" onclick="openHeroBanner(${indexBanner})" aria-label="Abrir banner ${indexBanner + 1}">
+                                            <picture>
+                                                ${banner.mobileUrl ? `<source media="(max-width: 768px)" srcset="${banner.mobileUrl}">` : ''}
+                                                <img src="${banner.desktopUrl || banner.mobileUrl}" alt="${banner.alt}">
+                                            </picture>
+                                        </button>
+                                    ` : `
+                                        <div class="hero-slide-button hero-slide-no-link">
+                                            <picture>
+                                                ${banner.mobileUrl ? `<source media="(max-width: 768px)" srcset="${banner.mobileUrl}">` : ''}
+                                                <img src="${banner.desktopUrl || banner.mobileUrl}" alt="${banner.alt}">
+                                            </picture>
+                                        </div>
+                                    `}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${banners.length > 1 ? `
+                            <button type="button" class="hero-nav prev" onclick="changeHeroSlide(-1)" aria-label="Banner anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="hero-nav next" onclick="changeHeroSlide(1)" aria-label="Próximo banner">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <div class="hero-dots">
+                                ${banners.map((_, indexBanner) => `<button type="button" class="hero-dot ${indexBanner === 0 ? 'active' : ''}" onclick="setHeroSlide(${indexBanner})" aria-label="Ir para banner ${indexBanner + 1}"></button>`).join('')}
+                            </div>
+                        ` : ''}
+                    </section>
+                `
+                : `
+                    <section class="hero" style="height:${bannerHeight}px">
+                        <div class="hero-fallback">
+                            <div>
+                                <h1>Apostilas Atualizadas para Concursos Públicos</h1>
+                                <p>Cadastre até 3 banners clicáveis no painel admin para destacar os concursos mais importantes.</p>
+                                <button class="btn btn-accent" onclick="document.getElementById('produtos-destaques')?.scrollIntoView({behavior: 'smooth'})">
+                                    <i class="fas fa-book"></i> Ver Apostilas
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                `;
+
             mainContent.innerHTML = `
                 <!-- Hero Banner -->
-                <section class="hero" style="height:${bannerHeight}px">
-                    ${bannerUrl ? `<img src="${bannerUrl}" alt="Banner" class="hero-image">` : ''}
-                    <div class="hero-overlay">
-                        <div class="hero-content">
-                            <h1>${bannerTitle}</h1>
-                            <p>${bannerSubtitle}</p>
-                            <button class="btn btn-accent" onclick="document.getElementById('produtos-destaques').scrollIntoView({behavior: 'smooth'})">
-                                <i class="fas fa-book"></i> Ver Apostilas
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-
+                ${heroHtml}
 
                 <!-- Categories -->
                 <section class="categories-section">
@@ -3422,6 +3685,10 @@
                 <!-- Depoimentos -->
                 ${renderTestimonialsSection()}
             `;
+
+            if (banners.length > 1) {
+                startHeroRotation();
+            }
 
             setSeoMeta({
                 ...DEFAULT_SEO,
@@ -4196,11 +4463,15 @@
         }
 
         async function loadAdminData() {
+            updateBannerProductSelects();
+
             // Load config
             Object.keys(appState.config).forEach(key => {
                 const el = document.getElementById(`config_${key}`);
                 if (el) el.value = appState.config[key] || '';
             });
+
+            updateBannerProductSelects();
 
             // Load categories for product form
             const categorySelect = document.getElementById('product_categoria_id');
@@ -4262,6 +4533,157 @@
             }
         }
 
+        function updateBannerProductSelects() {
+            for (let indexNumber = 1; indexNumber <= 3; indexNumber += 1) {
+                const select = document.getElementById(`config_banner_${indexNumber}_product_ref`);
+                if (!select) continue;
+                const currentValue = appState.config[`banner_${indexNumber}_product_ref`] || select.value || '';
+                const options = ['<option value="">-- Selecionar produto --</option>']
+                    .concat((appState.allProdutos || []).map(produto => `<option value="${produto.id}">${produto.titulo}</option>`));
+                select.innerHTML = options.join('');
+                select.value = currentValue;
+            }
+        }
+
+        function stopHeroRotation() {
+            if (appState.bannerRotationTimer) {
+                clearInterval(appState.bannerRotationTimer);
+                appState.bannerRotationTimer = null;
+            }
+        }
+
+        function tokenizeCodeWords(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toUpperCase()
+                .split(/[^A-Z0-9]+/)
+                .filter(token => token && !PRODUCT_CODE_STOP_WORDS.has(token));
+        }
+
+        function abbreviateForProductCode(value = '', options = {}) {
+            const {
+                fallback = 'ITEM',
+                maxWords = 4,
+                maxLettersPerWord = 3
+            } = options;
+            const tokens = tokenizeCodeWords(value).slice(0, maxWords);
+            const compact = tokens.map(token => {
+                if (/^[A-Z0-9]{2,8}$/.test(token)) return token;
+                return token.slice(0, Math.max(1, maxLettersPerWord));
+            }).filter(Boolean);
+            return compact.length ? compact.join('-') : fallback;
+        }
+
+        function getMonthCode(date = new Date()) {
+            return MONTH_CODE_MAP[date.getMonth()] || 'XX';
+        }
+
+        function getNextAutomaticSequence(ignoreId = null) {
+            const numericCodes = (appState.allProdutos || [])
+                .filter(produto => String(produto.id) !== String(ignoreId))
+                .map(produto => normalizeProductCode(produto.codigo || ''))
+                .map(code => {
+                    const match = code.match(/^MQA-(\d{2,4})-/);
+                    return match ? parseInt(match[1], 10) : 0;
+                })
+                .filter(number => Number.isFinite(number));
+            return String((Math.max(0, ...numericCodes) || 0) + 1).padStart(3, '0');
+        }
+
+        function getEditorialCodeSegment() {
+            const type = document.getElementById('product_tipo_editorial')?.value || 'normal';
+            if (type === 'preparatoria') return 'PREP';
+            if (type === 'caderno_questoes') return 'CADERNO';
+            return '';
+        }
+
+        function getContestCodeSegment() {
+            const explicit = document.getElementById('product_sigla_concurso')?.value || '';
+            if (explicit.trim()) {
+                return abbreviateForProductCode(explicit, { fallback: 'CONCURSO', maxWords: 4, maxLettersPerWord: 6 });
+            }
+
+            const orgao = document.getElementById('product_orgao')?.value || '';
+            const estado = document.getElementById('product_estado')?.value || '';
+            let segment = abbreviateForProductCode(orgao, { fallback: 'ORGAO', maxWords: 4, maxLettersPerWord: 4 });
+            const stateCode = normalizeProductCode(estado).replace(/[^A-Z0-9]+/g, '').slice(0, 4);
+            if (stateCode && !segment.includes(stateCode)) {
+                segment = `${segment}-${stateCode}`;
+            }
+            return segment;
+        }
+
+        function getHomeBanners() {
+            const legacyDesktop = appState.config.banner_url || '';
+            const banners = [];
+
+            for (let indexNumber = 1; indexNumber <= 3; indexNumber += 1) {
+                const desktopUrl = appState.config[`banner_${indexNumber}_image_url`] || (indexNumber === 1 ? legacyDesktop : '');
+                const mobileUrl = appState.config[`banner_${indexNumber}_mobile_url`] || '';
+                const productRef = appState.config[`banner_${indexNumber}_product_ref`] || '';
+                const linkUrl = appState.config[`banner_${indexNumber}_link_url`] || '';
+
+                if (!desktopUrl && !mobileUrl) continue;
+
+                banners.push({
+                    index: indexNumber - 1,
+                    desktopUrl,
+                    mobileUrl,
+                    productRef,
+                    linkUrl,
+                    alt: `Banner principal ${indexNumber}`
+                });
+            }
+
+            return banners;
+        }
+
+        function openHeroBanner(indexNumber) {
+            const banner = (appState.homeBanners || [])[indexNumber];
+            if (!banner) return;
+
+            if (banner.productRef) {
+                navigateTo('produto', banner.productRef, { scroll: true });
+                return;
+            }
+
+            if (banner.linkUrl) {
+                window.location.href = banner.linkUrl;
+            }
+        }
+
+        function setHeroSlide(indexNumber) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            if (!slides.length) return;
+
+            const nextIndex = ((indexNumber % slides.length) + slides.length) % slides.length;
+            appState.heroBannerIndex = nextIndex;
+
+            slides.forEach((slide, indexSlide) => {
+                slide.classList.toggle('active', indexSlide === nextIndex);
+            });
+
+            dots.forEach((dot, indexDot) => {
+                dot.classList.toggle('active', indexDot === nextIndex);
+            });
+        }
+
+        function changeHeroSlide(step = 1) {
+            setHeroSlide((appState.heroBannerIndex || 0) + step);
+        }
+
+        function startHeroRotation() {
+            stopHeroRotation();
+            const bannerCount = (appState.homeBanners || []).length;
+            if (bannerCount <= 1) return;
+            const seconds = Math.max(3, parseInt(appState.config.banner_autoplay_seconds) || 5);
+            appState.bannerRotationTimer = setInterval(() => {
+                changeHeroSlide(1);
+            }, seconds * 1000);
+        }
+
         // ==================== PRODUCTS CRUD ====================
         function slugifyText(value = '') {
             return String(value || '')
@@ -4306,11 +4728,31 @@
         }
 
         function buildAutomaticProductCode(ignoreId = null) {
-            const orgaoPart = slugifyText(document.getElementById('product_orgao')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 4);
-            const cargoPart = slugifyText(document.getElementById('product_cargo')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 6);
-            const titlePart = slugifyText(document.getElementById('product_titulo')?.value || '').replace(/-/g, '').toUpperCase().slice(0, 6);
-            const base = normalizeProductCode(['QAP', orgaoPart || 'ORG', cargoPart || titlePart || 'PROD'].filter(Boolean).join('-'));
-            return ensureUniqueValue(base, getExistingProductCodes(ignoreId), 'QAP-PROD');
+            const sequence = getNextAutomaticSequence(ignoreId);
+            const now = new Date();
+            const periodPart = `${getMonthCode(now)}${String(now.getFullYear()).slice(-2)}`;
+            const editorialPart = getEditorialCodeSegment();
+            const contestPart = getContestCodeSegment();
+            const cargoPart = abbreviateForProductCode(document.getElementById('product_cargo')?.value || '', { fallback: 'CARGO', maxWords: 4, maxLettersPerWord: 3 });
+            return normalizeProductCode(['MQA', sequence, periodPart, editorialPart, contestPart, cargoPart].filter(Boolean).join('-'));
+        }
+
+        function handlePurchaseTypeChange(forceSuggestion = false) {
+            const purchaseType = document.getElementById('product_tipo_botao')?.value || 'hotmart';
+            const originSelect = document.getElementById('product_codigo_origem');
+            const codeInput = document.getElementById('product_codigo');
+            const isNewProduct = !document.getElementById('product_id')?.value;
+            if (!originSelect || !codeInput) return;
+
+            if (purchaseType === 'hotmart' && (forceSuggestion || isNewProduct || !codeInput.value)) {
+                originSelect.value = 'automatico';
+            }
+
+            if (purchaseType === 'parceiro' && (forceSuggestion || (!codeInput.value && originSelect.value === 'automatico'))) {
+                originSelect.value = 'manual';
+            }
+
+            handleProductCodeModeChange();
         }
 
         function handleProductCodeModeChange() {
@@ -4353,9 +4795,10 @@
             document.getElementById('product_id').value = '';
             document.getElementById('product_ativo').checked = true;
             document.getElementById('product_atualizado_edital').checked = true;
+            document.getElementById('product_tipo_editorial').value = 'normal';
             document.getElementById('product_codigo_origem').value = 'automatico';
             document.getElementById('product_codigo').value = '';
-            handleProductCodeModeChange();
+            handlePurchaseTypeChange(true);
             calcularParcela();
         }
 
@@ -4369,8 +4812,12 @@
                     el.value = produto[key] ?? '';
                 }
             });
+            if (!produto.tipo_editorial) {
+                const typeEl = document.getElementById('product_tipo_editorial');
+                if (typeEl) typeEl.value = 'normal';
+            }
             calcularParcela();
-            handleProductCodeModeChange();
+            handlePurchaseTypeChange(false);
         }
 
         function showProductForm(productId = null) {
@@ -4387,23 +4834,62 @@
             }
         }
 
-        function duplicateProduct(productId) {
+        async function duplicateProduct(productId) {
             const produto = getProductById(productId);
             if (!produto) return;
 
-            prepareProductFormDefaults();
-            const clone = { ...produto };
-            delete clone.id;
-            delete clone.created_at;
-            delete clone.updated_at;
-            clone.titulo = `${produto.titulo} - Cópia`;
-            clone.codigo = '';
-            clone.codigo_origem = 'automatico';
+            try {
+                const clone = { ...produto };
+                delete clone.id;
+                delete clone.created_at;
+                delete clone.updated_at;
 
-            fillProductForm(clone);
-            document.getElementById('product_id').value = '';
-            generateProductCode(true);
-            showAlert('Produto duplicado no formulário. Agora é só ajustar as informações e salvar.', 'success');
+                clone.titulo = `${produto.titulo} - Cópia`;
+                clone.slug = ensureUniqueValue(`${slugifyText(produto.titulo)}-copia`, (appState.allProdutos || []).map(item => item.slug), 'produto-copia');
+                clone.ativo = false;
+                clone.destaque = false;
+                clone.lancamento = false;
+                clone.mais_vendida = false;
+                clone.pre_venda = false;
+
+                if ((clone.codigo_origem || 'manual') === 'automatico') {
+                    const editorialPart = clone.tipo_editorial === 'preparatoria'
+                        ? 'PREP'
+                        : clone.tipo_editorial === 'caderno_questoes'
+                            ? 'CADERNO'
+                            : '';
+                    const contestPart = clone.sigla_concurso
+                        ? abbreviateForProductCode(clone.sigla_concurso, { fallback: 'CONCURSO', maxWords: 4, maxLettersPerWord: 6 })
+                        : abbreviateForProductCode(`${clone.orgao || ''} ${clone.estado || ''}`, { fallback: 'ORGAO', maxWords: 4, maxLettersPerWord: 4 });
+                    const cargoPart = abbreviateForProductCode(clone.cargo || '', { fallback: 'CARGO', maxWords: 4, maxLettersPerWord: 3 });
+                    clone.codigo = normalizeProductCode([
+                        'MQA',
+                        getNextAutomaticSequence(),
+                        `${getMonthCode(new Date())}${String(new Date().getFullYear()).slice(-2)}`,
+                        editorialPart,
+                        contestPart,
+                        cargoPart
+                    ].filter(Boolean).join('-'));
+                } else {
+                    clone.codigo = null;
+                }
+
+                const { data, error } = await supabaseClient
+                    .from('produtos')
+                    .insert([clone])
+                    .select('*')
+                    .single();
+
+                if (error) throw error;
+
+                await loadProdutos();
+                loadProductsTable();
+                showProductForm(data.id);
+                showAlert('Cópia criada com sucesso! Ela foi salva como inativa para você ajustar antes de publicar.', 'success');
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao duplicar produto: ' + (error.message || error), 'error');
+            }
         }
 
         function hideProductForm() {
@@ -4458,9 +4944,16 @@
                     productData.codigo = normalizeProductCode(productData.codigo);
                 }
 
-                if ((!productData.codigo || !String(productData.codigo).trim()) && (isNewProduct || productData.codigo_origem === 'automatico')) {
-                    productData.codigo = buildAutomaticProductCode(id || null);
+                if (productData.tipo_botao === 'hotmart' && !productData.codigo_origem) {
                     productData.codigo_origem = 'automatico';
+                }
+
+                if (productData.tipo_botao === 'parceiro' && !productData.codigo_origem) {
+                    productData.codigo_origem = 'manual';
+                }
+
+                if ((productData.codigo_origem === 'automatico') && (isNewProduct || !productData.codigo || String(productData.codigo).trim() === '')) {
+                    productData.codigo = buildAutomaticProductCode(id || null);
                 }
 
                 if (productData.codigo) {
@@ -4488,7 +4981,7 @@
                         .from('produtos')
                         .insert([productData]);
                     if (error) throw error;
-                    showAlert('Produto criado com sucesso!', 'success');
+                    showAlert(`Produto criado com sucesso!${productData.codigo ? ` Código: ${productData.codigo}` : ''}`, 'success');
                 }
 
                 await loadProdutos();
@@ -5071,6 +5564,7 @@
         }
 
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
