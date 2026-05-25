@@ -31,6 +31,20 @@ INSERT INTO site_config (key, value)
 VALUES
   ('logo_url', ''),
   ('banner_url', ''),
+  ('banner_height', '300'),
+  ('banner_autoplay_seconds', '5'),
+  ('banner_1_image_url', ''),
+  ('banner_1_mobile_url', ''),
+  ('banner_1_product_ref', ''),
+  ('banner_1_link_url', ''),
+  ('banner_2_image_url', ''),
+  ('banner_2_mobile_url', ''),
+  ('banner_2_product_ref', ''),
+  ('banner_2_link_url', ''),
+  ('banner_3_image_url', ''),
+  ('banner_3_mobile_url', ''),
+  ('banner_3_product_ref', ''),
+  ('banner_3_link_url', ''),
   ('banner_title', 'Apostilas Atualizadas para Concursos Públicos'),
   ('banner_subtitle', 'Material 100% digital, conforme último edital'),
   ('whatsapp', '5511999999999'),
@@ -450,7 +464,9 @@ ALTER TABLE produtos
   ADD COLUMN IF NOT EXISTS parcelas INT,
   ADD COLUMN IF NOT EXISTS parcelas_impresso INT,
   ADD COLUMN IF NOT EXISTS codigo TEXT,
-  ADD COLUMN IF NOT EXISTS codigo_origem TEXT DEFAULT 'manual';
+  ADD COLUMN IF NOT EXISTS codigo_origem TEXT DEFAULT 'manual',
+  ADD COLUMN IF NOT EXISTS tipo_editorial TEXT DEFAULT 'normal',
+  ADD COLUMN IF NOT EXISTS sigla_concurso TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_produtos_codigo ON produtos(codigo);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_produtos_codigo_unique ON produtos(codigo) WHERE codigo IS NOT NULL;
@@ -460,3 +476,7 @@ UPDATE produtos
 SET codigo_origem = COALESCE(codigo_origem, 'manual')
 WHERE codigo_origem IS NULL;
 
+
+UPDATE produtos
+SET tipo_editorial = COALESCE(tipo_editorial, 'normal')
+WHERE tipo_editorial IS NULL;
