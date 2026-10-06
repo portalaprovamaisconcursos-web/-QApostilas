@@ -1,1020 +1,6146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" id="meta-description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
+    <title>+QApostilas - Apostilas para Concursos Públicos</title>
 
-/* =====================================================================
-   +QApostilas — PATCH v2 (módulo adicional, não remove nada do site atual)
-   1) Venda de produto próprio (Mercado Pago Checkout Pro / Pix) + Hotmart + parceiro
-   2) Upload de capas e do PDF por arquivo (bucket Supabase), com fallback por link
-   3) Seletor de Estados no topo (ícone/pin) e remoção da grade de estados da home
-   4) Área do cliente (cadastro, login, meus pedidos, download do PDF)
-   5) Painel admin: abas Vendas e Clientes (número do pedido, data, status)
-   ===================================================================== */
+    <!-- ✅ SEO: URL Canônica -->
+    <link rel="canonical" id="canonical-link" href="https://www.maisqapostilas.com.br/" />
 
-const V2_BUCKET_CAPAS = 'apostilas';
-const V2_BUCKET_PDF = 'apostilas-pdf';
-const V2_PLACEHOLDER_COVER = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='580'%3E%3Crect width='420' height='580' fill='%23EEF3FA'/%3E%3Crect x='26' y='26' width='368' height='528' fill='none' stroke='%231E90FF' stroke-width='3'/%3E%3Ctext x='210' y='300' font-family='Arial' font-size='26' fill='%231E90FF' text-anchor='middle'%3EApostila%3C/text%3E%3C/svg%3E";
-const V2_PLACEHOLDER_AVATAR = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%2322C55E'/%3E%3Ccircle cx='60' cy='44' r='20' fill='%23ffffff'/%3E%3Cpath d='M18 112c0-23 19-42 42-42s42 19 42 42z' fill='%23ffffff'/%3E%3C/svg%3E";
+    <!-- ✅ SEO: Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" id="meta-og-type" content="website" />
+    <meta property="og:url" id="meta-og-url" content="https://www.maisqapostilas.com.br/" />
+    <meta property="og:title" id="meta-og-title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta property="og:description" id="meta-og-description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital. Encontre sua apostila agora!" />
+    <meta property="og:image" id="meta-og-image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="+QApostilas" />
 
-const V2_ESTADOS_NOMES = {
-    'AC':'Acre','AL':'Alagoas','AM':'Amazonas','AP':'Amapá','BA':'Bahia','CE':'Ceará',
-    'DF':'Distrito Federal','ES':'Espírito Santo','GO':'Goiás','MA':'Maranhão','MG':'Minas Gerais',
-    'MS':'Mato Grosso do Sul','MT':'Mato Grosso','PA':'Pará','PB':'Paraíba','PE':'Pernambuco',
-    'PI':'Piauí','PR':'Paraná','RJ':'Rio de Janeiro','RN':'Rio Grande do Norte','RO':'Rondônia',
-    'RR':'Roraima','RS':'Rio Grande do Sul','SC':'Santa Catarina','SE':'Sergipe','SP':'São Paulo',
-    'TO':'Tocantins','NACIONAL':'Nacional'
-};
+    <!-- ✅ SEO: Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" id="meta-twitter-title" content="+QApostilas - Apostilas para Concursos Públicos" />
+    <meta name="twitter:description" id="meta-twitter-description" content="Apostilas atualizadas para concursos públicos. Material 100% digital, conforme último edital." />
+    <meta name="twitter:image" id="meta-twitter-image" content="https://www.maisqapostilas.com.br/og-image.jpg" />
 
-function getAvatarPlaceholder() { return V2_PLACEHOLDER_AVATAR; }
-function getCoverPlaceholder() { return V2_PLACEHOLDER_COVER; }
-
-/* ==================== TIPOS DE VENDA ==================== */
-function getVendaTipo(produto) {
-    const t = String((produto && (produto.tipo_botao || produto.tipo_venda)) || '').toLowerCase();
-    if (t === 'proprio') return 'proprio';
-    if (t === 'parceiro' || t === 'terceiro') return 'parceiro';
-    return 'hotmart';
-}
-
-function getVendaMeta(tipo) {
-    const map = {
-        proprio:  { label: 'Produto próprio', cor: '#16A34A', classe: 'btn-buy-proprio',  desc: 'Compra no nosso site — Pix ou cartão' },
-        hotmart:  { label: 'Hotmart',         cor: '#EA580C', classe: 'btn-buy-hotmart',  desc: 'Checkout seguro Hotmart' },
-        parceiro: { label: 'Site parceiro',   cor: '#DC2626', classe: 'btn-buy-parceiro', desc: 'Compra no site do parceiro' }
-    };
-    return map[tipo] || map.hotmart;
-}
-
-function handleBuyClick(event, produtoId) {
-    if (event && event.stopPropagation) event.stopPropagation();
-    const todos = (appState.allProdutos || appState.produtos || []);
-    const produto = todos.find(p => String(p.id) === String(produtoId)) || (appState.produtos || []).find(p => String(p.id) === String(produtoId));
-    if (!produto) return;
-
-    const tipo = getVendaTipo(produto);
-    if (tipo === 'proprio') { openCheckoutModal(produtoId); return; }
-
-    const url = (produto.mercadopago_url && tipo === 'proprio') ? produto.mercadopago_url : produto.link_compra;
-    if (!url) { showAlert('Este produto ainda não tem link de compra cadastrado.', 'warning'); return; }
-    window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-/* ==================== SELETOR DE ESTADOS NO TOPO ==================== */
-function getEstadosDisponiveis() {
-    const lista = (appState.produtos || []).map(p => String(p.estado || '').toUpperCase().trim()).filter(Boolean);
-    lista.unshift('NACIONAL');
-    return Array.from(new Set(lista));
-}
-
-function updateEstadosDropdown() {
-    const estados = getEstadosDisponiveis();
-    const html = `
-        <a href="#" onclick="filterByEstado('Nacional'); closeNavMenu(); return false;">
-            <i class="fas fa-flag"></i> Nacional (todo o Brasil)
-        </a>
-        ${estados.filter(e => e !== 'NACIONAL').map(sigla => {
-            const qtd = (appState.produtos || []).filter(p => String(p.estado || '').toUpperCase() === sigla).length;
-            return `<a href="/estado/${sigla.toLowerCase()}" onclick="event.preventDefault(); filterByEstado('${sigla}'); closeNavMenu();">${sigla} — ${V2_ESTADOS_NOMES[sigla] || sigla} <small style="opacity:.6">(${qtd})</small></a>`;
-        }).join('')}
-    `;
-    ['estadosDropdown', 'estadosDropdown2'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-    });
-}
-
-function injectEstadosNoTopo() {
-    if (document.getElementById('estadosDropdown')) return;
-
-    const menu = document.getElementById('navMenu');
-    if (menu) {
-        const li = document.createElement('li');
-        li.className = 'dropdown';
-        li.innerHTML = `
-            <span class="dropdown-toggle"><i class="fas fa-map-marker-alt"></i> Estados <i class="fas fa-chevron-down"></i></span>
-            <div class="dropdown-menu" id="estadosDropdown"></div>
-        `;
-        const categoriasLi = menu.querySelector('.dropdown');
-        if (categoriasLi && categoriasLi.nextSibling) menu.insertBefore(li, categoriasLi.nextSibling);
-        else menu.appendChild(li);
+    <!-- ✅ SEO: Schema.org - Organização -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "+QApostilas",
+      "url": "https://www.maisqapostilas.com.br",
+      "description": "Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.",
+      "logo": "https://www.maisqapostilas.com.br/og-image.jpg"
     }
+    </script>
 
-    const menu2 = document.getElementById('navSecondary');
-    if (menu2) {
-        const li2 = document.createElement('li');
-        li2.className = 'dropdown-secondary';
-        li2.innerHTML = `
-            <span><i class="fas fa-map-marker-alt"></i> Estados <i class="fas fa-chevron-down" style="font-size:11px;margin-left:2px;"></i></span>
-            <div class="dropdown-secondary-menu" id="estadosDropdown2"></div>
-        `;
-        const catLi2 = menu2.querySelector('.dropdown-secondary');
-        if (catLi2 && catLi2.nextSibling) menu2.insertBefore(li2, catLi2.nextSibling);
-        else menu2.appendChild(li2);
+    <script type="application/ld+json" id="dynamic-schema"></script>
+
+    <!-- ✅ SEO: Schema.org - WebSite com SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "+QApostilas",
+      "url": "https://www.maisqapostilas.com.br",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.maisqapostilas.com.br/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
+    </script>
 
-    updateEstadosDropdown();
-}
+    <!-- Favicon dinâmico (configurado via painel admin) -->
+    <link rel="icon" id="site-favicon" href="" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* ==================== RESET & VARIÁVEIS ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* ==================== MODAIS (conta / checkout) ==================== */
-function injectModaisV2() {
-    if (!document.getElementById('accountModal')) {
-        const acc = document.createElement('div');
-        acc.className = 'modal';
-        acc.id = 'accountModal';
-        acc.innerHTML = `
-            <div class="modal-content v2-modal">
-                <div class="modal-header">
-                    <h2 id="accountModalTitle"><i class="fas fa-user-circle"></i> Minha conta</h2>
-                    <button class="modal-close" onclick="closeModalById('accountModal')">&times;</button>
+        :root {
+            --primary: #1E90FF;
+            --primary-dark: #0066CC;
+            --primary-light: #E8F4FF;
+            --accent: #FF4444;
+            --partner: #0066CC;
+            --text: #111111;
+            --text-muted: #666666;
+            --bg: #F8FAFF;
+            --white: #FFFFFF;
+            --border: #E0E8FF;
+            --success: #22C55E;
+            --gold: #FFD700;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        /* ==================== UTILIDADES ==================== */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #FF5555 0%, var(--accent) 100%);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-partner {
+            background: var(--partner);
+            color: var(--white);
+        }
+
+        .btn-partner:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .badge-info {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .badge-accent {
+            background: #FFE5E5;
+            color: var(--accent);
+        }
+
+        /* ==================== HEADER / NAVBAR ==================== */
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            display: none;
+        }
+
+        .nav-menu {
+            display: none; /* movido para nav-secondary */
+            align-items: center;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            font-weight: 500;
+            color: var(--text);
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            border-radius: 12px;
+            padding: 12px 0;
+            min-width: 200px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            transition: background 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-admin {
+            background: var(--text);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-admin:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* ==================== HERO / BANNER ==================== */
+        .hero {
+            position: relative;
+            min-height: 180px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            overflow: hidden;
+            border-radius: 0 0 24px 24px;
+            transition: height 0.25s ease;
+        }
+
+        .hero-slider {
+            position: relative;
+            isolation: isolate;
+            height: auto;
+            background: #fff;
+        }
+
+        .hero-track {
+            width: 100%;
+            height: 100%;
+            min-height: inherit;
+            position: relative;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .hero-slide-button {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            display: block;
+        }
+
+        .hero-slide picture {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+
+        .hero-slide img,
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            object-position: center;
+            background: #fff;
+        }
+
+        .hero-slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.18) 100%);
+            pointer-events: none;
+        }
+
+        .hero-slide-no-link {
+            cursor: default;
+        }
+
+        .hero-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+            width: 44px;
+            height: 44px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--primary-dark);
+            box-shadow: var(--shadow-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .hero-nav:hover {
+            background: #fff;
+            transform: translateY(-50%) scale(1.04);
+        }
+
+        .hero-nav.prev {
+            left: 24px;
+        }
+
+        .hero-nav.next {
+            right: 24px;
+        }
+
+        .hero-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.32);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 999px;
+            border: 0;
+            background: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .hero-dot.active {
+            background: #fff;
+            transform: scale(1.15);
+        }
+
+        .hero-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 32px;
+            color: var(--white);
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.92) 0%, rgba(0, 102, 204, 0.92) 100%);
+        }
+
+        .hero-fallback h1 {
+            font-size: clamp(28px, 4vw, 52px);
+            margin-bottom: 14px;
+        }
+
+        .hero-fallback p {
+            font-size: clamp(16px, 2vw, 22px);
+            opacity: 0.95;
+            margin-bottom: 24px;
+        }
+
+        /* ==================== BARRA DE PESQUISA ==================== */
+        .search-section {
+            background: var(--white);
+            padding: 40px 20px;
+            box-shadow: var(--shadow-md);
+            margin-top: -60px;
+            position: relative;
+            z-index: 100;
+            border-radius: 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .search-select {
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        /* ==================== CATEGORIAS ==================== */
+        .categories-section {
+            padding: 80px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 42px);
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        .categories-grid { display: none; }
+
+        /* ==================== APOSTILAS POR ESTADO ==================== */
+        .states-section {
+            padding: 80px 20px;
+            background: linear-gradient(180deg, var(--white) 0%, var(--bg) 100%);
+        }
+
+        .states-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .state-card {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .state-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+        }
+
+        .state-sigla {
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .state-name {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .state-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ==================== NOVA PÁGINA DE PRODUTO (LAYOUT DOMÍNIO) ==================== */
+        .product-detail {
+            display: grid;
+            /* PATCH v3: a capa ganhou mais espaço (antes travava em 360px). */
+            grid-template-columns: minmax(340px, 480px) minmax(0, 1fr) minmax(270px, 320px);
+            grid-template-areas: "cover info purchase";
+            gap: 28px;
+            background: var(--white);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
+            align-items: start;
+        }
+
+        .product-detail-media { grid-area: cover; }
+        .product-detail-info { grid-area: info; }
+        .product-detail-sidebar { grid-area: purchase; position: sticky; top: 110px; }
+        .product-summary-position-bottom { grid-area: summary; max-width: 100%; margin-top: 24px; }
+
+        .product-cover-shell {
+            position: relative;
+            width: 100%;
+            /* PATCH v3: capa maior — o produto é o destaque da página. */
+            max-width: 480px;
+            margin: 0 auto;
+            aspect-ratio: 21 / 29.7;
+            border-radius: 18px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f4f7fb 0%, #e9eef7 100%);
+            box-shadow: 0 20px 50px -20px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-detail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            transition: transform 0.4s ease;
+        }
+
+        .product-detail-image:hover { transform: scale(1.02); }
+
+        /* ==================== PATCH v3 (formas de pagamento / capa / selos) ==================== */
+        /* Formas de pagamento no checkout: o cliente escolhe, não é mais um select escondido */
+        .v2-pag-opcoes { display: grid; gap: 10px; margin-top: 6px; }
+        .v2-pag-option {
+            display: grid;
+            grid-template-columns: 22px 1fr;
+            grid-template-areas: "radio titulo" "radio desc";
+            align-items: center;
+            gap: 2px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            background: var(--white);
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .v2-pag-option:hover { border-color: var(--primary); }
+        .v2-pag-option.selecionado {
+            border-color: var(--primary);
+            background: #f3f8ff;
+            box-shadow: 0 6px 18px -12px rgba(30,144,255,.75);
+        }
+        .v2-pag-option input[type=radio] { grid-area: radio; width: 18px; height: 18px; accent-color: var(--primary); }
+        .v2-pag-titulo { grid-area: titulo; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .v2-pag-desc { grid-area: desc; font-size: 12px; color: var(--text-muted); }
+
+        /* Selo de origem do produto: SÓ na página do produto e SÓ para parceiro */
+        .v2-venda-selo-parceiro { margin-bottom: 4px; }
+
+        /* Card da vitrine: capa mais presente, sem selo de origem */
+        .product-card .product-image-container { padding: 10px; }
+        .product-card .product-image { border-radius: 14px; }
+
+        /* Selo da capa (canto) */
+        .v2-capa-selo {
+            position: absolute; top: 10px; left: 10px; z-index: 3;
+            background: rgba(15, 23, 42, .78); color: #fff; font-size: 11px; font-weight: 700;
+            padding: 4px 9px; border-radius: 999px; letter-spacing: .02em;
+        }
+
+        /* ==================== PATCH v2 (vendas próprias / estados / conta) ==================== */
+        .hidden { display: none !important; }
+        .v2-modal { max-width: 640px; width: min(94vw, 640px); }
+        .v2-modal .modal-body { max-height: 74vh; overflow-y: auto; }
+
+        .v2-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .v2-tab {
+            border: 1px solid var(--border); background: var(--white); color: var(--text);
+            padding: 9px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .v2-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .v2-pedido-card {
+            border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 12px; background: var(--white);
+        }
+        .v2-pedido-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--text-muted); }
+        .v2-resumo-compra {
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 16px;
+            background: linear-gradient(135deg, #f7faff 0%, #eef4ff 100%); display: flex; flex-direction: column; gap: 4px;
+        }
+        .v2-resumo-valor { font-size: 24px; font-weight: 800; color: var(--success); }
+        .v2-aviso { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 6px 0 14px; }
+
+        .v2-sucesso { text-align: center; }
+        .v2-sucesso-icon { font-size: 44px; color: var(--success); margin-bottom: 8px; }
+        .v2-codigo-box {
+            border: 2px dashed var(--success); border-radius: 14px; padding: 12px; margin: 14px 0;
+            display: flex; flex-direction: column; gap: 4px; background: #f3fff7;
+        }
+        .v2-codigo-box span { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+        .v2-codigo-box strong { font-size: 20px; letter-spacing: 1px; color: #15803d; }
+        .v2-pix-box { border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-top: 12px; text-align: left; }
+        .v2-chave-pix { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .v2-chave-pix code { background: #f1f5f9; padding: 8px 10px; border-radius: 8px; word-break: break-all; }
+
+        .v2-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .v2-kpi {
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--white);
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .v2-kpi span { font-size: 12px; color: var(--text-muted); }
+        .v2-kpi strong { font-size: 22px; }
+
+        .btn-buy-proprio { background: #16A34A !important; color: #fff !important; border-color: #16A34A !important; }
+        .btn-buy-proprio:hover { background: #15803D !important; }
+        .btn-buy-hotmart { background: #EA580C !important; color: #fff !important; border-color: #EA580C !important; }
+        .btn-buy-hotmart:hover { background: #C2410C !important; }
+        .btn-buy-parceiro { background: #DC2626 !important; color: #fff !important; border-color: #DC2626 !important; }
+        .btn-buy-parceiro:hover { background: #B91C1C !important; }
+
+        .v2-venda-selo {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+            font-size: 11.5px; font-weight: 700; margin-bottom: 10px; color: #fff;
+        }
+        .v2-upload-box { border: 1px dashed var(--border); border-radius: 14px; padding: 12px; background: #fafcff; }
+        .v2-upload-preview { max-width: 130px; border-radius: 10px; border: 1px solid var(--border); margin-top: 8px; display: block; }
+        .dropdown-secondary-menu, .dropdown-menu { max-height: 60vh; overflow-y: auto; }
+
+        @media (max-width: 1024px) {
+            .product-detail {
+                grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+                grid-template-areas:
+                    "cover info"
+                    "purchase purchase"
+                    "summary summary";
+            }
+        }
+
+        @media (max-width: 768px) {
+            .product-detail {
+                grid-template-columns: 1fr;
+                grid-template-areas: "cover" "info" "purchase" "summary";
+            }
+        }
+
+        .breadcrumb-trail {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+        .breadcrumb-trail a { color: var(--primary); font-weight: 600; }
+        .breadcrumb-trail a:hover { text-decoration: underline; }
+        .breadcrumb-trail .sep { margin: 0 8px; opacity: 0.5; }
+        .breadcrumb-trail .current { color: var(--text); font-weight: 600; }
+
+        .payment-methods-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .payment-method-tag {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .payment-method-tag i { color: var(--primary); }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            background: var(--bg);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+        .upload-zone input[type=file] { display: none; }
+        .upload-preview { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .upload-preview img { width: 60px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+        .upload-preview .filename { font-size: 12px; color: var(--text-muted); }
+        .upload-status { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        .upload-status.success { color: var(--success); }
+        .upload-status.error { color: var(--accent); }
+
+        @media (max-width: 600px) {
+            .states-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+        }
+        /* Mantém a section antiga oculta por compatibilidade visual */
+        .categories-section { display: none; }
+
+        .category-card {
+            background: var(--white);
+            padding: 30px 20px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .category-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* ==================== PRODUTOS ==================== */
+        /* ==================== CARROSSEL DE PRODUTOS ==================== */
+        .products-section {
+            padding: 50px 20px;
+            background: var(--white);
+        }
+
+        /* Wrapper do carrossel */
+        .carousel-wrapper {
+            position: relative;
+            margin-top: 30px;
+        }
+
+        .products-grid {
+            display: flex;
+            gap: 18px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 12px;
+            /* Esconde scrollbar mas mantém funcionalidade */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .products-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Botões de navegação do carrossel */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--primary);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        .carousel-btn.prev { left: -22px; }
+        .carousel-btn.next { right: -22px; }
+        @media (max-width: 768px) {
+            .carousel-btn { display: none; }
+        }
+
+        /* Indicadores de paginação */
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .carousel-dot.active {
+            background: var(--primary);
+            width: 20px;
+            border-radius: 4px;
+        }
+
+        /* Card do produto — 4 por vez */
+        .product-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            /* 4 cards visíveis + gaps */
+            flex: 0 0 calc(25% - 14px);
+            min-width: 200px;
+            max-width: 260px;
+            scroll-snap-align: start;
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-image-container {
+            position: relative;
+            aspect-ratio: 21 / 29.7;
+            background: #FFFFFF;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .product-badges {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-start;
+        }
+        .product-badges .badge {
+            font-size: 10px;
+            padding: 3px 7px;
+        }
+
+        .product-content {
+            padding: 12px 14px 14px;
+        }
+
+        .product-category {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.4px;
+        }
+
+        .product-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.35;
+        }
+
+        .product-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 1px;
+            color: var(--gold);
+            font-size: 11px;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .price-current {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .price-original {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        /* Responsivo: 2 cards em mobile */
+        @media (max-width: 600px) {
+            .product-card {
+                flex: 0 0 calc(50% - 9px);
+                min-width: 150px;
+            }
+            .products-grid {
+                gap: 12px;
+            }
+        }
+
+        /* ==================== DEPOIMENTOS ==================== */
+        .testimonials-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .testimonial-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .testimonial-info h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .testimonial-cargo {
+            font-size: 14px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .testimonial-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .testimonial-rating {
+            display: flex;
+            gap: 4px;
+            color: var(--gold);
+        }
+
+        .testimonial-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        /* ==================== RODAPÉ ==================== */
+        .footer {
+            background: var(--text);
+            color: var(--white);
+            padding: 60px 20px 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .footer-section p {
+            opacity: 0.8;
+            line-height: 1.8;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* ==================== PÁGINA DE PRODUTO ==================== */
+        .product-detail {
+            display: grid;
+            grid-template-columns: minmax(260px, 360px) minmax(0, 1fr) minmax(270px, 320px);
+            gap: 28px;
+            margin-bottom: 32px;
+            align-items: start;
+        }
+
+        .product-detail-media {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .product-cover-shell {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: transparent;
+        }
+
+        .product-detail-image,
+        .detail-carousel {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            border-radius: 18px;
+            box-shadow: var(--shadow-sm);
+            background: var(--white);
+            border: 1px solid var(--border);
+        }
+
+        .product-detail-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 21 / 29.7;
+            object-fit: contain;
+            padding: 10px;
+        }
+
+        .product-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+            padding-top: 4px;
+        }
+
+        .product-detail-title {
+            font-size: clamp(22px, 2.4vw, 30px);
+            line-height: 1.22;
+            letter-spacing: -0.02em;
+            margin: 2px 0 0;
+            color: var(--text);
+        }
+
+        .product-detail-sidebar {
+            position: sticky;
+            top: 110px;
+        }
+
+        .product-detail-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .product-detail-badges .badge {
+            font-size: 12px;
+            padding: 7px 12px;
+        }
+
+        .product-rating-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 16px;
+        }
+
+        .product-sku {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .product-benefits {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .product-benefit-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .product-benefit-item i {
+            font-size: 17px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .product-benefit-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .product-benefit-text {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .product-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-width: 340px;
+        }
+
+        .product-summary-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 13px 15px;
+        }
+
+        .product-summary-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+        }
+
+        .product-summary-value {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .product-info-section {
+            margin-top: 28px;
+            background: var(--white);
+            padding: 24px;
+            border-radius: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .product-info-section h2 {
+            margin-bottom: 16px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .description-list,
+        .content-programatico ul,
+        .bonus-list {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+        }
+
+        .description-item,
+        .content-programatico li,
+        .bonus-list li {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+        }
+
+        .description-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+
+        .description-value {
+            display: block;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--text);
+        }
+
+        .description-paragraphs {
+            display: grid;
+            gap: 10px;
+            line-height: 1.7;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .content-programatico {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 22px;
+            margin-top: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .content-programatico h2 {
+            margin-bottom: 16px;
+            color: var(--primary-dark);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-programatico li {
+            position: relative;
+            padding-left: 42px;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .content-programatico li::before {
+            content: '✓';
+            position: absolute;
+            left: 16px;
+            top: 14px;
+            color: var(--success);
+            font-weight: 900;
+        }
+
+        .product-bonus-box {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid #B7E4C7;
+            background: linear-gradient(180deg, #F2FBF6 0%, #FFFFFF 100%);
+        }
+
+        .product-bonus-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #167C3A;
+            margin-bottom: 12px;
+        }
+
+        .bonus-list li {
+            position: relative;
+            padding-left: 42px;
+            background: var(--white);
+            border-color: #D7F0DE;
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .bonus-list li::before {
+            content: '★';
+            position: absolute;
+            left: 16px;
+            top: 14px;
+            color: #16A34A;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .product-detail-sections {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .product-detail-section {
+            margin-top: 0;
+            height: 100%;
+        }
+
+        .product-share-box {
+            margin-top: 14px;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .product-share-button {
+            width: 100%;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 14px 18px;
+            font-weight: 700;
+        }
+
+        /* ==================== ADMIN PANEL ==================== */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            z-index: 10000;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: var(--text);
+            color: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 20px;
+            background: var(--bg);
+            padding: 20px 30px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .admin-tab {
+            padding: 12px 24px;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .admin-content {
+            padding: 30px;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-table th {
+            background: var(--primary);
+            color: var(--white);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-code-preview {
+            display: inline-block;
+            max-width: 190px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: bottom;
+        }
+
+        .admin-table tr:hover {
+            background: var(--primary-light);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== RESPONSIVO ==================== */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .nav-menu.active {
+                display: flex !important;
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero {
+                min-height: 140px;
+                height: 225px;
+                border-radius: 0 0 18px 18px;
+            }
+
+            .hero-nav {
+                width: 38px;
+                height: 38px;
+            }
+
+            .hero-nav.prev { left: 10px; }
+            .hero-nav.next { right: 10px; }
+
+            .hero-dots {
+                bottom: 12px;
+                gap: 8px;
+                padding: 8px 12px;
+            }
+
+            .search-section {
+                margin-top: 0;
+                border-radius: 0;
+            }
+
+            .product-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .product-detail-media,
+            .product-detail-sidebar {
+                justify-content: center;
+            }
+
+            .product-detail-sidebar {
+                position: static;
+            }
+
+            .product-benefits,
+            .product-summary-grid,
+            .product-detail-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-tabs {
+                overflow-x: auto;
+                gap: 10px;
+            }
+
+            .admin-tab {
+                white-space: nowrap;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+
+        /* ==================== ALERTAS ==================== */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: #DCFCE7;
+            color: #16A34A;
+            border: 1px solid #86EFAC;
+        }
+
+        .alert-error {
+            background: #FFE5E5;
+            color: #DC2626;
+            border: 1px solid #FCA5A5;
+        }
+
+        .alert-warning {
+            background: #FEF3C7;
+            color: #D97706;
+            border: 1px solid #FCD34D;
+        }
+
+        .alert-info {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid #BAE6FD;
+        }
+
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
+        }
+
+
+        /* ==================== DETAIL CAROUSEL ==================== */
+        .detail-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .detail-carousel-track {
+            display: flex;
+            transition: transform 0.4s ease;
+            will-change: transform;
+        }
+        .detail-carousel-slide {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .slide-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .slide-label.digital { color: var(--primary); }
+        .slide-label.impressa { color: #1565C0; }
+        .detail-carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.92);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+        .detail-carousel-btn:hover { background: var(--primary); color: #fff; }
+        .detail-carousel-btn.prev { left: 6px; }
+        .detail-carousel-btn.next { right: 6px; }
+        .detail-carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .detail-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .detail-dot.active { background: var(--primary); }
+
+        /* ==================== GRID ESTÁTICO (categoria / busca) ==================== */
+        .products-grid-static {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 30px;
+        }
+        .products-grid-static .product-card {
+            flex: none;
+            min-width: auto;
+            max-width: none;
+            width: 100%;
+            scroll-snap-align: unset;
+        }
+        @media (max-width: 1100px) {
+            .products-grid-static { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .products-grid-static { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .products-grid-static { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+
+        /* ==================== PREÇOS DIGITAL / IMPRESSO ==================== */
+        .product-prices {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .price-version-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .price-version-icon {
+            font-size: 13px;
+        }
+        .price-impresso {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1565C0;
+        }
+        .price-impresso-detail {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1565C0;
+        }
+        .purchase-box {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            margin: 0 0 14px auto;
+            max-width: 320px;
+        }
+        .purchase-box-price-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            min-height: auto;
+            margin-bottom: 4px;
+        }
+        .purchase-box-original {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        .discount-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: #FF4D4F;
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .purchase-box-current {
+            font-size: clamp(30px, 3.4vw, 38px);
+            font-weight: 800;
+            line-height: 1;
+            color: var(--success);
+            margin-bottom: 6px;
+        }
+        .purchase-box-installment {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 14px;
+        }
+        .purchase-box-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .purchase-box-select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        .purchase-box-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+            outline: none;
+        }
+        .purchase-box-label-static {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+        .purchase-box-action {
+            width: 100%;
+            padding: 15px 18px;
+            font-size: 16px;
+            border-radius: 999px;
+        }
+        .purchase-box-secure {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        @media (max-width: 768px) {
+            .purchase-box {
+                max-width: none;
+                margin-right: 0;
+            }
+        }
+
+        /* ==================== NAVBAR SEARCH (estilo Maxi Educa) ==================== */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            gap: 16px;
+            flex-wrap: nowrap;
+        }
+        .navbar-search {
+            flex: 1;
+            max-width: 700px;
+            min-width: 260px;
+            display: flex;
+            align-items: center;
+            background: #1a3a6b;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(30,90,200,0.25);
+            height: 54px;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        .navbar-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 14px 22px;
+            color: #fff;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .navbar-search input::placeholder {
+            color: rgba(255,255,255,0.65);
+            font-size: 15px;
+        }
+        .navbar-search button {
+            background: rgba(255,255,255,0.13);
+            border: none;
+            border-left: 1px solid rgba(255,255,255,0.18);
+            padding: 0 22px;
+            color: rgba(255,255,255,0.9);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            transition: background 0.2s, color 0.2s;
+        }
+        .navbar-search button:hover {
+            background: rgba(255,255,255,0.22);
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            .navbar-search {
+                display: none;
+            }
+            .navbar-search.mobile-open {
+                display: flex;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                max-width: 100%;
+                border-radius: 0;
+                height: 50px;
+                z-index: 999;
+            }
+        }
+
+        /* ==================== NAV TOP BAR (Blog / links topo) ==================== */
+        .header-top {
+            background: #1a3a6b;
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+            padding: 7px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-top a {
+            font-size: 13px;
+            color: rgba(255,255,255,0.88);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        .header-top a:hover {
+            color: #fff;
+        }
+
+        /* ==================== WHATSAPP FLUTUANTE ==================== */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(37,211,102,0.5);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.12);
+            box-shadow: 0 6px 28px rgba(37,211,102,0.65);
+        }
+        .whatsapp-float-tooltip {
+            position: absolute;
+            right: 70px;
+            background: #333;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .whatsapp-float:hover .whatsapp-float-tooltip {
+            opacity: 1;
+        }
+
+        /* ==================== FOOTER SOCIAL ==================== */
+        .footer-social {
+            display: flex;
+            gap: 14px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        .footer-social a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+        .reclame-aqui-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .reclame-aqui-badge img {
+            height: 50px;
+            width: auto;
+            border-radius: 6px;
+        }
+        .reclame-aqui-badge a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fff;
+            transition: background 0.2s;
+        }
+        .reclame-aqui-badge a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* ==================== PRODUCT CARD SIMPLIFICADO ==================== */
+        .product-installment {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .product-card .product-content {
+            padding: 10px 12px 12px;
+        }
+
+
+        /* ==================== BARRA DE NAVEGAÇÃO SECUNDÁRIA (estilo Maxi Educa) ==================== */
+        .nav-secondary {
+            background: #1a3a6b;
+            border-top: 1px solid rgba(255,255,255,0.10);
+        }
+        .nav-secondary-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .nav-secondary-inner li {
+            position: relative;
+        }
+        .nav-secondary-inner li a,
+        .nav-secondary-inner li span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 22px;
+            color: rgba(255,255,255,0.92);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .nav-secondary-inner li a:hover,
+        .nav-secondary-inner li span:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+        .nav-secondary-inner li a i,
+        .nav-secondary-inner li span i {
+            font-size: 15px;
+            opacity: 0.85;
+        }
+        /* dropdown na barra secundária */
+        .nav-secondary-inner .dropdown-secondary {
+            position: relative;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            min-width: 220px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .nav-secondary-inner .dropdown-secondary:hover .dropdown-secondary-menu {
+            display: block;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 20px;
+            color: #1a3a6b;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0;
+            text-transform: none;
+            transition: background 0.18s;
+            cursor: pointer;
+        }
+        .nav-secondary-inner .dropdown-secondary-menu a:hover {
+            background: #e8f0fb;
+            color: #0d2a55;
+        }
+        @media (max-width: 900px) {
+            .nav-secondary {
+                display: none;
+            }
+        }
+
+        /* ==================== ADMIN SECTION LABEL ==================== */
+        .admin-section-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ==================== HEADER ==================== -->
+    <header class="header">
+        <!-- Barra superior -->
+        <div class="header-top">
+            <a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-newspaper"></i> Blog
+            </a>
+            <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
+                <i class="fas fa-headset"></i> Contato
+            </a>
+        </div>
+        <!-- Navbar principal -->
+        <nav class="navbar container">
+            <div class="logo-container" onclick="navigateTo('home')" role="button" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' '){event.preventDefault(); navigateTo('home');}">
+                <img id="site-logo" class="logo" alt="Logo" style="display:none;">
+            </div>
+
+            <!-- Barra de pesquisa estilo Maxi Educa -->
+            <div class="navbar-search" id="navbarSearch">
+                <input type="text" id="searchInput" placeholder="Digite aqui o concurso, cargo ou órgão que está buscando" onkeyup="handleSearchNav(event)">
+                <button onclick="handleSearch()" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" onclick="event.preventDefault(); navigateTo('home')">Início</a></li>
+                <li class="dropdown">
+                    <span class="dropdown-toggle">
+                        Categorias <i class="fas fa-chevron-down"></i>
+                    </span>
+                    <div class="dropdown-menu" id="categoriesDropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </li>
+                <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
+                <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
+                <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
+            </ul>
+            
+            <button class="btn-admin" onclick="openAccountModal()">
+                <i class="fas fa-user"></i>
+                <span id="accountButtonLabel">Minha conta</span>
+            </button>
+            <button class="btn-admin" style="background:#111;color:#fff;" onclick="openAdminLogin()">
+                <i class="fas fa-lock"></i>
+                Admin
+            </button>
+            
+            <div class="menu-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== BARRA NAVEGAÇÃO SECUNDÁRIA (estilo Maxi Educa) ==================== -->
+    <nav class="nav-secondary">
+        <ul class="nav-secondary-inner" id="navSecondary">
+            <li>
+                <a href="/" onclick="event.preventDefault(); navigateTo('home');">
+                    <i class="fas fa-home"></i> Início
+                </a>
+            </li>
+            <li class="dropdown-secondary">
+                <span>
+                    <i class="fas fa-th-large"></i> Categorias <i class="fas fa-chevron-down" style="font-size:11px;margin-left:2px;"></i>
+                </span>
+                <div class="dropdown-secondary-menu" id="categoriesDropdown2">
+                    <!-- Populado dinamicamente -->
                 </div>
-                <div class="modal-body" id="accountModalBody"></div>
-            </div>
-        `;
-        document.body.appendChild(acc);
-    }
-    if (!document.getElementById('checkoutModal')) {
-        const ck = document.createElement('div');
-        ck.className = 'modal';
-        ck.id = 'checkoutModal';
-        ck.innerHTML = `
-            <div class="modal-content v2-modal">
-                <div class="modal-header">
-                    <h2 id="checkoutModalTitle"><i class="fas fa-cart-shopping"></i> Finalizar compra</h2>
-                    <button class="modal-close" onclick="closeModalById('checkoutModal')">&times;</button>
+            </li>
+            <li>
+                <a href="#" onclick="filterProducts('lancamento'); return false;">
+                    <i class="fas fa-rocket"></i> Lançamentos
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="filterProducts('mais_vendida'); return false;">
+                    <i class="fas fa-fire"></i> Mais Vendidas
+                </a>
+            </li>
+            <li>
+                <a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre');">
+                    <i class="fas fa-info-circle"></i> Sobre Nós
+                </a>
+            </li>
+            <li>
+                <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
+                    <i class="fas fa-headset"></i> Contato
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main id="mainContent">
+        <!-- Content will be dynamically injected -->
+    </main>
+
+    <!-- ==================== RODAPÉ ==================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 id="footer-site-name">+QApostilas</h3>
+                    <p>Sua melhor fonte de apostilas atualizadas para concursos públicos. Material 100% digital e sempre conforme o último edital.</p>
+                    <!-- Redes sociais dinâmicas -->
+                    <div class="footer-social" id="footer-social-links"></div>
+                    <!-- Reclame Aqui -->
+                    <div id="footer-reclame-aqui"></div>
                 </div>
-                <div class="modal-body" id="checkoutModalBody"></div>
-            </div>
-        `;
-        document.body.appendChild(ck);
-    }
-}
-
-function closeModalById(id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-}
-
-function openModalById(id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
-}
-
-/* ==================== ÁREA DO CLIENTE ==================== */
-function openAccountModal() {
-    injectModaisV2();
-    renderAccountShell('menu');
-    openModalById('accountModal');
-}
-
-function renderAccountShell(passo, extra = {}) {
-    const body = document.getElementById('accountModalBody');
-    if (!body) return;
-
-    if (passo === 'menu') {
-        body.innerHTML = `
-            <div class="v2-tabs">
-                <button class="v2-tab active" onclick="renderAccountShell('login')"><i class="fas fa-right-to-bracket"></i> Entrar</button>
-                <button class="v2-tab" onclick="renderAccountShell('cadastro')"><i class="fas fa-user-plus"></i> Criar conta</button>
-                <button class="v2-tab" onclick="renderAccountShell('pedidos')"><i class="fas fa-box-open"></i> Meus pedidos</button>
-            </div>
-            <p style="color:var(--text-muted); margin-top:12px;">Acesse sua conta para ver seus pedidos, baixar a apostila em PDF e acompanhar o status da compra.</p>
-        `;
-        return;
-    }
-
-    if (passo === 'cadastro') {
-        body.innerHTML = `
-            <div class="v2-tabs">
-                <button class="v2-tab" onclick="renderAccountShell('login')"><i class="fas fa-right-to-bracket"></i> Entrar</button>
-                <button class="v2-tab active" onclick="renderAccountShell('cadastro')"><i class="fas fa-user-plus"></i> Criar conta</button>
-                <button class="v2-tab" onclick="renderAccountShell('pedidos')"><i class="fas fa-box-open"></i> Meus pedidos</button>
-            </div>
-            <form onsubmit="handleCustomerSignup(event)" style="margin-top:16px;">
-                <div class="form-group"><label>Nome completo *</label><input type="text" name="nome" id="cli_nome" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label>E-mail *</label><input type="email" name="email" id="cli_email" required></div>
-                    <div class="form-group"><label>Telefone / WhatsApp</label><input type="text" name="telefone" id="cli_telefone" placeholder="(11) 99999-9999"></div>
+                <div class="footer-section">
+                    <h3>Links Úteis</h3>
+                    <ul class="footer-links">
+                        <li><a href="/" onclick="event.preventDefault(); navigateTo('home')">Início</a></li>
+                        <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
+                        <li><a href="/contato" onclick="event.preventDefault(); navigateTo('contato')">Contato</a></li>
+                        <li><a href="https://maisqapostilas.blogspot.com/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper"></i> Blog</a></li>
+                    </ul>
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label>CPF (opcional)</label><input type="text" name="cpf" id="cli_cpf"></div>
-                    <div class="form-group"><label>Senha *</label><input type="password" name="senha" id="cli_senha" minlength="6" required></div>
+                <div class="footer-section">
+                    <h3>Informações</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="showModal('privacidade')">Política de Privacidade</a></li>
+                        <li><a href="#" onclick="showModal('termos')">Termos de Uso</a></li>
+                    </ul>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-user-plus"></i> Criar minha conta</button>
-            </form>
-        `;
-        return;
-    }
-
-    if (passo === 'login') {
-        body.innerHTML = `
-            <div class="v2-tabs">
-                <button class="v2-tab active" onclick="renderAccountShell('login')"><i class="fas fa-right-to-bracket"></i> Entrar</button>
-                <button class="v2-tab" onclick="renderAccountShell('cadastro')"><i class="fas fa-user-plus"></i> Criar conta</button>
-                <button class="v2-tab" onclick="renderAccountShell('pedidos')"><i class="fas fa-box-open"></i> Meus pedidos</button>
             </div>
-            <form onsubmit="handleCustomerLogin(event)" style="margin-top:16px;">
-                <div class="form-group"><label>E-mail</label><input type="email" name="email" required></div>
-                <div class="form-group"><label>Senha</label><input type="password" name="senha" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-            </form>
-            <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-                <p style="font-weight:700; margin-bottom:8px;"><i class="fas fa-key"></i> Tem só o código do pedido?</p>
-                <form onsubmit="consultarPedidoPorCodigo(event)" style="display:flex; gap:8px;">
-                    <input type="text" name="codigo" placeholder="MQA-XXXXXXXX" style="flex:1; padding:12px; border:1.5px solid var(--border); border-radius:12px;">
-                    <button type="submit" class="btn btn-success">Consultar</button>
+            <!-- Horário de atendimento -->
+            <div style="text-align:center; margin-bottom: 28px; padding: 20px; background: rgba(255,255,255,0.06); border-radius: 12px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                <p style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px;">
+                    <i class="fas fa-clock" style="color: #1E90FF; margin-right: 7px;"></i>Horário de Atendimento
+                </p>
+                <p style="font-size: 14px; color: rgba(255,255,255,0.80); line-height: 1.7;">
+                    Segunda a Sexta &nbsp;|&nbsp; <strong style="color:#fff;">09h00 às 17h00</strong>
+                </p>
+                <p style="font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px;">
+                    Atendimento exclusivamente via WhatsApp e e-mail
+                </p>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 +QApostilas. Todos os direitos reservados.</p>
+                <p style="margin-top: 8px; font-size: 14px;">Os produtos de parceiros são adquiridos diretamente no site oficial do parceiro. Somos apenas uma vitrine de organização.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ==================== WHATSAPP FLUTUANTE ==================== -->
+    <div id="whatsappFloat" class="whatsapp-float" style="display:none;" title="Fale conosco no WhatsApp">
+        <span class="whatsapp-float-tooltip">Fale conosco!</span>
+        <i class="fab fa-whatsapp"></i>
+    </div>
+
+    <!-- ==================== MODAL ==================== -->
+    <div class="modal" id="globalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Modal</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ADMIN PANEL ==================== -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2><i class="fas fa-cog"></i> Painel Administrativo</h2>
+            <button class="btn btn-accent" onclick="closeAdmin()">
+                <i class="fas fa-times"></i> Fechar
+            </button>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('config')">Configurações</button>
+            <button class="admin-tab" onclick="switchAdminTab('produtos')">Produtos</button>
+            <button class="admin-tab" onclick="switchAdminTab('depoimentos')">Depoimentos</button>
+            <button class="admin-tab" onclick="switchAdminTab('categorias')">Categorias</button>
+        </div>
+        
+        <div class="admin-content">
+            <!-- Config Section -->
+            <div class="admin-section active" id="admin-config">
+                <h3>Configurações do Site</h3>
+                <form id="configForm" onsubmit="saveConfig(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL da Logo</label>
+                            <input type="url" name="logo_url" id="config_logo_url" placeholder="https://exemplo.com/logo.png">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-ruler-vertical" style="color:var(--primary)"></i> Altura da Logo (px)</label>
+                            <input type="number" name="logo_height" id="config_logo_height" placeholder="50" min="20" max="200" value="50">
+                            <small style="color:var(--text-muted)">Altura em pixels da logo na navbar. Recomendado: 40–80px.</small>
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-images"></i> Banner principal rotativo</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-v" style="color:var(--primary)"></i> Altura do Banner (px)</label>
+                            <input type="number" name="banner_height" id="config_banner_height" placeholder="300" min="180" max="900" value="300">
+                            <small style="color:var(--text-muted)">Desktop sugerido: 1445 x 300 px. Mobile sugerido: 575 x 225 px.</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-clock" style="color:var(--primary)"></i> Troca automática (segundos)</label>
+                            <input type="number" name="banner_autoplay_seconds" id="config_banner_autoplay_seconds" placeholder="5" min="3" max="15" value="5">
+                            <small style="color:var(--text-muted)">Defina o tempo entre um banner e outro na página inicial.</small>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:-4px;">
+                        <small style="color:var(--text-muted)">Você pode cadastrar até 3 banners. Se a imagem mobile ficar vazia, o site usa automaticamente a imagem desktop.</small>
+                    </div>
+
+                    <div style="display:grid; gap:16px; margin: 18px 0 24px;">
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 1</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_1_image_url" id="config_banner_1_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_1_mobile_url" id="config_banner_1_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_1_product_ref" id="config_banner_1_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_1_link_url" id="config_banner_1_link_url" placeholder="https://...">
+                                    <small style="color:var(--text-muted)">Se um produto for escolhido, o link alternativo será ignorado.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 2</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_2_image_url" id="config_banner_2_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_2_mobile_url" id="config_banner_2_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_2_product_ref" id="config_banner_2_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_2_link_url" id="config_banner_2_link_url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding:18px; border:1px solid var(--border); border-radius:14px; background:#fff;">
+                            <div class="admin-section-label" style="margin:0 0 14px;"><i class="fas fa-image"></i> Banner 3</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Imagem Desktop</label>
+                                    <input type="url" name="banner_3_image_url" id="config_banner_3_image_url" placeholder="https://...banner-desktop.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>Imagem Mobile</label>
+                                    <input type="url" name="banner_3_mobile_url" id="config_banner_3_mobile_url" placeholder="https://...banner-mobile.jpg">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Produto do Banner</label>
+                                    <select name="banner_3_product_ref" id="config_banner_3_product_ref">
+                                        <option value="">-- Selecionar produto --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link alternativo</label>
+                                    <input type="url" name="banner_3_link_url" id="config_banner_3_link_url" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL do Favicon <small style="font-weight:400;color:var(--text-muted)">(ícone na aba do navegador, ex: .ico ou .png 32x32)</small></label>
+                            <input type="url" name="favicon_url" id="config_favicon_url" placeholder="https://exemplo.com/favicon.ico">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>WhatsApp (com código do país)</label>
+                            <input type="text" name="whatsapp" id="config_whatsapp" placeholder="5511999999999">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="email" id="config_email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Texto "Sobre Nós"</label>
+                        <textarea name="sobre_nos" id="config_sobre_nos" rows="6"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Senha Admin</label>
+                        <input type="password" name="admin_password" id="config_admin_password">
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-share-alt"></i> Redes Sociais</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fab fa-youtube" style="color:#FF0000"></i> YouTube (URL do canal)</label>
+                            <input type="url" name="social_youtube" id="config_social_youtube" placeholder="https://youtube.com/@seucanal">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-tiktok" style="color:#000"></i> TikTok (URL do perfil)</label>
+                            <input type="url" name="social_tiktok" id="config_social_tiktok" placeholder="https://tiktok.com/@seuperfil">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fab fa-instagram" style="color:#C13584"></i> Instagram (URL do perfil)</label>
+                            <input type="url" name="social_instagram" id="config_social_instagram" placeholder="https://instagram.com/seuperfil">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-facebook" style="color:#1877F2"></i> Facebook (URL da página)</label>
+                            <input type="url" name="social_facebook" id="config_social_facebook" placeholder="https://facebook.com/suapagina">
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-credit-card"></i> Checkout próprio (Pix / Cartão / Point Mini)</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-key" style="color:var(--primary)"></i> Chave PIX (recebimento direto)</label>
+                            <input type="text" name="pix_chave" id="config_pix_chave" placeholder="CPF, CNPJ, e-mail ou chave aleatória">
+                            <small style="color:var(--text-muted)">Aparece no QR Code gerado pelo site para o cliente pagar e cai direto na sua conta/maquininha.</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-qrcode" style="color:#00B1EA"></i> Public Key Mercado Pago <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                            <input type="text" name="mercadopago_public_key" id="config_mercadopago_public_key" placeholder="APP_USR-xxxxxxxx">
+                            <small style="color:var(--text-muted)">O Access Token (secreto) vai nos secrets da Edge Function — nunca no site.</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card" style="color:var(--success)"></i> Máximo de parcelas (cartão)</label>
+                            <input type="number" min="1" max="24" name="mercadopago_parcelas" id="config_mercadopago_parcelas" placeholder="12">
+                            <small style="color:var(--text-muted)">Usado no seletor de parcelamento do checkout do site.</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-link" style="color:var(--primary)"></i> Link de pagamento Mercado Pago <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                            <input type="url" name="mercadopago_checkout_url" id="config_mercadopago_checkout_url" placeholder="https://mpago.la/xxxxxxx">
+                            <small style="color:var(--text-muted)">Se você preferir vender por link, cole aqui. O site envia o nº do pedido junto.</small>
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-star-half-alt"></i> Reclame Aqui</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-link" style="color:var(--primary)"></i> URL da página no Reclame Aqui</label>
+                            <input type="url" name="reclame_aqui_url" id="config_reclame_aqui_url" placeholder="https://www.reclameaqui.com.br/empresa/...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-image" style="color:var(--primary)"></i> URL do Selo/Badge do Reclame Aqui <small style="font-weight:400;color:var(--text-muted)">(imagem do selinho)</small></label>
+                            <input type="url" name="reclame_aqui_badge" id="config_reclame_aqui_badge" placeholder="https://...imagem-do-selo.png">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Salvar Configurações
+                    </button>
                 </form>
             </div>
-        `;
-        return;
-    }
-
-    if (passo === 'pedidos') {
-        body.innerHTML = `
-            <div class="v2-tabs">
-                <button class="v2-tab" onclick="renderAccountShell('login')"><i class="fas fa-right-to-bracket"></i> Entrar</button>
-                <button class="v2-tab" onclick="renderAccountShell('cadastro')"><i class="fas fa-user-plus"></i> Criar conta</button>
-                <button class="v2-tab active" onclick="renderAccountShell('pedidos')"><i class="fas fa-box-open"></i> Meus pedidos</button>
-            </div>
-            <p style="color:var(--text-muted); margin:12px 0;">Informe o e-mail usado na compra (ou o código do pedido) para ver e baixar suas apostilas.</p>
-            <form onsubmit="consultarPedidoPorCodigo(event)" style="display:flex; gap:8px; flex-wrap:wrap;">
-                <input type="text" name="codigo" placeholder="E-mail ou código MQA-XXXXXXXX" style="flex:1; min-width:220px; padding:12px; border:1.5px solid var(--border); border-radius:12px;">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-magnifying-glass"></i> Buscar</button>
-            </form>
-            <div id="clientPedidosResult" style="margin-top:18px;"></div>
-        `;
-        return;
-    }
-
-    if (passo === 'logado') {
-        body.innerHTML = `
-            <div class="v2-tabs">
-                <button class="v2-tab active" onclick="renderAccountShell('pedidos')"><i class="fas fa-box-open"></i> Meus pedidos</button>
-                <button class="v2-tab" onclick="sairDaConta()"><i class="fas fa-right-from-bracket"></i> Sair</button>
-            </div>
-            <p style="margin:12px 0;">Olá, <strong>${extra.nome || 'cliente'}</strong>! Veja abaixo seus pedidos.</p>
-            <div id="clientPedidosResult"></div>
-        `;
-        carregarPedidosDoCliente(extra.email);
-    }
-}
-
-async function sha256Hex(texto) {
-    try {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    } catch (e) {
-        return 'plain:' + texto;
-    }
-}
-
-async function handleCustomerSignup(event) {
-    event.preventDefault();
-    if (typeof supabaseClient === 'undefined') { showAlert('Supabase não configurado.', 'error'); return; }
-
-    const nome = event.target.nome.value.trim();
-    const email = event.target.email.value.trim().toLowerCase();
-    const telefone = event.target.telefone.value.trim();
-    const cpf = event.target.cpf.value.trim();
-    const senha = event.target.senha.value;
-    const btn = event.target.querySelector('button[type=submit]');
-    if (btn) btn.disabled = true;
-
-    try {
-        const senha_hash = await sha256Hex(email + ':' + senha);
-        const payload = { nome, email, telefone, senha_hash };
-        if (cpf) payload.cpf = cpf;
-
-        let { error } = await supabaseClient.from('clientes').insert([payload]);
-        if (error && cpf) {
-            delete payload.cpf;
-            const retry = await supabaseClient.from('clientes').insert([payload]);
-            error = retry.error;
-        }
-        if (error) throw error;
-
-        mostrarContaLogadaCliente({ nome, email });
-        showAlert('Conta criada com sucesso!', 'success');
-    } catch (err) {
-        console.error(err);
-        const msg = String(err.message || err);
-        showAlert(msg.includes('duplicate') ? 'Este e-mail já tem cadastro. Tente entrar.' : 'Erro ao criar conta: ' + msg, 'error');
-    } finally {
-        if (btn) btn.disabled = false;
-    }
-}
-
-async function handleCustomerLogin(event) {
-    event.preventDefault();
-    if (typeof supabaseClient === 'undefined') { showAlert('Supabase não configurado.', 'error'); return; }
-
-    const email = event.target.email.value.trim().toLowerCase();
-    const senha = event.target.senha.value;
-
-    try {
-        const { data, error } = await supabaseClient.from('clientes').select('*').eq('email', email).limit(1);
-        if (error) throw error;
-        if (!data || !data.length) { showAlert('E-mail não encontrado. Crie sua conta.', 'warning'); return; }
-
-        const cliente = data[0];
-        const hash = await sha256Hex(email + ':' + senha);
-        if (cliente.senha_hash && cliente.senha_hash !== hash) { showAlert('Senha incorreta.', 'error'); return; }
-
-        mostrarContaLogadaCliente({ nome: cliente.nome, email: cliente.email });
-    } catch (err) {
-        console.error(err);
-        showAlert('Erro ao entrar: ' + (err.message || err), 'error');
-    }
-}
-
-function mostrarContaLogadaCliente(cliente) {
-    sessionStorage.setItem('cliente_email', cliente.email);
-    sessionStorage.setItem('cliente_nome', cliente.nome || '');
-    const label = document.getElementById('accountButtonLabel');
-    if (label) label.textContent = (cliente.nome || 'Minha conta').split(' ')[0];
-    renderAccountShell('logado', cliente);
-}
-
-function sairDaConta() {
-    sessionStorage.removeItem('cliente_email');
-    sessionStorage.removeItem('cliente_nome');
-    const label = document.getElementById('accountButtonLabel');
-    if (label) label.textContent = 'Minha conta';
-    renderAccountShell('menu');
-}
-
-async function carregarPedidosDoCliente(email, containerId = 'clientPedidosResult') {
-    const box = document.getElementById(containerId);
-    if (!box) return;
-    box.innerHTML = '<p style="color:var(--text-muted)">Carregando pedidos...</p>';
-    try {
-        const { data, error } = await supabaseClient.from('pedidos').select('*').ilike('cliente_email', email).order('criado_em', { ascending: false });
-        if (error) throw error;
-        renderPedidosCliente(data || [], containerId);
-    } catch (err) {
-        box.innerHTML = `<p style="color:#DC2626">Não foi possível carregar seus pedidos. ${escapeHtml(err.message || '')}</p>`;
-    }
-}
-
-async function consultarPedidoPorCodigo(event) {
-    event.preventDefault();
-    const valor = event.target.codigo.value.trim();
-    if (!valor) return;
-    const containerId = event.target.closest('#accountModal') ? 'clientPedidosResult' : 'clientPedidosResult';
-    if (valor.includes('@')) { carregarPedidosDoCliente(valor, containerId); return; }
-
-    const box = document.getElementById(containerId);
-    if (box) box.innerHTML = '<p style="color:var(--text-muted)">Buscando pedido...</p>';
-    try {
-        const { data, error } = await supabaseClient.from('pedidos').select('*').ilike('codigo_acesso', valor).order('criado_em', { ascending: false });
-        if (error) throw error;
-        renderPedidosCliente(data || [], containerId);
-    } catch (err) {
-        if (box) box.innerHTML = `<p style="color:#DC2626">Erro ao buscar: ${escapeHtml(err.message || '')}</p>`;
-    }
-}
-
-function statusPedidoBadge(status) {
-    const s = String(status || 'pendente').toLowerCase();
-    const map = {
-        pago: ['badge-success', 'Pago'],
-        pendente: ['badge-warning', 'Aguardando pagamento'],
-        cancelado: ['badge-error', 'Cancelado'],
-        reembolsado: ['badge-error', 'Reembolsado']
-    };
-    const [classe, label] = map[s] || ['badge-info', s];
-    return `<span class="badge ${classe}">${label}</span>`;
-}
-
-function renderPedidosCliente(pedidos, containerId = 'clientPedidosResult') {
-    const box = document.getElementById(containerId);
-    if (!box) return;
-    if (!pedidos.length) {
-        box.innerHTML = '<p style="color:var(--text-muted)">Nenhum pedido encontrado.</p>';
-        return;
-    }
-    box.innerHTML = pedidos.map(p => {
-        const pago = String(p.status || '').toLowerCase() === 'pago';
-        return `
-            <div class="v2-pedido-card">
-                <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-                    <strong>Pedido ${escapeHtml(p.numero_pedido || ('#' + p.id))}</strong>
-                    ${statusPedidoBadge(p.status)}
+            
+            <!-- Produtos Section -->
+            <div class="admin-section" id="admin-produtos">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
+                    <h3>Gerenciar Produtos</h3>
+                    <button class="btn btn-primary" onclick="showProductForm()">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
                 </div>
-                <div class="v2-pedido-meta">
-                    <span><i class="fas fa-book"></i> ${escapeHtml(p.produto_titulo || '')}</span>
-                    <span><i class="far fa-calendar"></i> ${formatarData(p.criado_em)}</span>
-                    <span><i class="fas fa-money-bill"></i> R$ ${formatPrice(p.preco || 0)}</span>
+
+                <div class="table-container" style="padding: 20px; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg);">
+                    <div class="form-row" style="margin-bottom: 8px;">
+                        <div class="form-group">
+                            <label>Pesquisar por código</label>
+                            <input type="text" id="admin_product_filter_code" placeholder="Ex: PARC-12345 ou QAP-ORG-CARGO" oninput="applyAdminProductFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label>Pesquisar por produto / órgão / cargo</label>
+                            <input type="text" id="admin_product_filter_text" placeholder="Digite parte do título, órgão, cargo ou slug" oninput="applyAdminProductFilters()">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="admin_product_filter_status" onchange="applyAdminProductFilters()">
+                                <option value="todos">Todos</option>
+                                <option value="ativo">Somente ativos</option>
+                                <option value="inativo">Somente inativos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <small id="productsTableSummary" style="color: var(--text-muted);">Todos os produtos cadastrados</small>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-primary" onclick="applyAdminProductFilters()">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button type="button" class="btn" onclick="clearAdminProductFilters()">
+                                <i class="fas fa-eraser"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="v2-pedido-meta">
-                    <span><i class="fas fa-key"></i> Código de acesso: <strong>${escapeHtml(p.codigo_acesso || '—')}</strong></span>
+                
+                <div id="productFormContainer" class="hidden">
+                    <form id="productForm" onsubmit="saveProduct(event)">
+                        <input type="hidden" name="id" id="product_id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Título *</label>
+                                <input type="text" name="titulo" id="product_titulo" required oninput="handleProductTitleChange()">
+                            </div>
+                            <div class="form-group">
+                                <label>Órgão *</label>
+                                <input type="text" name="orgao" id="product_orgao" required oninput="handleProductTitleChange()">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cargo *</label>
+                                <input type="text" name="cargo" id="product_cargo" required oninput="handleProductTitleChange()">
+                            </div>
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <input type="text" name="estado" id="product_estado" placeholder="Ex: SP">
+                            </div>
+                            <div class="form-group">
+                                <label>Cidade</label>
+                                <input type="text" name="cidade" id="product_cidade">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Código do Produto <small style="font-weight:400;color:var(--text-muted)">(manual ou automático)</small></label>
+                                <input type="text" name="codigo" id="product_codigo" placeholder="Ex: MQA-001-MA26-PREP-TJSP-ESC">
+                                <small style="color: var(--text-muted);">Produtos próprios podem gerar um código no padrão MQA + sequência + mês/ano + tipo + concurso + cargo.</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Origem do Código</label>
+                                <select name="codigo_origem" id="product_codigo_origem" onchange="handleProductCodeModeChange()">
+                                    <option value="automatico">Gerar automaticamente</option>
+                                    <option value="manual">Vou informar manualmente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo da Apostila</label>
+                                <select name="tipo_editorial" id="product_tipo_editorial" onchange="handleProductTitleChange()">
+                                    <option value="normal">Concurso normal</option>
+                                    <option value="preparatoria">Preparatória</option>
+                                    <option value="caderno_questoes">Caderno de questões</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sigla do Concurso <small style="font-weight:400;color:var(--text-muted)">(usada no código automático)</small></label>
+                                <input type="text" name="sigla_concurso" id="product_sigla_concurso" placeholder="Ex: TJSP, SEJUSP-MG, BB" oninput="handleProductTitleChange()">
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; margin:-8px 0 18px;">
+                            <button type="button" class="btn" onclick="generateProductCode(true)">
+                                <i class="fas fa-barcode"></i> Gerar código agora
+                            </button>
+                            <small style="color: var(--text-muted); align-self:center;">Para produtos Hotmart, o sistema sugere código automático. Para parceiros, você pode manter código manual.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descrição *</label>
+                            <textarea name="descricao" id="product_descricao" required></textarea>
+                        </div>
+                        
+                        <div class="v2-upload-box" style="margin-bottom:18px;">
+                            <div class="checkbox-group" style="margin-bottom:10px;">
+                                <input type="checkbox" id="capa_modo_upload" onchange="handleCoverModeChange()">
+                                <label>Subir a capa como arquivo (em vez de usar link)</label>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>📱 Capa Digital — link <small style="font-weight:400;color:var(--text-muted)">(produtos já cadastrados continuam por link)</small></label>
+                                    <input type="text" name="capa_url" id="product_capa_url" placeholder="https://...capa-digital.jpg">
+                                    <input type="hidden" name="capa_storage_path" id="product_capa_storage_path">
+                                </div>
+                                <div class="form-group">
+                                    <label>📱 Capa Digital — arquivo (JPG/PNG/WebP)</label>
+                                    <input type="file" id="product_capa_file" class="hidden" accept="image/*" onchange="onCoverFilePicked(this, 'product_capa_url', 'product_capa_preview')">
+                                    <small style="color:var(--text-muted)">Se enviar arquivo, ele vai para o bucket “apostilas” e a URL é preenchida automaticamente.</small>
+                                    <img id="product_capa_preview" class="v2-upload-preview hidden" alt="Prévia da capa">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>📖 Capa Impressa — link <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                    <input type="text" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                                    <input type="hidden" name="capa_impresso_storage_path" id="product_capa_impresso_storage_path">
+                                </div>
+                                <div class="form-group">
+                                    <label>📖 Capa Impressa — arquivo (opcional)</label>
+                                    <input type="file" id="product_capa_file_impresso" accept="image/*" onchange="onCoverFilePicked(this, 'product_capa_url_impresso', 'product_capa_impresso_preview')">
+                                    <img id="product_capa_impresso_preview" class="v2-upload-preview hidden" alt="Prévia da capa impressa">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="v2-upload-box" style="margin-bottom:18px;">
+                            <label style="font-weight:700; display:block; margin-bottom:6px;"><i class="fas fa-file-pdf" style="color:#DC2626"></i> PDF da apostila (entrega automática)</label>
+                            <input type="file" id="product_arquivo_pdf_file" accept="application/pdf">
+                            <input type="hidden" name="arquivo_pdf_path" id="product_arquivo_pdf_path">
+                            <small style="color:var(--text-muted)">O PDF fica em bucket privado e é liberado por link temporário após o pagamento. Deixe vazio para manter o PDF atual.</small>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Número de Páginas</label>
+                                <input type="number" name="paginas" id="product_paginas">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>📱 Preço Digital (R$) *</label>
+                                <input type="number" step="0.01" name="preco" id="product_preco" required placeholder="0.00" oninput="calcularParcela()">
+                            </div>
+                            <div class="form-group">
+                                <label>📱 Preço Digital Original (R$) <small style="font-weight:400;color:var(--text-muted)">(riscado, opcional)</small></label>
+                                <input type="number" step="0.01" name="preco_original" id="product_preco_original" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>📖 Preço Impresso (R$) <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                <input type="number" step="0.01" name="preco_impresso" id="product_preco_impresso" placeholder="0.00" oninput="calcularParcela()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>💳 Número de Parcelas <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 6 para 6x sem juros)</small></label>
+                                <input type="number" min="2" max="24" name="parcelas" id="product_parcelas" placeholder="Ex: 6" oninput="calcularParcela()">
+                            </div>
+                            <div class="form-group">
+                                <label>💳 Valor da Parcela (calculado automaticamente)</label>
+                                <input type="text" id="product_parcela_preview" placeholder="Ex: 6x de R$ 8,32 s/ juros" readonly style="background:#f5f5f5;cursor:default;">
+                                <small style="color:var(--text-muted)">Calculado automaticamente com base no preço digital ÷ número de parcelas.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>💳 Número de Parcelas (Impressa) <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: 10 para 10x sem juros)</small></label>
+                                <input type="number" min="2" max="24" name="parcelas_impresso" id="product_parcelas_impresso" placeholder="Ex: 10" oninput="calcularParcela()">
+                            </div>
+                            <div class="form-group">
+                                <label>💳 Valor da Parcela (Impressa) (calculado automaticamente)</label>
+                                <input type="text" id="product_parcela_preview_impresso" placeholder="Ex: 10x de R$ 12,34 s/ juros" readonly style="background:#f5f5f5;cursor:default;">
+                                <small style="color:var(--text-muted)">Calculado automaticamente com base no preço impresso ÷ número de parcelas (impressa).</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Categoria Principal *</label>
+                                <select name="categoria_id" id="product_categoria_id" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria Adicional <small style="font-weight:400;color:var(--text-muted)">(opcional — ex: marca/editora)</small></label>
+                                <select name="categoria_id_2" id="product_categoria_id_2">
+                                    <option value="">-- Nenhuma --</option>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Conteúdo Programático (uma matéria por linha)</label>
+                            <textarea name="conteudo_programatico" id="product_conteudo_programatico" rows="6"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo de venda *</label>
+                                <select name="tipo_botao" id="product_tipo_botao" required onchange="handlePurchaseTypeChange(true)">
+                                    <option value="proprio">Produto próprio (vende no nosso site)</option>
+                                    <option value="hotmart">Hotmart (afiliado/nosso)</option>
+                                    <option value="parceiro">Site parceiro / terceiros</option>
+                                </select>
+                                <small style="color:var(--text-muted)">Próprio = checkout no site (verde) • Hotmart (laranja) • Parceiro (vermelho).</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Link de Compra <small style="font-weight:400;color:var(--text-muted)">(Hotmart/parceiro; opcional no próprio)</small></label>
+                                <input type="text" name="link_compra" id="product_link_compra" placeholder="https://pay.hotmart.com/... ou https://site-do-parceiro.com/...">
+                                <small style="color:var(--text-muted)">Para <strong>remover</strong> o link: apague o campo, deixe em branco e clique em Salvar. Aceita endereço com ou sem https://.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Avaliação Média (0-5)</label>
+                                <input type="number" step="0.1" min="0" max="5" name="avaliacao_media" id="product_avaliacao_media">
+                            </div>
+                            <div class="form-group">
+                                <label>Total de Avaliações</label>
+                                <input type="number" name="total_avaliacoes" id="product_total_avaliacoes">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="destaque" id="product_destaque">
+                                <label>Destaque</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="lancamento" id="product_lancamento">
+                                <label>Lançamento</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="mais_vendida" id="product_mais_vendida">
+                                <label>Mais Vendida</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="pre_venda" id="product_pre_venda">
+                                <label>Pré-venda</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="atualizado_edital" id="product_atualizado_edital" checked>
+                                <label>Atualizado conforme edital</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="ativo" id="product_ativo" checked>
+                                <label>Ativo</label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Produto
+                            </button>
+                            <button type="button" class="btn" onclick="hideProductForm()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                ${pago
-                    ? `<button class="btn btn-success" style="margin-top:10px;" onclick="baixarApostila('${escapeHtml(p.codigo_acesso || '')}')"><i class="fas fa-download"></i> Baixar apostila (PDF)</button>`
-                    : `<p style="color:var(--text-muted); margin-top:8px; font-size:13px;">O download é liberado automaticamente após a confirmação do pagamento.</p>`}
-            </div>
-        `;
-    }).join('');
-}
-
-async function baixarApostila(codigoAcesso) {
-    if (!codigoAcesso) return;
-    if (typeof supabaseClient === 'undefined') { showAlert('Supabase não configurado.', 'error'); return; }
-    try {
-        const { data, error } = await supabaseClient.functions.invoke('liberar-download', { body: { codigo_acesso: codigoAcesso } });
-        if (error) throw error;
-        if (data && data.url) { window.open(data.url, '_blank', 'noopener'); return; }
-        throw new Error((data && (data.erro || data.error)) || 'Download não liberado');
-    } catch (err) {
-        console.warn(err);
-        showAlert('Não foi possível abrir o PDF agora. Guarde seu código de acesso: ' + codigoAcesso + ' e fale com o suporte.', 'warning');
-    }
-}
-
-function formatarData(valor) {
-    if (!valor) return '—';
-    try {
-        const d = new Date(valor);
-        return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } catch (e) { return String(valor); }
-}
-
-/* ==================== CHECKOUT PRÓPRIO ==================== */
-function openCheckoutModal(produtoId) {
-    injectModaisV2();
-    const produto = (appState.produtos || []).find(p => String(p.id) === String(produtoId)) || (appState.allProdutos || []).find(p => String(p.id) === String(produtoId));
-    if (!produto) { showAlert('Produto não encontrado.', 'error'); return; }
-
-    const oferta = getCurrentProductOffer(produto);
-    if (!oferta) { showAlert('Este produto está sem preço definido.', 'warning'); return; }
-
-    const maxParcelas = Math.max(1, Math.min(24, parseInt(appState.config.mercadopago_parcelas || 12) || 12));
-    const titulo = document.getElementById('checkoutModalTitle');
-    if (titulo) titulo.innerHTML = '<i class="fas fa-cart-shopping"></i> Finalizar compra';
-
-    const body = document.getElementById('checkoutModalBody');
-    const clienteEmail = sessionStorage.getItem('cliente_email') || '';
-    const clienteNome = sessionStorage.getItem('cliente_nome') || '';
-
-    body.innerHTML = `
-        <form onsubmit="submitCheckout(event)">
-            <input type="hidden" name="produto_id" value="${produto.id}">
-            <input type="hidden" name="formato" value="${oferta.value}">
-            <div class="v2-resumo-compra">
-                <strong>${escapeHtml(produto.titulo)}</strong>
-                <span>${escapeHtml(oferta.label || oferta.badge || 'Digital')}</span>
-                <div class="v2-resumo-valor">R$ ${formatPrice(oferta.price)}</div>
-            </div>
-
-            <div class="form-group"><label>Nome completo *</label><input type="text" name="cliente_nome" required value="${escapeHtml(clienteNome)}"></div>
-            <div class="form-row">
-                <div class="form-group"><label>E-mail (recebe a apostila) *</label><input type="email" name="cliente_email" required value="${escapeHtml(clienteEmail)}"></div>
-                <div class="form-group"><label>WhatsApp / Telefone *</label><input type="text" name="cliente_telefone" required></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>CPF (opcional)</label><input type="text" name="cliente_cpf"></div>
-                <div class="form-group">
-                    <label>Forma de pagamento *</label>
-                    <select name="metodo_pagamento" id="checkout_metodo" onchange="handleMetodoPagamentoChange()">
-                        <option value="mercadopago">Mercado Pago (Pix ou cartão)</option>
-                        <option value="pix">Pix direto (chave do site)</option>
-                    </select>
+                
+                <div id="productsTableContainer">
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Título</th>
+                                    <th>Órgão</th>
+                                    <th>Cargo</th>
+                                    <th>Preço</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="form-group" id="checkout_parcelas_group">
-                <label>Parcelamento</label>
-                <select name="parcelas" id="checkout_parcelas">
-                    ${Array.from({ length: maxParcelas }, (_, i) => i + 1).map(n => {
-                        const valorParcela = Number(oferta.price) / n;
-                        return `<option value="${n}">${n}x de R$ ${formatPrice(valorParcela)} sem juros</option>`;
-                    }).join('')}
-                </select>
-                <small style="color:var(--text-muted)">Parcelamento em até ${maxParcelas}x no cartão, processado pelo Mercado Pago.</small>
+            
+            <!-- Depoimentos Section -->
+            <div class="admin-section" id="admin-depoimentos">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3>Gerenciar Depoimentos</h3>
+                    <button class="btn btn-primary" onclick="showTestimonialForm()">
+                        <i class="fas fa-plus"></i> Novo Depoimento
+                    </button>
+                </div>
+                
+                <div id="testimonialFormContainer" class="hidden">
+                    <form id="testimonialForm" onsubmit="saveTestimonial(event)">
+                        <input type="hidden" name="id" id="testimonial_id">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                <input type="text" name="nome" id="testimonial_nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Cargo Aprovado</label>
+                                <input type="text" name="cargo_aprovado" id="testimonial_cargo_aprovado">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Depoimento *</label>
+                            <textarea name="texto" id="testimonial_texto" required rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>URL da Foto</label>
+                                <input type="url" name="foto_url" id="testimonial_foto_url">
+                            </div>
+                            <div class="form-group">
+                                <label>Avaliação (1-5)</label>
+                                <input type="number" min="1" max="5" name="avaliacao" id="testimonial_avaliacao" value="5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="destaque" id="testimonial_destaque">
+                                <label>Destaque</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="ativo" id="testimonial_ativo" checked>
+                                <label>Ativo</label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; margin-top: 24px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Depoimento
+                            </button>
+                            <button type="button" class="btn" onclick="hideTestimonialForm()">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="testimonialsTableContainer">
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Cargo</th>
+                                    <th>Avaliação</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testimonialsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+            
+            <!-- Categorias Section -->
+            <div class="admin-section" id="admin-categorias">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3>Gerenciar Categorias</h3>
+                    <button class="btn btn-primary" onclick="showCategoryForm()">
+                        <i class="fas fa-plus"></i> Nova Categoria
+                    </button>
+                </div>
 
-            <p class="v2-aviso">Ao confirmar, o pedido é registrado no site com <strong>número e data</strong> e você é levado ao pagamento. A apostila em PDF é liberada nesta mesma página (em “Meus pedidos”) assim que o pagamento for aprovado.</p>
-            <button type="submit" class="btn btn-success" style="width:100%; padding:15px;"><i class="fas fa-lock"></i> Finalizar e ir para o pagamento</button>
-        </form>
-    `;
+                <!-- Formulário de Categoria -->
+                <div id="categoryFormContainer" class="hidden">
+                    <form id="categoryForm" onsubmit="saveCategoryForm(event)" style="background:var(--bg);padding:24px;border-radius:12px;margin-bottom:24px;border:2px solid var(--border);">
+                        <input type="hidden" id="cat_id">
+                        <h4 id="categoryFormTitle" style="margin-bottom:16px;">Nova Categoria</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                <input type="text" id="cat_nome" required placeholder="Ex: Forças Armadas" oninput="autofillSlug()">
+                            </div>
+                            <div class="form-group">
+                                <label>Slug * <small style="font-weight:400;color:var(--text-muted)">(identificador único, sem acentos/espaços)</small></label>
+                                <input type="text" id="cat_slug" required placeholder="ex: forcas-armadas">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ícone Font Awesome <small style="font-weight:400;color:var(--text-muted)">(ex: fa-star — veja em <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com</a>)</small></label>
+                                <input type="text" id="cat_icone" placeholder="fa-star">
+                            </div>
+                            <div class="form-group">
+                                <label>URL da Imagem <small style="font-weight:400;color:var(--text-muted)">(opcional, substitui ícone)</small></label>
+                                <input type="url" id="cat_imagem_url" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label>Ordem <small style="font-weight:400;color:var(--text-muted)">(menor = primeiro)</small></label>
+                                <input type="number" id="cat_ordem" value="99" min="1">
+                            </div>
+                        </div>
+                        <div class="checkbox-group" style="margin-bottom:16px;">
+                            <input type="checkbox" id="cat_ativo" checked>
+                            <label for="cat_ativo">Ativo (visível no site)</label>
+                        </div>
+                        <div style="display:flex;gap:12px;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Salvar Categoria
+                            </button>
+                            <button type="button" class="btn" onclick="hideCategoryForm()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Ícone / Imagem</th>
+                                <th>Ordem</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    openModalById('checkoutModal');
-}
+    <!-- ==================== SUPABASE CONFIG ==================== -->
+    <script src="/supabase-config.js"></script>
 
-function handleMetodoPagamentoChange() {
-    const metodo = document.getElementById('checkout_metodo');
-    const grupo = document.getElementById('checkout_parcelas_group');
-    if (metodo && grupo) grupo.style.display = (metodo.value === 'pix') ? 'none' : 'block';
-}
-
-async function gerarNumeroPedido() {
-    const agora = new Date();
-    const prefixo = 'MQA-' + agora.getFullYear() + String(agora.getMonth() + 1).padStart(2, '0');
-    let sequencia = 1;
-    try {
-        const { data } = await supabaseClient.from('pedidos').select('numero_pedido').ilike('numero_pedido', prefixo + '%');
-        sequencia = (data || []).length + 1;
-    } catch (e) { sequencia = Math.floor(Math.random() * 9000) + 1; }
-    return prefixo + '-' + String(sequencia).padStart(4, '0');
-}
-
-function gerarCodigoAcessoCliente() {
-    const aleatorio = Math.random().toString(36).slice(2, 10).toUpperCase();
-    return 'MQA-' + aleatorio;
-}
-
-async function submitCheckout(event) {
-    event.preventDefault();
-    const form = event.target;
-    const btn = form.querySelector('button[type=submit]');
-    const produtoId = form.produto_id.value;
-    const produto = (appState.allProdutos || appState.produtos || []).find(p => String(p.id) === String(produtoId));
-    if (!produto) { showAlert('Produto não encontrado.', 'error'); return; }
-
-    const oferta = getCurrentProductOffer(produto);
-    const metodo = form.metodo_pagamento.value;
-    const parcelas = parseInt(form.parcelas ? form.parcelas.value : 1) || 1;
-    const cliente = {
-        nome: form.cliente_nome.value.trim(),
-        email: form.cliente_email.value.trim().toLowerCase(),
-        telefone: form.cliente_telefone.value.trim(),
-        cpf: form.cliente_cpf.value.trim()
-    };
-
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando pedido...'; }
-
-    try {
-        const numero = await gerarNumeroPedido();
-        const codigo = gerarCodigoAcessoCliente();
-        const pedidoBase = {
-            numero_pedido: numero,
-            cliente_nome: cliente.nome,
-            cliente_email: cliente.email,
-            produto_id: produto.id,
-            produto_titulo: produto.titulo,
-            preco: Number(oferta.price),
-            formato: oferta.value || 'digital',
-            metodo_pagamento: metodo === 'pix' ? 'pix' : 'mercadopago',
-            status: 'pendente',
-            codigo_acesso: codigo
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        // ==================== GLOBAL STATE ====================
+        let appState = {
+            config: {},
+            categorias: [],
+            produtos: [],
+            depoimentos: [],
+            currentView: 'home',
+            isAdmin: false,
+            selectedFormats: {},
+            filters: {
+                search: '',
+                categoria: '',
+                estado: '',
+                type: ''
+            },
+            adminProductFilters: {
+                code: '',
+                text: '',
+                status: 'todos'
+            },
+            homeBanners: [],
+            heroBannerIndex: 0,
+            bannerRotationTimer: null
         };
-        const extras = {
-            cliente_telefone: cliente.telefone,
-            cliente_cpf: cliente.cpf || null,
-            produto_slug: produto.slug || null,
-            parcelas: parcelas,
-            origem: 'site'
-        };
 
-        let pedidoSalvo = null;
-        const tentativaFull = await supabaseClient.from('pedidos').insert([Object.assign({}, pedidoBase, extras)]).select('*').single();
-        if (tentativaFull.error) {
-            console.warn('Insert completo falhou, tentando versão mínima:', tentativaFull.error.message);
-            const tentativaMin = await supabaseClient.from('pedidos').insert([pedidoBase]).select('*').single();
-            if (tentativaMin.error) throw tentativaMin.error;
-            pedidoSalvo = tentativaMin.data;
-        } else {
-            pedidoSalvo = tentativaFull.data;
+        const SITE_URL = 'https://www.maisqapostilas.com.br';
+        const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
+        const DEFAULT_SEO = {
+            title: '+QApostilas - Apostilas para Concursos Públicos',
+            description: '+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.',
+            path: '/',
+            image: DEFAULT_OG_IMAGE,
+            type: 'website'
+        };
+        const MONTH_CODE_MAP = ['JA', 'FE', 'MR', 'AB', 'MA', 'JN', 'JL', 'AG', 'SE', 'OU', 'NO', 'DE'];
+        const PRODUCT_CODE_STOP_WORDS = new Set(['A', 'O', 'AS', 'OS', 'DE', 'DA', 'DO', 'DAS', 'DOS', 'E', 'EM', 'PARA', 'POR', 'COM', 'NO', 'NA', 'NOS', 'NAS']);
+
+        function normalizePath(pathname = '/') {
+            const clean = (pathname || '/').replace(/\/+$|^$/, '');
+            return clean ? (clean.startsWith('/') ? clean : `/${clean}`) : '/';
         }
 
-        const pedido = pedidoSalvo || Object.assign({}, pedidoBase, extras);
-        sessionStorage.setItem('cliente_email', cliente.email);
-        sessionStorage.setItem('cliente_nome', cliente.nome);
-        const label = document.getElementById('accountButtonLabel');
-        if (label) label.textContent = cliente.nome.split(' ')[0];
+        function getAbsoluteUrl(path = '/') {
+            return `${SITE_URL}${normalizePath(path)}`;
+        }
 
-        await iniciarPagamento(pedido, produto, oferta, metodo, parcelas);
-    } catch (err) {
-        console.error(err);
-        showAlert('Não foi possível registrar o pedido: ' + (err.message || err), 'error');
-    } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Finalizar e ir para o pagamento'; }
-    }
-}
+        function buildRoute(viewOrPath, data = null) {
+            if (typeof viewOrPath === 'string' && viewOrPath.startsWith('/')) return normalizePath(viewOrPath);
 
-async function iniciarPagamento(pedido, produto, oferta, metodo, parcelas) {
-    const cfg = appState.config || {};
+            switch (viewOrPath) {
+                case 'home':
+                    return '/';
+                case 'sobre':
+                    return '/sobre';
+                case 'contato':
+                    return '/contato';
+                case 'categoria': {
+                    const categoria = appState.categorias.find(c => c.id === data || c.slug === data);
+                    return categoria?.slug ? `/categoria/${categoria.slug}` : '/';
+                }
+                case 'produto': {
+                    const produto = appState.produtos.find(p => p.id === data || p.slug === data);
+                    return produto?.slug ? `/produto/${produto.slug}` : '/';
+                }
+                default:
+                    return '/';
+            }
+        }
 
-    // 1) Checkout Pro via Supabase Edge Function (recomendado: token fica no servidor)
-    if (metodo !== 'pix' && typeof supabaseClient !== 'undefined' && supabaseClient.functions) {
-        try {
-            const { data, error } = await supabaseClient.functions.invoke('mercadopago-preference', {
-                body: {
-                    numero_pedido: pedido.numero_pedido,
-                    codigo_acesso: pedido.codigo_acesso,
-                    titulo: produto.titulo,
-                    valor: Number(oferta.price),
-                    parcelas: parcelas,
-                    cliente: { nome: pedido.cliente_nome, email: pedido.cliente_email, telefone: pedido.cliente_telefone, cpf: pedido.cliente_cpf },
-                    slug: produto.slug || ''
+        function setSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, type = 'website', schema = null }) {
+            const absoluteUrl = getAbsoluteUrl(path);
+            document.title = title;
+
+            const mappings = [
+                ['meta-description', description, 'content'],
+                ['canonical-link', absoluteUrl, 'href'],
+                ['meta-og-url', absoluteUrl, 'content'],
+                ['meta-og-title', title, 'content'],
+                ['meta-og-description', description, 'content'],
+                ['meta-og-image', image, 'content'],
+                ['meta-og-type', type, 'content'],
+                ['meta-twitter-title', title, 'content'],
+                ['meta-twitter-description', description, 'content'],
+                ['meta-twitter-image', image, 'content']
+            ];
+
+            mappings.forEach(([id, value, attr]) => {
+                const el = document.getElementById(id);
+                if (el && value) el.setAttribute(attr, value);
+            });
+
+            const schemaEl = document.getElementById('dynamic-schema');
+            if (schemaEl) {
+                const fallbackSchema = {
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: title,
+                    description,
+                    url: absoluteUrl
+                };
+                schemaEl.textContent = JSON.stringify(schema || fallbackSchema, null, 2);
+            }
+        }
+
+        function closeNavMenu() {
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) navMenu.classList.remove('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('globalModal');
+            if (!modal) return;
+
+            modal.classList.remove('active');
+
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) modalTitle.textContent = 'Modal';
+
+            const modalBody = document.getElementById('modalBody');
+            if (modalBody) modalBody.innerHTML = '';
+        }
+
+        function renderNotFound() {
+            appState.currentView = 'notfound';
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 80px 20px; min-height: 60vh;">
+                    <div class="container">
+                        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+                            <div style="font-size: 72px; color: var(--primary); margin-bottom: 18px;"><i class="fas fa-map-signs"></i></div>
+                            <h1 style="margin-bottom: 12px;">Página não encontrada</h1>
+                            <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 28px;">O endereço acessado não foi encontrado. Você pode voltar para a página inicial e continuar navegando normalmente.</p>
+                            <button class="btn btn-primary" onclick="navigateTo('home')">
+                                <i class="fas fa-home"></i> Ir para a Home
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            `;
+            setSeoMeta({
+                title: 'Página não encontrada | +QApostilas',
+                description: 'A página solicitada não foi encontrada no site +QApostilas.',
+                path: normalizePath(window.location.pathname),
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: 'Página não encontrada',
+                    description: 'A página solicitada não foi encontrada no site +QApostilas.',
+                    url: getAbsoluteUrl(normalizePath(window.location.pathname))
                 }
             });
-            if (!error && data && data.init_point) {
-                mostrarPedidoCriado(pedido, produto, 'redirecionando');
-                window.location.href = data.init_point;
+        }
+
+        function router(options = {}) {
+            const { scroll = false } = options;
+            closeModal();
+            closeNavMenu();
+            stopHeroRotation();
+
+            const currentPath = normalizePath(window.location.pathname);
+            const parts = currentPath.split('/').filter(Boolean);
+
+            if (currentPath === '/') {
+                renderHome();
+            } else if (currentPath === '/sobre') {
+                renderSobre();
+            } else if (currentPath === '/contato') {
+                renderContato();
+            } else if (parts[0] === 'categoria' && parts[1]) {
+                filterByCategory(decodeURIComponent(parts[1]), { navigate: false });
+            } else if (parts[0] === 'produto' && parts[1]) {
+                renderProductDetail(decodeURIComponent(parts[1]), { navigate: false });
+            } else {
+                renderNotFound();
+            }
+
+            if (scroll) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if Supabase is configured
+            if (typeof supabaseClient === 'undefined') {
+                showAlert('Supabase não configurado. Configure o arquivo supabase-config.js', 'warning');
+                loadDemoData();
+                window.addEventListener('popstate', () => router());
+                router();
+                updateFooterSocials();
                 return;
             }
-        } catch (err) { console.warn('Edge Function mercadopago-preference indisponível:', err); }
-    }
 
-    // 2) Link de pagamento do Mercado Pago já criado no painel MP
-    const linkMp = (cfg.mercadopago_checkout_url || '').trim();
-    if (metodo !== 'pix' && linkMp) {
-        const sep = linkMp.includes('?') ? '&' : '?';
-        window.open(linkMp + sep + 'external_reference=' + encodeURIComponent(pedido.numero_pedido), '_blank', 'noopener');
-        mostrarPedidoCriado(pedido, produto, 'link');
-        return;
-    }
+            // Check admin session
+            const adminSession = sessionStorage.getItem('admin_logged_in');
+            if (adminSession === 'true') {
+                appState.isAdmin = true;
+            }
 
-    // 3) Pix direto com a chave cadastrada no painel
-    mostrarPedidoCriado(pedido, produto, 'pix');
-}
+            await loadData();
+            window.addEventListener('popstate', () => router());
+            router();
+            updateFooterSocials();
+        });
 
-function mostrarPedidoCriado(pedido, produto, modo) {
-    const body = document.getElementById('checkoutModalBody');
-    if (!body) return;
-    const chavePix = (appState.config && appState.config.pix_chave) || '';
-    const whats = (appState.config && appState.config.whatsapp) || '';
+        // ==================== DATA LOADING ====================
+        async function loadData() {
+            // ✅ Mais resiliente: se UMA consulta falhar, não derruba tudo.
+            // Só cai para dados de demonstração se TODAS falharem.
+            const results = await Promise.allSettled([
+                loadConfig(),
+                loadCategorias(),
+                loadProdutos(),
+                loadDepoimentos()
+            ]);
 
-    body.innerHTML = `
-        <div class="v2-sucesso">
-            <div class="v2-sucesso-icon"><i class="fas fa-circle-check"></i></div>
-            <h3>Pedido ${escapeHtml(pedido.numero_pedido || '')} registrado!</h3>
-            <p>Guarde o número do pedido e o código de acesso abaixo. Eles aparecem em <strong>Minha conta › Meus pedidos</strong>.</p>
-            <div class="v2-codigo-box">
-                <span>Código de acesso</span>
-                <strong>${escapeHtml(pedido.codigo_acesso || '')}</strong>
-            </div>
-            ${modo === 'pix' ? `
-                <div class="v2-pix-box">
-                    <p><strong>Pague com Pix na chave abaixo</strong> e envie o comprovante para liberarmos o download.</p>
-                    ${chavePix
-                        ? `<div class="v2-chave-pix"><code>${escapeHtml(chavePix)}</code>
-                             <button class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText('${escapeHtml(chavePix)}'); showAlert('Chave copiada!', 'success');"><i class="fas fa-copy"></i> Copiar</button></div>`
-                        : '<p style="color:#DC2626">Nenhuma chave Pix cadastrada no painel admin.</p>'}
+            const rejected = results.filter(r => r.status === 'rejected');
+            if (rejected.length) {
+                console.error('Erro ao carregar dados (algumas consultas falharam):', rejected);
+
+                if (rejected.length === results.length) {
+                    showAlert('Erro ao carregar dados. Usando dados de demonstração.', 'error');
+                    loadDemoData();
+                } else {
+                    showAlert('Alguns dados não puderam ser carregados. Verifique o Supabase/console.', 'warning');
+                }
+            }
+        }
+
+        async function loadConfig() {
+            const { data, error } = await supabaseClient
+                .from('site_config')
+                .select('*');
+            
+            if (error) throw error;
+            
+            appState.config = {};
+            data.forEach(item => {
+                appState.config[item.key] = item.value;
+            });
+
+            // Update logo if exists
+            if (appState.config.logo_url) {
+                const logoEl = document.getElementById('site-logo');
+                logoEl.src = appState.config.logo_url;
+                logoEl.style.display = 'block';
+                // Apply logo height from config
+                const logoH = parseInt(appState.config.logo_height) || 50;
+                logoEl.style.height = logoH + 'px';
+                logoEl.style.width = 'auto';
+            }
+
+            // Update favicon if exists
+            if (appState.config.favicon_url) {
+                const faviconEl = document.getElementById('site-favicon');
+                faviconEl.href = appState.config.favicon_url;
+            }
+        }
+
+        async function loadCategorias() {
+            const { data, error } = await supabaseClient
+                .from('categorias')
+                .select('*')
+                .order('ordem');
+            
+            if (error) throw error;
+            // Store ALL categories (for admin), filter active for front-end
+            appState.allCategorias = data;
+            appState.categorias = data.filter(c => c.ativo);
+            
+            // Update dropdown
+            updateCategoriesDropdown();
+        }
+
+        async function loadProdutos() {
+            // ✅ Correção importante:
+            // - Agora existem 2 FKs para categorias (categoria_id e categoria_id_2).
+            // - Fazer embed .select('*, categorias(...)') pode dar erro de relacionamento ambíguo no Supabase/PostgREST.
+            // Então carregamos apenas a tabela produtos e resolvemos nomes de categoria via lookup em appState.categorias.
+
+            const { data, error } = await supabaseClient
+                .from('produtos')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            appState.allProdutos = data || [];
+            appState.produtos = (data || []).filter(p => p.ativo);
+            updateBannerProductSelects();
+        }
+
+        async function loadDepoimentos() {
+            const { data, error } = await supabaseClient
+                .from('depoimentos')
+                .select('*')
+                .eq('ativo', true)
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            appState.depoimentos = data;
+        }
+
+        function loadDemoData() {
+            appState.config = {
+                logo_url: '',
+                logo_height: '50',
+                banner_url: '',
+                banner_height: '300',
+                banner_autoplay_seconds: '5',
+                banner_1_image_url: '',
+                banner_1_mobile_url: '',
+                banner_1_product_ref: '',
+                banner_1_link_url: '',
+                banner_2_image_url: '',
+                banner_2_mobile_url: '',
+                banner_2_product_ref: '',
+                banner_2_link_url: '',
+                banner_3_image_url: '',
+                banner_3_mobile_url: '',
+                banner_3_product_ref: '',
+                banner_3_link_url: '',
+                whatsapp: '5511999999999',
+                email: 'contato@qapostilas.com.br',
+                sobre_nos: 'Somos especializados em apostilas para concursos públicos. Todo nosso material é cuidadosamente preparado e atualizado conforme os editais mais recentes.',
+                admin_password: 'admin123',
+                social_youtube: '',
+                social_tiktok: '',
+                social_instagram: '',
+                social_facebook: '',
+                reclame_aqui_url: '',
+                reclame_aqui_badge: ''
+            };
+
+            appState.categorias = [
+                { id: 1, nome: 'Prefeituras', slug: 'prefeituras', icone: 'fa-city', ordem: 1, ativo: true },
+                { id: 2, nome: 'Área Policial', slug: 'policial', icone: 'fa-shield-halved', ordem: 2, ativo: true },
+                { id: 3, nome: 'Área Saúde', slug: 'saude', icone: 'fa-heart-pulse', ordem: 3, ativo: true },
+                { id: 4, nome: 'Bancos', slug: 'bancos', icone: 'fa-building-columns', ordem: 4, ativo: true },
+                { id: 5, nome: 'Educação', slug: 'educacao', icone: 'fa-graduation-cap', ordem: 5, ativo: true },
+                { id: 6, nome: 'Administrativo', slug: 'administrativo', icone: 'fa-briefcase', ordem: 6, ativo: true },
+                { id: 7, nome: 'Pré-venda', slug: 'pre-venda', icone: 'fa-clock', ordem: 7, ativo: true }
+            ];
+
+            appState.produtos = [
+                {
+                    id: 1,
+                    titulo: 'Apostila Completa - Agente Administrativo',
+                    slug: 'apostila-agente-administrativo',
+                    orgao: 'Prefeitura Municipal',
+                    cargo: 'Agente Administrativo',
+                    estado: 'SP',
+                    cidade: 'São Paulo',
+                    descricao: 'Apostila completa e atualizada para o cargo de Agente Administrativo. Material preparado conforme o último edital publicado.',
+                    capa_url: 'https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila',
+                    paginas: 450,
+                    preco: 49.90,
+                    preco_original: 79.90,
+                    conteudo_programatico: 'Língua Portuguesa\nMatemática\nInformática\nDireito Administrativo\nDireito Constitucional',
+                    atualizado_edital: true,
+                    tipo_botao: 'hotmart',
+                    link_compra: 'https://pay.hotmart.com/exemplo',
+                    categoria_id: 6,
+                    categorias: { nome: 'Administrativo', slug: 'administrativo' },
+                    destaque: true,
+                    lancamento: true,
+                    mais_vendida: false,
+                    pre_venda: false,
+                    ativo: true,
+                    codigo: 'MQA-001-MA26-PREF-SP-AGE-ADM',
+                    codigo_origem: 'automatico',
+                    tipo_editorial: 'normal',
+                    sigla_concurso: 'PREF-SP',
+                    avaliacao_media: 4.8,
+                    total_avaliacoes: 124
+                }
+            ];
+            appState.allProdutos = [...appState.produtos];
+
+            appState.depoimentos = [
+                {
+                    id: 1,
+                    nome: 'Maria Silva',
+                    cargo_aprovado: 'Técnica Administrativa - Prefeitura SP',
+                    texto: 'Material excelente! Consegui minha aprovação estudando com as apostilas da +QApostilas. Recomendo muito!',
+                    foto_url: 'https://via.placeholder.com/60/22C55E/FFFFFF?text=MS',
+                    avaliacao: 5,
+                    destaque: true,
+                    ativo: true
+                }
+            ];
+
+            updateCategoriesDropdown();
+        }
+
+        // ==================== NAVIGATION ====================
+        function navigateTo(viewOrPath, data = null, options = {}) {
+            const path = buildRoute(viewOrPath, data);
+            const shouldReplace = options.replace === true;
+
+            if (shouldReplace) {
+                window.history.replaceState({}, '', path);
+            } else if (window.location.pathname !== path) {
+                window.history.pushState({}, '', path);
+            }
+
+            router({ scroll: options.scroll !== false });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+
+        function getProductSortValue(produto) {
+            const createdAt = produto?.created_at ? new Date(produto.created_at).getTime() : NaN;
+            if (!Number.isNaN(createdAt)) return createdAt;
+            const numericId = Number(produto?.id);
+            return Number.isNaN(numericId) ? 0 : numericId;
+        }
+
+        function normalizeSearchText(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toLowerCase()
+                .trim();
+        }
+
+        function tokenizeProductText(value = '') {
+            const stopWords = new Set(['apostila', 'apostilas', 'para', 'com', 'das', 'dos', 'da', 'de', 'do', 'e', 'em', 'vol', 'volume', 'questoes', 'questao', 'completa', 'atualizada', 'material']);
+            return [...new Set(
+                normalizeSearchText(value)
+                    .split(/[^a-z0-9]+/)
+                    .filter(token => token.length >= 3 && !stopWords.has(token))
+            )];
+        }
+
+        function getHighlightedProductsByFlag(flag, limit = 8) {
+            return [...appState.produtos]
+                .filter(produto => produto && produto[flag])
+                .sort((a, b) => getProductSortValue(b) - getProductSortValue(a))
+                .slice(0, limit);
+        }
+
+        function getProductFormats(produto) {
+            const formats = [];
+            const precoDigital = Number(produto?.preco || 0);
+            const precoOriginal = Number(produto?.preco_original || 0);
+            const precoImpresso = Number(produto?.preco_impresso || 0);
+
+            if (precoDigital > 0) {
+                formats.push({
+                    value: 'digital',
+                    label: 'Versão Digital',
+                    badge: '📱 Digital',
+                    price: precoDigital,
+                    originalPrice: precoOriginal > precoDigital ? precoOriginal : null,
+                    installments: parseInt(produto?.parcelas) || 0,
+                    buttonText: 'Comprar'
+                });
+            }
+
+            if (precoImpresso > 0) {
+                formats.push({
+                    value: 'impressa',
+                    label: 'Versão Impressa',
+                    badge: '📖 Impressa',
+                    price: precoImpresso,
+                    originalPrice: precoOriginal > precoImpresso ? precoOriginal : null,
+                    installments: parseInt(produto?.parcelas_impresso ?? produto?.parcelas) || 0,
+                    buttonText: 'Comprar'
+                });
+            }
+
+            return formats;
+        }
+
+        function getSelectedProductFormat(produto) {
+            const formats = getProductFormats(produto);
+            if (formats.length === 0) return null;
+            const key = produto?.slug || produto?.id;
+            const selected = appState.selectedFormats?.[key];
+            return formats.find(format => format.value === selected)?.value || formats[0].value;
+        }
+
+        function getCurrentProductOffer(produto) {
+            const formats = getProductFormats(produto);
+            if (formats.length === 0) return null;
+            const selectedValue = getSelectedProductFormat(produto);
+            return formats.find(format => format.value === selectedValue) || formats[0];
+        }
+
+        function getProductImageByFormat(produto, format = null) {
+            if (!produto) return getCoverPlaceholder();
+            const selectedFormat = format || getSelectedProductFormat(produto);
+            if (selectedFormat === 'impressa' && produto.capa_url_impresso) {
+                return produto.capa_url_impresso;
+            }
+            return produto.capa_url || produto.capa_url_impresso || getCoverPlaceholder();
+        }
+
+        function getInstallmentText(price, installments) {
+            if (!price || !installments || installments < 2) return '';
+            return `em até ${installments}x de R$ ${formatPrice(Number(price) / Number(installments))} sem juros`;
+        }
+
+        function getDiscountPercentage(originalPrice, currentPrice) {
+            if (!originalPrice || !currentPrice || Number(originalPrice) <= Number(currentPrice)) return 0;
+            return Math.round(((Number(originalPrice) - Number(currentPrice)) / Number(originalPrice)) * 100);
+        }
+
+        function getProductAvailabilityBadge(produto) {
+            const formats = getProductFormats(produto);
+            if (formats.length > 1) {
+                return '<span class="badge badge-info"><i class="fas fa-layer-group"></i> Formatos disponíveis: Digital e Impressa</span>';
+            }
+            return '<span class="badge badge-info"><i class="fas fa-mobile-alt"></i> 100% Digital - Envio automático após compra</span>';
+        }
+
+        function renderProductPurchaseBox(produto) {
+            const formats = getProductFormats(produto);
+            const currentOffer = getCurrentProductOffer(produto);
+            if (!currentOffer) return '';
+
+            const discount = getDiscountPercentage(currentOffer.originalPrice, currentOffer.price);
+            const installmentText = getInstallmentText(currentOffer.price, currentOffer.installments);
+
+            return `
+                <div class="purchase-box">
+                    <div class="purchase-box-price-top">
+                        ${currentOffer.originalPrice ? `<span class="purchase-box-original">R$ ${formatPrice(currentOffer.originalPrice)}</span>` : ''}
+                        ${discount ? `<span class="discount-pill">${discount}% OFF</span>` : ''}
+                    </div>
+                    <div class="purchase-box-current">R$ ${formatPrice(currentOffer.price)}</div>
+                    ${installmentText ? `<div class="purchase-box-installment">${installmentText}</div>` : ''}
+                    ${formats.length > 1 ? `
+                        <label class="purchase-box-label" for="format_selector_${produto.id}">Formato</label>
+                        <select id="format_selector_${produto.id}" class="purchase-box-select" onchange="setProductFormat('${produto.slug}', this.value)">
+                            ${formats.map(format => `<option value="${format.value}" ${format.value === currentOffer.value ? 'selected' : ''}>${format.label}</option>`).join('')}
+                        </select>
+                    ` : `<div class="purchase-box-label-static">${currentOffer.badge}</div>`}
+                    ${(() => {
+                        const vt = getVendaTipo(produto);
+                        const vm = getVendaMeta(vt);
+                        /* PATCH v3: o selo de origem aparece SÓ na página do produto e SÓ
+                           quando o produto for de parceiro. Produto próprio e Hotmart
+                           ficam sem selo. */
+                        const seloOrigem = (vt === 'parceiro')
+                            ? `<span class="v2-venda-selo v2-venda-selo-parceiro" style="background:${vm.cor};"><i class="fas fa-store"></i> ${vm.label}</span>`
+                            : '';
+                        return `${seloOrigem}
+                    <button type="button" class="btn ${vm.classe} purchase-box-action" onclick="handleBuyClick(event, ${produto.id})">
+                        <i class="fas fa-cart-shopping"></i> Comprar
+                    </button>`;
+                    })()}
+                    <p class="purchase-box-secure"><i class="fas fa-lock"></i> Compra segura</p>
                 </div>
-            ` : `
-                <p><strong>Falta só o pagamento.</strong> ${modo === 'redirecionando' ? 'Você está sendo levado ao Mercado Pago.' : 'Conclua a compra na janela do Mercado Pago que foi aberta.'}</p>
-            `}
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-                <button class="btn btn-primary" onclick="renderAccountShell('pedidos');"><i class="fas fa-box-open"></i> Ver meus pedidos</button>
-                ${whats ? `<a class="btn btn-success" target="_blank" rel="noopener" href="https://wa.me/${escapeHtml(whats)}?text=${encodeURIComponent('Olá! Fiz o pedido ' + (pedido.numero_pedido || '') + ' no site e quero confirmar o pagamento.')}"><i class="fab fa-whatsapp"></i> Enviar comprovante</a>` : ''}
-            </div>
-        </div>
-    `;
-}
-
-function escapeHtml(valor) {
-    return String(valor == null ? '' : valor)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
-/* ==================== ADMIN: ABAS VENDAS E CLIENTES ==================== */
-function injectAdminExtras() {
-    const content = document.querySelector('.admin-content');
-    const tabsBar = document.querySelector('.admin-tabs');
-    if (tabsBar && !document.getElementById('adminTabVendas')) {
-        const bt1 = document.createElement('button');
-        bt1.className = 'admin-tab';
-        bt1.id = 'adminTabVendas';
-        bt1.setAttribute('onclick', "abrirAbaAdmin('vendas', this)");
-        bt1.innerHTML = '<i class="fas fa-receipt"></i> Vendas';
-        const bt2 = document.createElement('button');
-        bt2.className = 'admin-tab';
-        bt2.id = 'adminTabClientes';
-        bt2.setAttribute('onclick', "abrirAbaAdmin('clientes', this)");
-        bt2.innerHTML = '<i class="fas fa-users"></i> Clientes';
-        tabsBar.appendChild(bt1);
-        tabsBar.appendChild(bt2);
-    }
-    if (!content || document.getElementById('admin-vendas')) return;
-
-    const vendas = document.createElement('div');
-    vendas.className = 'admin-section';
-    vendas.id = 'admin-vendas';
-    vendas.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;">
-            <h3><i class="fas fa-receipt"></i> Vendas / Pedidos</h3>
-            <button class="btn btn-accent" onclick="loadPedidosAdmin()"><i class="fas fa-rotate"></i> Atualizar lista</button>
-        </div>
-        <div class="v2-kpis" id="vendasKpis"></div>
-        <div class="table-container">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Pedido</th><th>Data</th><th>Cliente</th><th>Produto</th>
-                        <th>Valor</th><th>Pagamento</th><th>Status</th><th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="vendasTableBody"></tbody>
-            </table>
-        </div>
-    `;
-    content.appendChild(vendas);
-
-    const clientes = document.createElement('div');
-    clientes.className = 'admin-section';
-    clientes.id = 'admin-clientes';
-    clientes.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;">
-            <h3><i class="fas fa-users"></i> Clientes cadastrados</h3>
-            <button class="btn btn-accent" onclick="loadClientesAdmin()"><i class="fas fa-rotate"></i> Atualizar lista</button>
-        </div>
-        <small id="clientesSummary" style="color:var(--text-muted); display:block; margin-bottom:12px;">Todos os clientes do site</small>
-        <div class="table-container">
-            <table class="admin-table">
-                <thead>
-                    <tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cadastro</th><th>Pedidos</th><th>Ações</th></tr>
-                </thead>
-                <tbody id="clientesTableBody"></tbody>
-            </table>
-        </div>
-    `;
-    content.appendChild(clientes);
-}
-
-function abrirAbaAdmin(tab, btn) {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    const botao = btn || Array.from(document.querySelectorAll('.admin-tab'))
-        .find(b => String(b.getAttribute('onclick') || '').includes(`'${tab}'`));
-    if (botao) botao.classList.add('active');
-
-    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-    const secao = document.getElementById('admin-' + tab);
-    if (secao) secao.classList.add('active');
-
-    if (tab === 'vendas') loadPedidosAdmin();
-    if (tab === 'clientes') loadClientesAdmin();
-}
-
-// Mantém o comportamento original das abas, sem depender do objeto global "event"
-function switchAdminTabSeguro(tab, btn) {
-    abrirAbaAdmin(tab, btn || (window.event && window.event.target) || null);
-}
-
-async function loadPedidosAdmin() {
-    const tbody = document.getElementById('vendasTableBody');
-    const kpis = document.getElementById('vendasKpis');
-    if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando pedidos...</td></tr>';
-
-    try {
-        const { data, error } = await supabaseClient.from('pedidos').select('*').order('criado_em', { ascending: false }).limit(300);
-        if (error) throw error;
-        const pedidos = data || [];
-
-        const pagos = pedidos.filter(p => String(p.status || '').toLowerCase() === 'pago');
-        const total = pagos.reduce((soma, p) => soma + Number(p.preco || 0), 0);
-        if (kpis) {
-            kpis.innerHTML = `
-                <div class="v2-kpi"><span>Pedidos</span><strong>${pedidos.length}</strong></div>
-                <div class="v2-kpi"><span>Pagos</span><strong>${pagos.length}</strong></div>
-                <div class="v2-kpi"><span>Pendentes</span><strong>${pedidos.length - pagos.length}</strong></div>
-                <div class="v2-kpi"><span>Receita confirmada</span><strong>R$ ${formatPrice(total)}</strong></div>
             `;
         }
 
-        if (!pedidos.length) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum pedido registrado ainda.</td></tr>';
-            return;
+        function setProductFormat(productRef, format) {
+            const produto = appState.produtos.find(p => p.id === productRef || p.slug === productRef);
+            if (!produto) return;
+
+            const key = produto.slug || produto.id;
+            appState.selectedFormats = appState.selectedFormats || {};
+            appState.selectedFormats[key] = format;
+
+            const purchaseBox = document.getElementById(`productPurchaseBox_${produto.id}`);
+            if (purchaseBox) {
+                purchaseBox.innerHTML = renderProductPurchaseBox(produto);
+            }
+
+            const detailImage = document.getElementById(`productDetailImage_${produto.id}`);
+            if (detailImage) {
+                detailImage.src = getProductImageByFormat(produto, format);
+                detailImage.alt = `${produto.titulo} - ${format === 'impressa' ? 'Impressa' : 'Digital'}`;
+            }
         }
 
-        tbody.innerHTML = pedidos.map(p => `
-            <tr>
-                <td style="white-space:nowrap; font-weight:700;">${escapeHtml(p.numero_pedido || ('#' + p.id))}<br><small style="color:var(--text-muted)">${escapeHtml(p.codigo_acesso || '')}</small></td>
-                <td style="white-space:nowrap;">${formatarData(p.criado_em)}</td>
-                <td>${escapeHtml(p.cliente_nome || '—')}<br><small style="color:var(--text-muted)">${escapeHtml(p.cliente_email || '')}</small></td>
-                <td>${escapeHtml(p.produto_titulo || '—')}<br><small style="color:var(--text-muted)">${escapeHtml(p.formato || '')}</small></td>
-                <td>R$ ${formatPrice(p.preco || 0)}</td>
-                <td>${escapeHtml(p.metodo_pagamento || '—')}${p.parcelas > 1 ? `<br><small style="color:var(--text-muted)">${p.parcelas}x</small>` : ''}</td>
-                <td>${statusPedidoBadge(p.status)}</td>
-                <td>
-                    <div class="action-buttons">
-                        ${String(p.status || '').toLowerCase() === 'pago' ? '' : `<button class="btn btn-sm btn-success" onclick="marcarPedidoPago(${p.id})"><i class="fas fa-check"></i> Marcar pago</button>`}
-                        <button class="btn btn-sm" style="background:#16a34a;color:#fff;" onclick="baixarApostila('${escapeHtml(p.codigo_acesso || '')}')"><i class="fas fa-download"></i> PDF</button>
-                        ${p.cliente_email ? `<a class="btn btn-sm" style="background:#25D366;color:#fff;" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('Olá ' + (p.cliente_nome || '') + '! Sobre o pedido ' + (p.numero_pedido || '') + ':')}"><i class="fab fa-whatsapp"></i></a>` : ''}
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:#DC2626;">Erro ao carregar pedidos: ${escapeHtml(err.message || '')}<br><small>Se a mensagem citar coluna inexistente, rode o arquivo migrations-v2-site-proprio.sql no Supabase.</small></td></tr>`;
-    }
-}
+        function getProductRelationScore(baseProduct, candidate) {
+            if (!baseProduct || !candidate || baseProduct.id === candidate.id) return -1;
 
-async function marcarPedidoPago(id) {
-    try {
-        const { error } = await supabaseClient.from('pedidos').update({ status: 'pago', pago_em: new Date().toISOString() }).eq('id', id);
-        if (error) throw error;
-        showAlert('Pedido marcado como pago e download liberado.', 'success');
-        loadPedidosAdmin();
-    } catch (err) {
-        console.error(err);
-        showAlert('Erro ao atualizar pedido: ' + (err.message || err), 'error');
-    }
-}
+            let score = 0;
+            const sameCategoriaPrincipal = baseProduct.categoria_id && (candidate.categoria_id === baseProduct.categoria_id || candidate.categoria_id_2 === baseProduct.categoria_id);
+            const sameCategoriaSecundaria = baseProduct.categoria_id_2 && (candidate.categoria_id === baseProduct.categoria_id_2 || candidate.categoria_id_2 === baseProduct.categoria_id_2);
+            const sameEstado = normalizeSearchText(baseProduct.estado) && normalizeSearchText(candidate.estado) === normalizeSearchText(baseProduct.estado);
+            const sameCargo = normalizeSearchText(baseProduct.cargo) && normalizeSearchText(candidate.cargo) === normalizeSearchText(baseProduct.cargo);
+            const sameOrgao = normalizeSearchText(baseProduct.orgao) && normalizeSearchText(candidate.orgao) === normalizeSearchText(baseProduct.orgao);
 
-async function loadClientesAdmin() {
-    const tbody = document.getElementById('clientesTableBody');
-    const summary = document.getElementById('clientesSummary');
-    if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">Carregando clientes...</td></tr>';
+            if (sameCategoriaPrincipal) score += 6;
+            if (sameCategoriaSecundaria) score += 3;
+            if (sameEstado) score += 2;
+            if (sameCargo) score += 6;
+            if (sameOrgao) score += 5;
 
-    try {
-        const { data, error } = await supabaseClient.from('clientes').select('*').order('criado_em', { ascending: false }).limit(300);
-        if (error) throw error;
-        const clientes = data || [];
+            const baseTokens = new Set([
+                ...tokenizeProductText(baseProduct.titulo),
+                ...tokenizeProductText(baseProduct.cargo),
+                ...tokenizeProductText(baseProduct.orgao)
+            ]);
+            const candidateTokens = new Set([
+                ...tokenizeProductText(candidate.titulo),
+                ...tokenizeProductText(candidate.cargo),
+                ...tokenizeProductText(candidate.orgao)
+            ]);
 
-        let pedidosPorEmail = {};
-        try {
-            const { data: pedidos } = await supabaseClient.from('pedidos').select('cliente_email, preco, status');
-            (pedidos || []).forEach(p => {
-                const k = String(p.cliente_email || '').toLowerCase();
-                if (!k) return;
-                pedidosPorEmail[k] = pedidosPorEmail[k] || { qtd: 0, total: 0 };
-                pedidosPorEmail[k].qtd += 1;
-                if (String(p.status || '').toLowerCase() === 'pago') pedidosPorEmail[k].total += Number(p.preco || 0);
+            let sharedTokens = 0;
+            baseTokens.forEach(token => {
+                if (candidateTokens.has(token)) sharedTokens += 1;
             });
-        } catch (e) { console.warn(e); }
 
-        if (summary) summary.textContent = `${clientes.length} cliente(s) cadastrado(s)`;
-
-        if (!clientes.length) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cliente cadastrado ainda.</td></tr>';
-            return;
+            score += Math.min(sharedTokens, 6);
+            return score;
         }
 
-        tbody.innerHTML = clientes.map(c => {
-            const info = pedidosPorEmail[String(c.email || '').toLowerCase()] || { qtd: 0, total: 0 };
+        function getRelatedProducts(produto, limit = 8) {
+            const scored = [...appState.produtos]
+                .filter(candidate => candidate && candidate.id !== produto.id && candidate.ativo)
+                .map(candidate => ({
+                    ...candidate,
+                    _relationScore: getProductRelationScore(produto, candidate)
+                }))
+                .filter(candidate => candidate._relationScore > 0)
+                .sort((a, b) => b._relationScore - a._relationScore || getProductSortValue(b) - getProductSortValue(a));
+
+            return scored.slice(0, limit);
+        }
+
+        function renderRelatedProductsSection(produto) {
+            const relacionados = getRelatedProducts(produto, 8);
+            if (!relacionados.length) return '';
+
             return `
+                <section class="products-section" id="produtos-relacionados">
+                    <div class="container">
+                        <div class="section-header" style="margin-bottom: 28px;">
+                            <h2 class="section-title">📚 Materiais relacionados</h2>
+                            <p class="section-subtitle">Sugestões automáticas parecidas com este material</p>
+                        </div>
+                        <div class="carousel-wrapper">
+                            <button class="carousel-btn prev" onclick="carouselScroll('grid-relacionados-${produto.id}', -1)" aria-label="Anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="products-grid" id="grid-relacionados-${produto.id}">
+                                ${relacionados.map(item => renderProductCard(item)).join('')}
+                            </div>
+                            <button class="carousel-btn next" onclick="carouselScroll('grid-relacionados-${produto.id}', 1)" aria-label="Próximo">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // ==================== RENDER HOME ====================
+        function renderHome() {
+            appState.currentView = 'home';
+            const mainContent = document.getElementById('mainContent');
+            const bannerHeight = parseInt(appState.config.banner_height) || 300;
+            const banners = getHomeBanners();
+            appState.homeBanners = banners;
+            appState.heroBannerIndex = 0;
+
+            const destaques = getHighlightedProductsByFlag('destaque', 8);
+            const lancamentos = getHighlightedProductsByFlag('lancamento', 8);
+            const maisVendidas = getHighlightedProductsByFlag('mais_vendida', 8);
+            const preVenda = getHighlightedProductsByFlag('pre_venda', 8);
+
+            const heroHtml = banners.length
+                ? `
+                    <section class="hero hero-slider" style="height:${bannerHeight}px" data-config-height="${bannerHeight}">
+                        <div class="hero-track" id="heroBannerTrack">
+                            ${banners.map((banner, indexBanner) => `
+                                <div class="hero-slide ${indexBanner === 0 ? 'active' : ''}">
+                                    ${banner.productRef || banner.linkUrl ? `
+                                        <button type="button" class="hero-slide-button" onclick="openHeroBanner(${indexBanner})" aria-label="Abrir banner ${indexBanner + 1}">
+                                            <picture>
+                                                ${banner.mobileUrl ? `<source media="(max-width: 768px)" srcset="${banner.mobileUrl}">` : ''}
+                                                <img src="${banner.desktopUrl || banner.mobileUrl}" alt="${banner.alt}">
+                                            </picture>
+                                        </button>
+                                    ` : `
+                                        <div class="hero-slide-button hero-slide-no-link">
+                                            <picture>
+                                                ${banner.mobileUrl ? `<source media="(max-width: 768px)" srcset="${banner.mobileUrl}">` : ''}
+                                                <img src="${banner.desktopUrl || banner.mobileUrl}" alt="${banner.alt}">
+                                            </picture>
+                                        </div>
+                                    `}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${banners.length > 1 ? `
+                            <button type="button" class="hero-nav prev" onclick="changeHeroSlide(-1)" aria-label="Banner anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="hero-nav next" onclick="changeHeroSlide(1)" aria-label="Próximo banner">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <div class="hero-dots">
+                                ${banners.map((_, indexBanner) => `<button type="button" class="hero-dot ${indexBanner === 0 ? 'active' : ''}" onclick="setHeroSlide(${indexBanner})" aria-label="Ir para banner ${indexBanner + 1}"></button>`).join('')}
+                            </div>
+                        ` : ''}
+                    </section>
+                `
+                : `
+                    <section class="hero" style="height:${bannerHeight}px">
+                        <div class="hero-fallback">
+                            <div>
+                                <h1>Apostilas Atualizadas para Concursos Públicos</h1>
+                                <p>Cadastre até 3 banners clicáveis no painel admin para destacar os concursos mais importantes.</p>
+                                <button class="btn btn-accent" onclick="document.getElementById('produtos-destaques')?.scrollIntoView({behavior: 'smooth'})">
+                                    <i class="fas fa-book"></i> Ver Apostilas
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                `;
+
+            mainContent.innerHTML = `
+                <!-- Hero Banner -->
+                ${heroHtml}
+
+                <!-- Destaques -->
+                ${renderProductsSection('destaques', '🔥 Destaques', destaques)}
+
+                <!-- Lançamentos -->
+                ${renderProductsSection('lancamentos', '🆕 Lançamentos', lancamentos)}
+
+                <!-- Mais Vendidas -->
+                ${renderProductsSection('mais-vendidas', '⭐ Mais Vendidas', maisVendidas)}
+
+                <!-- Pré-venda -->
+                ${renderProductsSection('pre-venda', '🔔 Pré-venda', preVenda)}
+
+                <!-- Depoimentos -->
+                ${renderTestimonialsSection()}
+            `;
+
+            initializeHeroBannerSizing();
+
+            if (banners.length > 1) {
+                startHeroRotation();
+            }
+
+            setSeoMeta({
+                ...DEFAULT_SEO,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: '+QApostilas - Apostilas para Concursos Públicos',
+                    description: DEFAULT_SEO.description,
+                    url: getAbsoluteUrl('/')
+                }
+            });
+        }
+
+        function renderEstadosSection() {
+            const estados = getUniqueEstados();
+            if (!estados.length) return '';
+
+            const stateNames = {
+                'AC':'Acre','AL':'Alagoas','AM':'Amazonas','AP':'Amapá','BA':'Bahia',
+                'CE':'Ceará','DF':'Distrito Federal','ES':'Espírito Santo','GO':'Goiás',
+                'MA':'Maranhão','MG':'Minas Gerais','MS':'Mato Grosso do Sul','MT':'Mato Grosso',
+                'PA':'Pará','PB':'Paraíba','PE':'Pernambuco','PI':'Piauí','PR':'Paraná',
+                'RJ':'Rio de Janeiro','RN':'Rio Grande do Norte','RO':'Rondônia','RR':'Roraima',
+                'RS':'Rio Grande do Sul','SC':'Santa Catarina','SE':'Sergipe','SP':'São Paulo',
+                'TO':'Tocantins','Nacional':'Nacional'
+            };
+
+            const cards = ['Nacional', ...estados.filter(e => e !== 'Nacional')].slice(0, 28).map(sigla => {
+                const qty = appState.produtos.filter(p => (p.estado || '').toUpperCase() === sigla.toUpperCase()).length;
+                if (qty === 0) return '';
+                const nome = stateNames[sigla] || sigla;
+                return `
+                    <a class="state-card" href="/estado/${sigla.toLowerCase()}" onclick="event.preventDefault(); filterByEstado('${sigla}')" aria-label="Apostilas para ${nome}">
+                        <span class="state-sigla">${sigla}</span>
+                        <span class="state-name">${nome}</span>
+                        <span class="state-count">${qty} ${qty === 1 ? 'apostila' : 'apostilas'}</span>
+                    </a>
+                `;
+            }).filter(Boolean).join('');
+
+            if (!cards) return '';
+
+            return `
+                <section class="states-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">📍 Apostilas por Estado</h2>
+                            <p class="section-subtitle">Selecione o estado e encontre a apostila certa para o seu concurso</p>
+                        </div>
+                        <div class="states-grid">
+                            ${cards}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function filterByEstado(sigla) {
+            const estadoUpper = (sigla || '').toUpperCase();
+            // PATCH v3: "Nacional" precisa listar TODOS os produtos.
+            // Antes ele filtrava por estado === 'NACIONAL' e não retornava nada.
+            const nacional = (estadoUpper === 'NACIONAL' || estadoUpper === 'BR' || estadoUpper === 'TODOS' || estadoUpper === '');
+            appState.currentView = 'estado';
+            appState.filters = { search: '', estado: nacional ? '' : estadoUpper, categoria: '', type: '' };
+            const filtered = nacional
+                ? [...appState.produtos]
+                : appState.produtos.filter(p => (p.estado || '').toUpperCase() === estadoUpper);
+            const stateNames = {
+                'AC':'Acre','AL':'Alagoas','AM':'Amazonas','AP':'Amapá','BA':'Bahia',
+                'CE':'Ceará','DF':'Distrito Federal','ES':'Espírito Santo','GO':'Goiás',
+                'MA':'Maranhão','MG':'Minas Gerais','MS':'Mato Grosso do Sul','MT':'Mato Grosso',
+                'PA':'Pará','PB':'Paraíba','PE':'Pernambuco','PI':'Piauí','PR':'Paraná',
+                'RJ':'Rio de Janeiro','RN':'Rio Grande do Norte','RO':'Rondônia','RR':'Roraima',
+                'RS':'Rio Grande do Sul','SC':'Santa Catarina','SE':'Sergipe','SP':'São Paulo',
+                'TO':'Tocantins','NACIONAL':'Nacional'
+            };
+            const nome = nacional ? 'todo o Brasil' : (stateNames[estadoUpper] || estadoUpper);
+            const caminho = nacional ? '/' : `/estado/${estadoUpper.toLowerCase()}`;
+            renderFilteredResults(filtered, `Apostilas para ${nome}`, {
+                title: `Apostilas para concursos em ${nome} | +QApostilas`,
+                description: `Confira as apostilas disponíveis para concursos públicos em ${nome}. Material digital 100% atualizado.`,
+                path: caminho
+            });
+            window.history.pushState({}, '', caminho);
+        }
+
+        function renderProductsSection(id, title, produtos) {
+            if (produtos.length === 0) return '';
+
+            return `
+                <section class="products-section" id="produtos-${id}">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">${title}</h2>
+                        </div>
+                        <div class="carousel-wrapper">
+                            <button class="carousel-btn prev" onclick="carouselScroll('grid-${id}', -1)" aria-label="Anterior">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="products-grid" id="grid-${id}">
+                                ${produtos.map(p => renderProductCard(p)).join('')}
+                            </div>
+                            <button class="carousel-btn next" onclick="carouselScroll('grid-${id}', 1)" aria-label="Próximo">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderProductCard(produto) {
+            // Categoria principal por lookup (evita depender de embed do Supabase)
+            const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
+            const categoria = cat1obj ? cat1obj.nome : '';
+
+            // Categoria adicional por lookup
+            const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
+            const categoria2 = cat2obj ? cat2obj.nome : '';
+
+            // Calcular parcela se disponível
+            let parcelaHtml = '';
+            if (produto.parcelas && produto.parcelas >= 2 && produto.preco) {
+                const valorParcela = parseFloat(produto.preco) / parseInt(produto.parcelas);
+                parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
+            }
+
+            // Parcelas separadas para impressa (fallback: usa parcelas do digital)
+            const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
+            
+            return `
+                <div class="product-card" onclick="navigateTo('produto', '${produto.slug}')">
+                    <div class="product-image-container">
+                        <!-- PATCH v3: selo "Atualizado" ancorado na CAPA (como nas páginas
+                             de referência) e capa com mais destaque dentro do card. -->
+                        ${produto.atualizado_edital ? '<span class="v2-capa-selo"><i class="fas fa-check"></i> ATUALIZADO</span>' : ''}
+                        <img src="${produto.capa_url || produto.capa_url_impresso || getCoverPlaceholder()}" alt="${produto.titulo}" class="product-image" loading="lazy" onerror="this.onerror=null;this.src=getCoverPlaceholder();">
+                        <div class="product-badges">
+                            ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
+                            ${produto.lancamento ? '<span class="badge badge-accent"><i class="fas fa-star"></i> Novo</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">${categoria}${categoria2 ? `<span style="margin:0 4px;opacity:0.5;">•</span>${categoria2}` : ''}</div>
+                        <h3 class="product-title">${produto.titulo}</h3>
+                        <!-- PATCH v3: selo de origem (Produto próprio / Hotmart / Site parceiro)
+                             REMOVIDO dos cards. Ele aparece apenas na página do produto e
+                             apenas quando o produto for de parceiro. -->
+                        <div class="product-prices">
+                            <div class="price-version-row">
+                                <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
+                                ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                            </div>
+                            ${parcelaHtml}
+                            ${produto.preco_impresso ? `
+                            <div class="price-version-row" style="margin-top:3px;">
+                                <span class="price-version-icon">📖</span>
+                                <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
+                            </div>
+                            ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:2px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTestimonialsSection() {
+            if (appState.depoimentos.length === 0) return '';
+
+            return `
+                <section class="testimonials-section">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">💬 O que nossos alunos dizem</h2>
+                            <p class="section-subtitle">Depoimentos de quem conquistou a aprovação</p>
+                        </div>
+                        <div class="testimonials-grid">
+                            ${appState.depoimentos.map(t => renderTestimonialCard(t)).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderTestimonialCard(depoimento) {
+            const stars = renderStars(depoimento.avaliacao || 5);
+            const fotoUrl = depoimento.foto_url || 'https://via.placeholder.com/60/22C55E/FFFFFF?text=' + depoimento.nome.charAt(0);
+
+            return `
+                <div class="testimonial-card">
+                    ${depoimento.destaque ? '<div style="margin-bottom: 12px;"><span class="badge badge-success">✅ Destaque</span></div>' : ''}
+                    <div class="testimonial-header">
+                        <img src="${fotoUrl}" alt="${depoimento.nome}" class="testimonial-photo" onerror="this.src='https://via.placeholder.com/60/22C55E/FFFFFF?text=${depoimento.nome.charAt(0)}'">
+                        <div class="testimonial-info">
+                            <h4>${depoimento.nome}</h4>
+                            ${depoimento.cargo_aprovado ? `<div class="testimonial-cargo"><i class="fas fa-trophy"></i> ${depoimento.cargo_aprovado}</div>` : ''}
+                            <div class="testimonial-rating" style="margin-top: 6px;">${stars}</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">${depoimento.texto}</p>
+                </div>
+            `;
+        }
+
+        // ==================== RENDER PRODUCT DETAIL ====================
+        function renderProductDetail(productRef, options = {}) {
+            const produto = appState.produtos.find(p => p.id === productRef || p.slug === productRef);
+            if (!produto) {
+                renderNotFound();
+                return;
+            }
+
+            const mainContent = document.getElementById('mainContent');
+            const stars = renderStars(produto.avaliacao_media || 5);
+            const ratingValue = formatRatingValue(produto.avaliacao_media || 5);
+
+            const stateAbbr = (produto.estado || 'apostilas').toString().toLowerCase();
+            const citySlug = (produto.cidade || '').toString().toLowerCase().replace(/\s+/g, '-');
+
+            const cat1obj = produto.categoria_id ? (appState.categorias || []).find(c => c.id === produto.categoria_id) : null;
+            const categoria = cat1obj ? cat1obj.nome : '';
+            const categoriaSlug = cat1obj ? cat1obj.slug : '';
+
+            const cat2obj = produto.categoria_id_2 ? (appState.categorias || []).find(c => c.id === produto.categoria_id_2) : null;
+            const categoria2 = cat2obj ? cat2obj.nome : '';
+
+            const contentSections = parseProductContentSections(produto.conteudo_programatico);
+            const conteudos = contentSections.regular;
+            const bonusItems = contentSections.bonus;
+            const descricaoHtml = renderDescriptionContent(produto.descricao);
+            const formats = getProductFormats(produto);
+            const currentOffer = getCurrentProductOffer(produto);
+            const deliveryText = formats.length > 1
+                ? 'Escolha entre digital e impressa'
+                : 'Liberação rápida após a compra';
+            const contentText = produto.atualizado_edital
+                ? 'Atualizado conforme o último edital'
+                : 'Material organizado por matérias';
+
+            const summaryItems = [
+                produto.orgao ? { label: 'Órgão', value: produto.orgao } : null,
+                produto.cargo ? { label: 'Cargo', value: produto.cargo } : null,
+                produto.estado ? { label: 'Localização', value: `${produto.estado}${produto.cidade ? ' - ' + produto.cidade : ''}` } : null,
+                produto.paginas ? { label: 'Páginas', value: produto.paginas } : null
+            ].filter(Boolean);
+
+            const coverHtml = `
+                <div class="product-cover-shell">
+                    <img
+                        id="productDetailImage_${produto.id}"
+                        src="${getProductImageByFormat(produto)}"
+                        alt="${produto.titulo} - ${getSelectedProductFormat(produto) === 'impressa' ? 'Impressa' : 'Digital'}"
+                        class="product-detail-image"
+                        onerror="this.onerror=null;this.src=getCoverPlaceholder();"
+                    >
+                </div>
+            `;
+
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 60px 20px 32px; min-height: 60vh;">
+                    <div class="container">
+                        <div style="margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <button class="btn btn-primary" onclick="navigateTo('home')" style="padding: 12px 18px;">
+                                <i class="fas fa-arrow-left"></i> Voltar para a Home
+                            </button>
+                            ${categoriaSlug ? `<button class="btn" onclick="navigateTo('categoria', '${categoriaSlug}')" style="padding: 12px 18px; background: var(--white); border: 1px solid var(--border);">
+                                <i class="fas fa-folder-open"></i> Ver categoria ${categoria}
+                            </button>` : ''}
+                        </div>
+
+                        <div class="product-detail" style="background: var(--white); padding: 24px; border-radius: 24px; box-shadow: var(--shadow-md);">
+                            <div class="product-detail-media">
+                                ${coverHtml}
+                            </div>
+
+                            <div class="product-detail-info">
+                                <span class="product-category">${categoria}${categoria2 ? `<span style="margin:0 5px;opacity:0.5;">•</span>${categoria2}` : ''}</span>
+                                <h1 class="product-detail-title">${produto.titulo}</h1>
+
+                                <div class="product-rating-inline">
+                                    <div class="stars">${stars}</div>
+                                    <span><strong>${ratingValue}</strong></span>
+                                </div>
+
+                                ${produto.codigo ? `<div class="product-sku">Código: ${produto.codigo}</div>` : ''}
+
+                                <div class="product-detail-badges">
+                                    ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
+                                    ${getProductAvailabilityBadge(produto)}
+                                    ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+                                </div>
+
+                                <div class="product-benefits">
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-bolt"></i>
+                                        <span class="product-benefit-title">Entrega</span>
+                                        <span class="product-benefit-text">${deliveryText}</span>
+                                    </div>
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-book-open"></i>
+                                        <span class="product-benefit-title">Conteúdo</span>
+                                        <span class="product-benefit-text">${contentText}</span>
+                                    </div>
+                                    <div class="product-benefit-item">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span class="product-benefit-title">Segurança</span>
+                                        <span class="product-benefit-text">Compra em ambiente protegido</span>
+                                    </div>
+                                </div>
+
+                                ${summaryItems.length ? `
+                                    <div class="product-summary-grid">
+                                        ${summaryItems.map(item => `
+                                            <div class="product-summary-item">
+                                                <span class="product-summary-label">${item.label}</span>
+                                                <span class="product-summary-value">${item.value}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <aside class="product-detail-sidebar">
+                                <div id="productPurchaseBox_${produto.id}">
+                                    ${renderProductPurchaseBox(produto)}
+                                </div>
+
+                                <div class="product-share-box">
+                                    <a href="${getWhatsAppShareLink(produto)}" target="_blank" rel="noopener noreferrer" class="btn btn-success product-share-button">
+                                        <i class="fab fa-whatsapp"></i> Indique para um amigo
+                                    </a>
+                                </div>
+                            </aside>
+                        </div>
+
+                        ${(descricaoHtml || conteudos.length > 0 || bonusItems.length > 0) ? `
+                            <div class="product-detail-sections">
+                                ${descricaoHtml ? `
+                                    <div class="product-info-section product-detail-section">
+                                        <h2><i class="fas fa-align-left"></i> Descrição do concurso</h2>
+                                        ${descricaoHtml}
+                                    </div>
+                                ` : ''}
+
+                                ${(conteudos.length > 0 || bonusItems.length > 0) ? `
+                                    <div class="content-programatico product-detail-section">
+                                        ${conteudos.length > 0 ? `
+                                            <h2><i class="fas fa-list-check"></i> Conteúdo Programático</h2>
+                                            <ul>
+                                                ${conteudos.map(c => `<li>${c}</li>`).join('')}
+                                            </ul>
+                                        ` : ''}
+                                        ${bonusItems.length > 0 ? `
+                                            <div class="product-bonus-box">
+                                                <div class="product-bonus-title">
+                                                    <i class="fas fa-gift"></i> Bônus inclusos
+                                                </div>
+                                                <ul class="bonus-list">
+                                                    ${bonusItems.map(item => `<li>${item}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                </section>
+                ${renderRelatedProductsSection(produto)}
+            `;
+
+            appState.currentView = 'produto';
+            setSeoMeta({
+                title: `${produto.titulo} | +QApostilas`,
+                description: produto.descricao ? normalizeMultilineText(produto.descricao).replace(/\n/g, ' ').slice(0, 155) : `Confira os detalhes da apostila ${produto.titulo} na +QApostilas.`,
+                path: `/produto/${produto.slug}`,
+                image: produto.capa_url || DEFAULT_OG_IMAGE,
+                type: 'product',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'Product',
+                    name: produto.titulo,
+                    description: produto.descricao || `Apostila para ${produto.cargo}`,
+                    image: produto.capa_url ? [produto.capa_url] : [DEFAULT_OG_IMAGE],
+                    category: [categoria, categoria2].filter(Boolean).join(' / '),
+                    brand: {
+                        '@type': 'Brand',
+                        name: '+QApostilas'
+                    },
+                    offers: {
+                        '@type': 'Offer',
+                        priceCurrency: 'BRL',
+                        price: getCurrentProductOffer(produto)?.price || produto.preco,
+                        availability: 'https://schema.org/InStock',
+                        url: getAbsoluteUrl(`/produto/${produto.slug}`)
+                    },
+                    url: getAbsoluteUrl(`/produto/${produto.slug}`)
+                }
+            });
+
+        }
+
+        // ==================== RENDER SOBRE ====================
+        function renderSobre() {
+            appState.currentView = 'sobre';
+            const mainContent = document.getElementById('mainContent');
+            const sobreText = appState.config.sobre_nos || 'Somos especializados em apostilas para concursos públicos.';
+
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 100px 20px;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Sobre Nós</h2>
+                        </div>
+                        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                            <div style="font-size: 18px; line-height: 1.8; color: var(--text-muted);">
+                                ${sobreText.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            setSeoMeta({
+                title: 'Sobre Nós | +QApostilas',
+                description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' ').slice(0, 155),
+                path: '/sobre',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'AboutPage',
+                    name: 'Sobre Nós | +QApostilas',
+                    description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' '),
+                    url: getAbsoluteUrl('/sobre')
+                }
+            });
+        }
+
+        // ==================== RENDER CONTATO ====================
+        function renderContato() {
+            appState.currentView = 'contato';
+            const mainContent = document.getElementById('mainContent');
+            const whatsapp = appState.config.whatsapp || '';
+            const email = appState.config.email || '';
+
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 100px 20px;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">Entre em Contato</h2>
+                            <p class="section-subtitle">Estamos aqui para ajudar você!</p>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 800px; margin: 0 auto;">
+                            ${whatsapp ? `
+                                <div style="background: var(--white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); text-align: center;">
+                                    <div style="font-size: 60px; color: #25D366; margin-bottom: 20px;">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </div>
+                                    <h3 style="margin-bottom: 12px;">WhatsApp</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 24px;">Fale conosco diretamente pelo WhatsApp</p>
+                                    <a href="https://wa.me/${whatsapp}" target="_blank" rel="noopener noreferrer" class="btn btn-success">
+                                        <i class="fab fa-whatsapp"></i> Abrir WhatsApp
+                                    </a>
+                                </div>
+                            ` : ''}
+                            ${email ? `
+                                <div style="background: var(--white); padding: 40px; border-radius: 16px; box-shadow: var(--shadow-md); text-align: center;">
+                                    <div style="font-size: 60px; color: var(--primary); margin-bottom: 20px;">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <h3 style="margin-bottom: 12px;">E-mail</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 24px;">Envie-nos um e-mail</p>
+                                    <a href="mailto:${email}" class="btn btn-primary">
+                                        <i class="fas fa-envelope"></i> Enviar E-mail
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            setSeoMeta({
+                title: 'Contato | +QApostilas',
+                description: 'Entre em contato com a +QApostilas por WhatsApp ou e-mail para tirar dúvidas sobre apostilas e concursos públicos.',
+                path: '/contato',
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'ContactPage',
+                    name: 'Contato | +QApostilas',
+                    description: 'Entre em contato com a +QApostilas por WhatsApp ou e-mail.',
+                    url: getAbsoluteUrl('/contato')
+                }
+            });
+        }
+
+        // ==================== FILTERS & SEARCH ====================
+
+
+        function handleSearchNav(event) {
+            if (event.key === 'Enter') {
+                handleSearch();
+            }
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+            
+            appState.filters = { search: searchText, estado: '', categoria: '', type: '' };
+            
+            let filtered = appState.produtos;
+            if (searchText) {
+                filtered = filtered.filter(p => 
+                    p.titulo.toLowerCase().includes(searchText) ||
+                    p.orgao.toLowerCase().includes(searchText) ||
+                    p.cargo.toLowerCase().includes(searchText) ||
+                    (p.cidade && p.cidade.toLowerCase().includes(searchText))
+                );
+            }
+            renderFilteredResults(filtered, 'Resultados para: "' + searchText + '"');
+        }
+
+        function filterByCategory(categoriaRef, options = {}) {
+            const categoria = appState.categorias.find(c => c.id === categoriaRef || c.slug === categoriaRef);
+            if (!categoria) {
+                renderNotFound();
+                return;
+            }
+
+            if (options.navigate !== false) {
+                navigateTo('categoria', categoria.slug);
+                return;
+            }
+
+            appState.currentView = 'categoria';
+            appState.filters = { search: '', estado: '', categoria: categoria.id, type: '' };
+            const filtered = appState.produtos.filter(p => 
+                p.categoria_id === categoria.id || 
+                (p.categoria_id_2 && p.categoria_id_2 === categoria.id)
+            );
+
+            renderFilteredResults(filtered, categoria.nome, {
+                title: `${categoria.nome} | +QApostilas`,
+                description: `Confira as apostilas da categoria ${categoria.nome} na +QApostilas.`,
+                path: `/categoria/${categoria.slug}`,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: `${categoria.nome} | +QApostilas`,
+                    description: `Confira as apostilas da categoria ${categoria.nome} na +QApostilas.`,
+                    url: getAbsoluteUrl(`/categoria/${categoria.slug}`)
+                }
+            });
+        }
+
+        function filterProducts(type) {
+            appState.filters = { search: '', estado: '', categoria: '', type };
+            let filtered = [];
+            const titulos = {
+                lancamento: '🆕 Lançamentos',
+                mais_vendida: '⭐ Mais Vendidas',
+                destaque: '🔥 Destaques',
+                pre_venda: '🔔 Pré-venda'
+            };
+
+            switch(type) {
+                case 'lancamento':
+                    filtered = appState.produtos.filter(p => p.lancamento);
+                    break;
+                case 'mais_vendida':
+                    filtered = appState.produtos.filter(p => p.mais_vendida);
+                    break;
+                case 'destaque':
+                    filtered = appState.produtos.filter(p => p.destaque);
+                    break;
+                case 'pre_venda':
+                    filtered = appState.produtos.filter(p => p.pre_venda);
+                    break;
+            }
+
+            renderFilteredResults(filtered, titulos[type] || 'Resultados');
+        }
+
+        function renderFilteredResults(produtos, titulo = 'Resultados da Busca', seo = null) {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding: 60px 20px; min-height: 60vh;">
+                    <div class="container">
+                        <div class="section-header">
+                            <h2 class="section-title">${titulo}</h2>
+                            <p class="section-subtitle">${produtos.length} ${produtos.length === 1 ? 'apostila encontrada' : 'apostilas encontradas'}</p>
+                            <button class="btn btn-primary" onclick="navigateTo('home')" style="margin-top: 20px;">
+                                <i class="fas fa-arrow-left"></i> Voltar para Início
+                            </button>
+                        </div>
+                        ${produtos.length > 0 ? `
+                            <div class="products-grid-static">
+                                ${produtos.map(p => renderProductCard(p)).join('')}
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 60px 20px;">
+                                <i class="fas fa-search" style="font-size: 80px; color: var(--text-muted); opacity: 0.3; margin-bottom: 20px;"></i>
+                                <h3 style="color: var(--text-muted);">Nenhuma apostila encontrada</h3>
+                                <p style="color: var(--text-muted); margin-top: 12px;">Tente ajustar os filtros ou buscar por outros termos.</p>
+                            </div>
+                        `}
+                    </div>
+                </section>
+            `;
+
+            if (seo) {
+                setSeoMeta(seo);
+            }
+        }
+
+        // ==================== UTILITIES ====================
+        function getUniqueEstados() {
+            const estados = appState.produtos
+                .filter(p => p.estado)
+                .map(p => p.estado);
+            return [...new Set(estados)].sort();
+        }
+
+        function updateCategoriesDropdown() {
+            const dropdown = document.getElementById('categoriesDropdown');
+            const dropdown2 = document.getElementById('categoriesDropdown2');
+            const html = appState.categorias.map(cat => `
+                <a href="/categoria/${cat.slug}" onclick="event.preventDefault(); filterByCategory('${cat.slug}')">
+                    <i class="fas ${cat.icone}"></i> ${cat.nome}
+                </a>
+            `).join('');
+            dropdown.innerHTML = html;
+            if (dropdown2) dropdown2.innerHTML = html;
+        }
+
+        function renderStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) stars += '<i class="fas fa-star"></i>';
+            if (hasHalfStar) stars += '<i class="fas fa-star-half-alt"></i>';
+            for (let i = 0; i < emptyStars; i++) stars += '<i class="far fa-star"></i>';
+            
+            return stars;
+        }
+
+        function formatPrice(price) {
+            return parseFloat(price).toFixed(2).replace('.', ',');
+        }
+
+        function escapeRegExp(value) {
+            return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function normalizeMultilineText(text) {
+            return String(text || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\u2022/g, '\n')
+                .replace(/\s*[•·]\s*/g, '\n')
+                .replace(/\n{2,}/g, '\n')
+                .trim();
+        }
+
+        function formatRatingValue(rating) {
+            return Number(rating || 0).toFixed(1);
+        }
+
+        function parseContentProgramatico(text) {
+            return normalizeMultilineText(text)
+                .replace(/\s*[;|]+\s*/g, '\n')
+                .split('\n')
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
+        function parseProductContentSections(text) {
+            const items = parseContentProgramatico(text);
+            const sections = { regular: [], bonus: [] };
+            let bonusMode = false;
+
+            items.forEach(item => {
+                const cleaned = item.replace(/^[•+\-–—]+\s*/, '').trim();
+                if (!cleaned) return;
+
+                const explicitBonus = cleaned.match(/^(?:b[oô]nus?)\s*[:\-–]?\s*(.*)$/i);
+                if (explicitBonus) {
+                    bonusMode = true;
+                    const inlineBonus = (explicitBonus[1] || '').trim();
+                    if (inlineBonus) sections.bonus.push(inlineBonus);
+                    return;
+                }
+
+                if (bonusMode) {
+                    sections.bonus.push(cleaned);
+                    return;
+                }
+
+                sections.regular.push(cleaned);
+            });
+
+            return sections;
+        }
+
+        const PRODUCT_DESCRIPTION_FIELDS = [
+            { label: 'Vagas', aliases: ['Vagas'] },
+            { label: 'Inscrições', aliases: ['Inscrições', 'Inscrição'] },
+            { label: 'Salário', aliases: ['Salário'] },
+            { label: 'Taxa de inscrição', aliases: ['Taxa de inscrição', 'Taxa inscrição'] },
+            { label: 'Prova', aliases: ['Prova', 'Data da prova'] },
+            { label: 'Organizadora', aliases: ['Organizadora', 'Banca organizadora', 'Banca'] }
+        ];
+
+        function parseStructuredDescription(text) {
+            const normalized = normalizeMultilineText(text);
+            if (!normalized) return [];
+
+            const flattened = normalized
+                .replace(/\n+/g, ' ')
+                .replace(/\s{2,}/g, ' ')
+                .trim();
+
+            const fieldPatterns = PRODUCT_DESCRIPTION_FIELDS.map(field => ({
+                label: field.label,
+                pattern: `(?:${(field.aliases || [field.label]).map(alias => escapeRegExp(alias).replace(/\s+/g, '\\s+')).join('|')})`
+            }));
+            const allLabelsPattern = fieldPatterns.map(item => item.pattern).join('|');
+
+            return fieldPatterns.map(({ label, pattern }) => {
+                const regex = new RegExp(`${pattern}\\s*[:\\-–]?\\s*([\\s\\S]*?)(?=(?:${allLabelsPattern})\\s*[:\\-–]?|$)`, 'i');
+                const match = flattened.match(regex);
+                if (!match) return null;
+
+                const value = match[1]
+                    .trim()
+                    .replace(/^[:\\-–]+/, '')
+                    .replace(/[|•;,]+$/, '')
+                    .trim();
+
+                return value ? { label, value } : null;
+            }).filter(Boolean);
+        }
+
+        function renderDescriptionContent(text) {
+            const structuredItems = parseStructuredDescription(text);
+            if (structuredItems.length) {
+                return `
+                    <ul class="description-list">
+                        ${structuredItems.map(item => `
+                            <li class="description-item">
+                                <span class="description-label">${item.label}</span>
+                                <span class="description-value">${item.value}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            }
+
+            const lines = normalizeMultilineText(text)
+                .split('\n')
+                .map(line => line.trim())
+                .filter(Boolean);
+
+            if (!lines.length) return '';
+
+            return `
+                <div class="description-paragraphs">
+                    ${lines.map(line => `<p>${line}</p>`).join('')}
+                </div>
+            `;
+        }
+
+        function getProductShareUrl(produto) {
+            return getAbsoluteUrl(`/produto/${produto.slug}`);
+        }
+
+        function getWhatsAppShareLink(produto) {
+            const shareText = `Olá! Dá uma olhada nesta apostila da +QApostilas: ${produto.titulo} - ${getProductShareUrl(produto)}`;
+            return `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        }
+
+        function buyProduct(event, url) {
+            event.stopPropagation();
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        function openAdminLogin() {
+            // Check if already logged in
+            if (appState.isAdmin) {
+                openAdmin();
+                return;
+            }
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label>Usuário</label>
+                        <input type="text" name="username" value="admin" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" name="password" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </form>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Login Admin';
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const password = event.target.password.value;
+
+            if (password === appState.config.admin_password) {
+                appState.isAdmin = true;
+                sessionStorage.setItem('admin_logged_in', 'true');
+                closeModal();
+                openAdmin();
+                showAlert('Login realizado com sucesso!', 'success');
+            } else {
+                showAlert('Senha incorreta!', 'error');
+            }
+        }
+
+        async function openAdmin() {
+            // Load admin data
+            await loadAdminData();
+            document.getElementById('adminPanel').classList.add('active');
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminPanel').classList.remove('active');
+            updateFooterSocials();
+        }
+
+        function switchAdminTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`admin-${tab}`).classList.add('active');
+        }
+
+        async function loadAdminData() {
+            updateBannerProductSelects();
+
+            // Load config
+            Object.keys(appState.config).forEach(key => {
+                const el = document.getElementById(`config_${key}`);
+                if (el) el.value = appState.config[key] || '';
+            });
+
+            updateBannerProductSelects();
+
+            // Load categories for product form
+            const categorySelect = document.getElementById('product_categoria_id');
+            categorySelect.innerHTML = appState.categorias.map(c => 
+                `<option value="${c.id}">${c.nome}</option>`
+            ).join('');
+            
+            // Populate second category select
+            const categorySelect2 = document.getElementById('product_categoria_id_2');
+            if (categorySelect2) {
+                categorySelect2.innerHTML = '<option value="">-- Nenhuma --</option>' +
+                    appState.categorias.map(c => 
+                        `<option value="${c.id}">${c.nome}</option>`
+                    ).join('');
+            }
+
+            // Load tables
+            loadProductsTable();
+            loadTestimonialsTable();
+            loadCategoriesTable();
+        }
+
+        // ==================== CONFIG SAVE ====================
+        async function saveConfig(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                for (let [key, value] of formData.entries()) {
+                    // Use upsert so new keys (like favicon_url) are also inserted if not present
+                    await supabaseClient
+                        .from('site_config')
+                        .upsert({ key: key, value: value }, { onConflict: 'key' });
+                    
+                    appState.config[key] = value;
+                }
+
+                // Apply favicon immediately if changed
+                if (appState.config.favicon_url) {
+                    document.getElementById('site-favicon').href = appState.config.favicon_url;
+                }
+
+                // Apply logo immediately
+                if (appState.config.logo_url) {
+                    const logoEl = document.getElementById('site-logo');
+                    logoEl.src = appState.config.logo_url;
+                    logoEl.style.display = 'block';
+                    const logoH = parseInt(appState.config.logo_height) || 50;
+                    logoEl.style.height = logoH + 'px';
+                    logoEl.style.width = 'auto';
+                }
+
+                showAlert('Configurações salvas com sucesso!', 'success');
+                await loadConfig();
+                if (appState.currentView === 'home') renderHome();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar configurações', 'error');
+            }
+        }
+
+        function updateBannerProductSelects() {
+            for (let indexNumber = 1; indexNumber <= 3; indexNumber += 1) {
+                const select = document.getElementById(`config_banner_${indexNumber}_product_ref`);
+                if (!select) continue;
+                const currentValue = appState.config[`banner_${indexNumber}_product_ref`] || select.value || '';
+                const options = ['<option value="">-- Selecionar produto --</option>']
+                    .concat((appState.allProdutos || []).map(produto => `<option value="${produto.id}">${produto.titulo}</option>`));
+                select.innerHTML = options.join('');
+                select.value = currentValue;
+            }
+        }
+
+        function stopHeroRotation() {
+            if (appState.bannerRotationTimer) {
+                clearInterval(appState.bannerRotationTimer);
+                appState.bannerRotationTimer = null;
+            }
+        }
+
+        function tokenizeCodeWords(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toUpperCase()
+                .split(/[^A-Z0-9]+/)
+                .filter(token => token && !PRODUCT_CODE_STOP_WORDS.has(token));
+        }
+
+        function abbreviateForProductCode(value = '', options = {}) {
+            const {
+                fallback = 'ITEM',
+                maxWords = 4,
+                maxLettersPerWord = 3
+            } = options;
+            const tokens = tokenizeCodeWords(value).slice(0, maxWords);
+            const compact = tokens.map(token => {
+                if (/^[A-Z0-9]{2,8}$/.test(token)) return token;
+                return token.slice(0, Math.max(1, maxLettersPerWord));
+            }).filter(Boolean);
+            return compact.length ? compact.join('-') : fallback;
+        }
+
+        function getMonthCode(date = new Date()) {
+            return MONTH_CODE_MAP[date.getMonth()] || 'XX';
+        }
+
+        function getNextAutomaticSequence(ignoreId = null) {
+            const numericCodes = (appState.allProdutos || [])
+                .filter(produto => String(produto.id) !== String(ignoreId))
+                .map(produto => normalizeProductCode(produto.codigo || ''))
+                .map(code => {
+                    const match = code.match(/^MQA-(\d{2,4})-/);
+                    return match ? parseInt(match[1], 10) : 0;
+                })
+                .filter(number => Number.isFinite(number));
+            return String((Math.max(0, ...numericCodes) || 0) + 1).padStart(3, '0');
+        }
+
+        function getEditorialCodeSegment() {
+            const type = document.getElementById('product_tipo_editorial')?.value || 'normal';
+            if (type === 'preparatoria') return 'PREP';
+            if (type === 'caderno_questoes') return 'CADERNO';
+            return '';
+        }
+
+        function getContestCodeSegment() {
+            const explicit = document.getElementById('product_sigla_concurso')?.value || '';
+            if (explicit.trim()) {
+                return abbreviateForProductCode(explicit, { fallback: 'CONCURSO', maxWords: 4, maxLettersPerWord: 6 });
+            }
+
+            const orgao = document.getElementById('product_orgao')?.value || '';
+            const estado = document.getElementById('product_estado')?.value || '';
+            let segment = abbreviateForProductCode(orgao, { fallback: 'ORGAO', maxWords: 4, maxLettersPerWord: 4 });
+            const stateCode = normalizeProductCode(estado).replace(/[^A-Z0-9]+/g, '').slice(0, 4);
+            if (stateCode && !segment.includes(stateCode)) {
+                segment = `${segment}-${stateCode}`;
+            }
+            return segment;
+        }
+
+        function getHomeBanners() {
+            const legacyDesktop = appState.config.banner_url || '';
+            const banners = [];
+
+            for (let indexNumber = 1; indexNumber <= 3; indexNumber += 1) {
+                const desktopUrl = appState.config[`banner_${indexNumber}_image_url`] || (indexNumber === 1 ? legacyDesktop : '');
+                const mobileUrl = appState.config[`banner_${indexNumber}_mobile_url`] || '';
+                const productRef = appState.config[`banner_${indexNumber}_product_ref`] || '';
+                const linkUrl = appState.config[`banner_${indexNumber}_link_url`] || '';
+
+                if (!desktopUrl && !mobileUrl) continue;
+
+                banners.push({
+                    index: indexNumber - 1,
+                    desktopUrl,
+                    mobileUrl,
+                    productRef,
+                    linkUrl,
+                    alt: `Banner principal ${indexNumber}`
+                });
+            }
+
+            return banners;
+        }
+
+        function openHeroBanner(indexNumber) {
+            const banner = (appState.homeBanners || [])[indexNumber];
+            if (!banner) return;
+
+            if (banner.productRef) {
+                navigateTo('produto', banner.productRef, { scroll: true });
+                return;
+            }
+
+            if (banner.linkUrl) {
+                window.location.href = banner.linkUrl;
+            }
+        }
+
+        function initializeHeroBannerSizing() {
+            const heroSection = document.querySelector('.hero-slider');
+            if (!heroSection) return;
+
+            const images = heroSection.querySelectorAll('.hero-slide img');
+            images.forEach(img => {
+                if (!img.dataset.heroSizingBound) {
+                    img.addEventListener('load', updateHeroBannerHeight);
+                    img.dataset.heroSizingBound = 'true';
+                }
+            });
+
+            updateHeroBannerHeight();
+        }
+
+        function updateHeroBannerHeight() {
+            const heroSection = document.querySelector('.hero-slider');
+            const heroTrack = document.getElementById('heroBannerTrack');
+            if (!heroSection || !heroTrack) return;
+
+            const activeImage = heroSection.querySelector('.hero-slide.active img');
+            const configuredHeight = Math.max(180, parseInt(heroSection.dataset.configHeight || appState.config.banner_height) || 300);
+            const minHeight = window.innerWidth <= 768 ? 140 : 180;
+            const mobileMaxHeight = Math.min(Math.max(configuredHeight, 220), 360);
+            const maxHeight = window.innerWidth <= 768 ? mobileMaxHeight : configuredHeight;
+            const fallbackHeight = window.innerWidth <= 768 ? Math.min(maxHeight, 225) : configuredHeight;
+
+            const applyHeight = (value) => {
+                const finalHeight = Math.max(minHeight, Math.round(value || fallbackHeight));
+                heroSection.style.height = `${finalHeight}px`;
+                heroTrack.style.height = `${finalHeight}px`;
+            };
+
+            if (!activeImage) {
+                applyHeight(fallbackHeight);
+                return;
+            }
+
+            const naturalWidth = activeImage.naturalWidth || activeImage.width;
+            const naturalHeight = activeImage.naturalHeight || activeImage.height;
+
+            if (!naturalWidth || !naturalHeight) {
+                applyHeight(fallbackHeight);
+                return;
+            }
+
+            const availableWidth = heroSection.clientWidth || heroTrack.clientWidth || window.innerWidth;
+            const calculatedHeight = availableWidth * (naturalHeight / naturalWidth);
+            applyHeight(Math.min(maxHeight, calculatedHeight));
+        }
+
+        function setHeroSlide(indexNumber) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            if (!slides.length) return;
+
+            const nextIndex = ((indexNumber % slides.length) + slides.length) % slides.length;
+            appState.heroBannerIndex = nextIndex;
+
+            slides.forEach((slide, indexSlide) => {
+                slide.classList.toggle('active', indexSlide === nextIndex);
+            });
+
+            dots.forEach((dot, indexDot) => {
+                dot.classList.toggle('active', indexDot === nextIndex);
+            });
+
+            updateHeroBannerHeight();
+        }
+
+        function changeHeroSlide(step = 1) {
+            setHeroSlide((appState.heroBannerIndex || 0) + step);
+        }
+
+        function startHeroRotation() {
+            stopHeroRotation();
+            const bannerCount = (appState.homeBanners || []).length;
+            if (bannerCount <= 1) return;
+            const seconds = Math.max(3, parseInt(appState.config.banner_autoplay_seconds) || 5);
+            appState.bannerRotationTimer = setInterval(() => {
+                changeHeroSlide(1);
+            }, seconds * 1000);
+        }
+
+        // ==================== PRODUCTS CRUD ====================
+        function slugifyText(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        function normalizeProductCode(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toUpperCase()
+                .replace(/[^A-Z0-9_-]+/g, '-')
+                .replace(/-{2,}/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        function formatAdminProductCodePreview(value = '') {
+            const normalized = String(value || '').trim();
+            if (!normalized) return '—';
+
+            const segments = normalized.split('-').filter(Boolean);
+            if (segments.length >= 3 && /^MQA$/i.test(segments[0])) {
+                return `${segments.slice(0, 3).join('-')}...`;
+            }
+
+            const maxLength = 18;
+            return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}...` : normalized;
+        }
+
+        function ensureUniqueValue(baseValue, existingValues = [], fallbackPrefix = 'item') {
+            const base = (baseValue || fallbackPrefix).trim() || fallbackPrefix;
+            const existing = new Set((existingValues || []).filter(Boolean));
+            if (!existing.has(base)) return base;
+
+            let counter = 2;
+            while (existing.has(`${base}-${counter}`)) {
+                counter += 1;
+            }
+            return `${base}-${counter}`;
+        }
+
+        function getProductById(productId) {
+            const list = appState.allProdutos || appState.produtos || [];
+            return list.find(p => String(p.id) === String(productId));
+        }
+
+        function getExistingProductCodes(ignoreId = null) {
+            return (appState.allProdutos || [])
+                .filter(p => p && p.codigo && String(p.id) !== String(ignoreId))
+                .map(p => normalizeProductCode(p.codigo));
+        }
+
+        function buildAutomaticProductCode(ignoreId = null) {
+            const sequence = getNextAutomaticSequence(ignoreId);
+            const now = new Date();
+            const periodPart = `${getMonthCode(now)}${String(now.getFullYear()).slice(-2)}`;
+            const editorialPart = getEditorialCodeSegment();
+            const contestPart = getContestCodeSegment();
+            const cargoPart = abbreviateForProductCode(document.getElementById('product_cargo')?.value || '', { fallback: 'CARGO', maxWords: 4, maxLettersPerWord: 3 });
+            return normalizeProductCode(['MQA', sequence, periodPart, editorialPart, contestPart, cargoPart].filter(Boolean).join('-'));
+        }
+
+        function handlePurchaseTypeChange(forceSuggestion = false) {
+            const purchaseType = document.getElementById('product_tipo_botao')?.value || 'hotmart';
+            const originSelect = document.getElementById('product_codigo_origem');
+            const codeInput = document.getElementById('product_codigo');
+            const isNewProduct = !document.getElementById('product_id')?.value;
+            if (!originSelect || !codeInput) return;
+
+            if (purchaseType === 'hotmart' && (forceSuggestion || isNewProduct || !codeInput.value)) {
+                originSelect.value = 'automatico';
+            }
+
+            if (purchaseType === 'parceiro' && (forceSuggestion || (!codeInput.value && originSelect.value === 'automatico'))) {
+                originSelect.value = 'manual';
+            }
+
+            handleProductCodeModeChange();
+        }
+
+        function handleProductCodeModeChange() {
+            const mode = document.getElementById('product_codigo_origem')?.value || 'automatico';
+            const codeInput = document.getElementById('product_codigo');
+            if (!codeInput) return;
+
+            const isAutomatic = mode === 'automatico';
+            codeInput.readOnly = isAutomatic;
+            codeInput.style.background = isAutomatic ? '#f5f5f5' : '';
+            codeInput.style.cursor = isAutomatic ? 'default' : '';
+
+            if (isAutomatic && (!codeInput.value || document.getElementById('product_id')?.value === '')) {
+                generateProductCode();
+            }
+        }
+
+        function handleProductTitleChange() {
+            const mode = document.getElementById('product_codigo_origem')?.value || 'automatico';
+            if (mode !== 'automatico') return;
+            generateProductCode();
+        }
+
+        function generateProductCode(forceRefresh = false) {
+            const codeInput = document.getElementById('product_codigo');
+            const currentId = document.getElementById('product_id')?.value || null;
+            if (!codeInput) return '';
+
+            if (!forceRefresh && codeInput.value && document.getElementById('product_codigo_origem')?.value !== 'automatico') {
+                return codeInput.value;
+            }
+
+            const nextCode = buildAutomaticProductCode(currentId || null);
+            codeInput.value = nextCode;
+            return nextCode;
+        }
+
+        function prepareProductFormDefaults() {
+            document.getElementById('productForm').reset();
+            document.getElementById('product_id').value = '';
+            document.getElementById('product_ativo').checked = true;
+            document.getElementById('product_atualizado_edital').checked = true;
+            document.getElementById('product_tipo_editorial').value = 'normal';
+            document.getElementById('product_codigo_origem').value = 'automatico';
+            document.getElementById('product_codigo').value = '';
+            handlePurchaseTypeChange(true);
+            calcularParcela();
+        }
+
+        function fillProductForm(produto = {}) {
+            ['product_capa_file', 'product_capa_file_impresso', 'product_arquivo_pdf_file'].forEach(fileId => {
+                const fileEl = document.getElementById(fileId);
+                if (fileEl) fileEl.value = '';
+            });
+            ['product_capa_preview', 'product_capa_impresso_preview'].forEach(prevId => {
+                const prev = document.getElementById(prevId);
+                if (prev) prev.classList.add('hidden');
+            });
+            const modoUpload = document.getElementById('capa_modo_upload');
+            if (modoUpload) { modoUpload.checked = false; handleCoverModeChange(); }
+            Object.keys(produto).forEach(key => {
+                const el = document.getElementById(`product_${key}`);
+                if (!el) return;
+                if (el.type === 'checkbox') {
+                    el.checked = Boolean(produto[key]);
+                } else {
+                    el.value = produto[key] ?? '';
+                }
+            });
+            if (!produto.tipo_editorial) {
+                const typeEl = document.getElementById('product_tipo_editorial');
+                if (typeEl) typeEl.value = 'normal';
+            }
+            calcularParcela();
+            handlePurchaseTypeChange(false);
+        }
+
+        function showProductForm(productId = null) {
+            document.getElementById('productFormContainer').classList.remove('hidden');
+            document.getElementById('productsTableContainer').classList.add('hidden');
+
+            if (productId) {
+                const produto = getProductById(productId);
+                if (produto) {
+                    fillProductForm(produto);
+                }
+            } else {
+                prepareProductFormDefaults();
+            }
+        }
+
+        async function duplicateProduct(productId) {
+            const produto = getProductById(productId);
+            if (!produto) return;
+
+            try {
+                const clone = { ...produto };
+                delete clone.id;
+                delete clone.created_at;
+                delete clone.updated_at;
+
+                clone.titulo = `${produto.titulo} - Cópia`;
+                clone.slug = ensureUniqueValue(`${slugifyText(produto.titulo)}-copia`, (appState.allProdutos || []).map(item => item.slug), 'produto-copia');
+                clone.ativo = false;
+                clone.destaque = false;
+                clone.lancamento = false;
+                clone.mais_vendida = false;
+                clone.pre_venda = false;
+
+                if ((clone.codigo_origem || 'manual') === 'automatico') {
+                    const editorialPart = clone.tipo_editorial === 'preparatoria'
+                        ? 'PREP'
+                        : clone.tipo_editorial === 'caderno_questoes'
+                            ? 'CADERNO'
+                            : '';
+                    const contestPart = clone.sigla_concurso
+                        ? abbreviateForProductCode(clone.sigla_concurso, { fallback: 'CONCURSO', maxWords: 4, maxLettersPerWord: 6 })
+                        : abbreviateForProductCode(`${clone.orgao || ''} ${clone.estado || ''}`, { fallback: 'ORGAO', maxWords: 4, maxLettersPerWord: 4 });
+                    const cargoPart = abbreviateForProductCode(clone.cargo || '', { fallback: 'CARGO', maxWords: 4, maxLettersPerWord: 3 });
+                    clone.codigo = normalizeProductCode([
+                        'MQA',
+                        getNextAutomaticSequence(),
+                        `${getMonthCode(new Date())}${String(new Date().getFullYear()).slice(-2)}`,
+                        editorialPart,
+                        contestPart,
+                        cargoPart
+                    ].filter(Boolean).join('-'));
+                } else {
+                    clone.codigo = null;
+                }
+
+                const { data, error } = await supabaseClient
+                    .from('produtos')
+                    .insert([clone])
+                    .select('*')
+                    .single();
+
+                if (error) throw error;
+
+                await loadProdutos();
+                loadProductsTable();
+                showProductForm(data.id);
+                showAlert('Cópia criada com sucesso! Ela foi salva como inativa para você ajustar antes de publicar.', 'success');
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao duplicar produto: ' + (error.message || error), 'error');
+            }
+        }
+
+        function hideProductForm() {
+            document.getElementById('productFormContainer').classList.add('hidden');
+            document.getElementById('productsTableContainer').classList.remove('hidden');
+        }
+
+        // PATCH v3 — campos que o admin pode APAGAR no formulário do produto.
+        // Antes, campo vazio era simplesmente ignorado no update: o valor antigo
+        // continuava no banco e reaparecia ao editar o produto de novo.
+        const CAMPOS_QUE_PODEM_SER_LIMPOS = [
+            'link_compra', 'preco_original', 'preco_impresso', 'parcelas',
+            'parcelas_impresso', 'paginas', 'cidade', 'sigla_concurso',
+            'conteudo_programatico', 'avaliacao_media', 'total_avaliacoes', 'estado'
+        ];
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const productData = {};
+
+            for (let [key, value] of formData.entries()) {
+                if (key === 'id') continue;
+
+                const el = document.getElementById(`product_${key}`);
+                if (el && el.type === 'checkbox') {
+                    productData[key] = el.checked;
+                } else if (value !== null && value !== undefined && value !== '') {
+                    productData[key] = value;
+                } else if (CAMPOS_QUE_PODEM_SER_LIMPOS.includes(key)) {
+                    // campo apagado de propósito → grava NULL para limpar no banco
+                    productData[key] = null;
+                }
+            }
+
+            // Capa por link apagada (e sem arquivo enviado) → precisa gravar NULL,
+            // senão o link antigo volta a aparecer quando o formulário for reaberto.
+            const capaPathEl = document.getElementById('product_capa_storage_path');
+            if (!productData.capa_url && !(capaPathEl && capaPathEl.value)) {
+                productData.capa_url = null;
+            }
+
+            // ---- PATCH v2: envia capas/PDF escolhidos por arquivo antes de gravar ----
+            try {
+                await processarUploadsProduto();
+            } catch (uploadErr) {
+                console.error(uploadErr);
+                const msgUpload = (typeof v2MensagemErroUpload === 'function')
+                    ? v2MensagemErroUpload(uploadErr)
+                    : (uploadErr.message || uploadErr);
+                showAlert('Falha no envio de arquivo: ' + msgUpload, 'error');
+                return;
+            }
+
+            const tipoVendaEl = document.getElementById('product_tipo_botao');
+            if (tipoVendaEl) productData.tipo_venda = tipoVendaEl.value;
+            // PATCH v3: grava NULL em vez de "delete" — assim o link antigo é realmente apagado.
+            if (productData.tipo_botao === 'proprio') productData.link_compra = null;
+            if (typeof prepararCamposV2 === 'function') await prepararCamposV2(productData);
+            if (!productData.capa_url && !productData.capa_storage_path) { showAlert('Informe a capa (link ou arquivo).', 'warning'); return; }
+
+            // Tipagem básica (evita falhas de insert/update por tipo)
+            if (productData.categoria_id) productData.categoria_id = parseInt(productData.categoria_id);
+            if (productData.paginas) productData.paginas = parseInt(productData.paginas);
+            if (productData.parcelas) productData.parcelas = parseInt(productData.parcelas);
+            if (productData.parcelas_impresso) productData.parcelas_impresso = parseInt(productData.parcelas_impresso);
+            if (productData.preco) productData.preco = parseFloat(productData.preco);
+            if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
+            if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
+
+            // Generate slug
+            if (!productData.slug && productData.titulo) {
+                productData.slug = productData.titulo.toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/(^-|-$)/g, '');
+            }
+
+            // Handle optional categoria_id_2: if empty, set to null explicitly
+            const catId2El = document.getElementById('product_categoria_id_2');
+            if (catId2El) {
+                productData.categoria_id_2 = catId2El.value ? parseInt(catId2El.value) : null;
+            }
+
+            try {
+                const id = document.getElementById('product_id').value;
+                const isNewProduct = !id;
+
+                if (productData.codigo) {
+                    productData.codigo = normalizeProductCode(productData.codigo);
+                }
+
+                if (productData.tipo_botao === 'hotmart' && !productData.codigo_origem) {
+                    productData.codigo_origem = 'automatico';
+                }
+
+                if (productData.tipo_botao === 'parceiro' && !productData.codigo_origem) {
+                    productData.codigo_origem = 'manual';
+                }
+
+                if ((productData.codigo_origem === 'automatico') && (isNewProduct || !productData.codigo || String(productData.codigo).trim() === '')) {
+                    productData.codigo = buildAutomaticProductCode(id || null);
+                }
+
+                if (productData.codigo) {
+                    const duplicateCode = (appState.allProdutos || []).find(p => p.codigo && normalizeProductCode(p.codigo) === productData.codigo && String(p.id) !== String(id));
+                    if (duplicateCode) {
+                        showAlert(`Já existe outro produto com o código ${productData.codigo}.`, 'warning');
+                        return;
+                    }
+                }
+
+                if (!id) {
+                    const baseSlug = slugifyText(productData.titulo);
+                    productData.slug = ensureUniqueValue(baseSlug, (appState.allProdutos || []).map(p => p.slug), 'produto');
+                }
+
+                let produtoSalvo = null;
+
+                if (id) {
+                    // PATCH v3: .select().single() devolve a linha realmente gravada.
+                    // Se algum campo não for salvo, aparece na hora — em vez de só quando
+                    // o formulário for reaberto.
+                    const { data, error } = await supabaseClient
+                        .from('produtos')
+                        .update(productData)
+                        .eq('id', id)
+                        .select('*')
+                        .single();
+                    if (error) throw error;
+                    produtoSalvo = data;
+                    showAlert('Produto atualizado com sucesso!', 'success');
+                } else {
+                    const { data, error } = await supabaseClient
+                        .from('produtos')
+                        .insert([productData])
+                        .select('*')
+                        .single();
+                    if (error) throw error;
+                    produtoSalvo = data;
+                    showAlert(`Produto criado com sucesso!${productData.codigo ? ` Código: ${productData.codigo}` : ''}`, 'success');
+                }
+
+                await loadProdutos();
+
+                // Mantém o estado local igual ao banco (a lista do admin e a vitrine
+                // passam a mostrar o valor novo imediatamente).
+                if (produtoSalvo) {
+                    [appState.allProdutos, appState.produtos].forEach(lista => {
+                        if (!Array.isArray(lista)) return;
+                        const idx = lista.findIndex(p => String(p.id) === String(produtoSalvo.id));
+                        if (idx > -1) lista[idx] = Object.assign({}, lista[idx], produtoSalvo);
+                    });
+                }
+
+                loadProductsTable();
+                hideProductForm();
+                if (typeof updateEstadosDropdown === 'function') { try { updateEstadosDropdown(); } catch (e) {} }
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar produto: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function toggleProductStatus(id, ativo) {
+            try {
+                const { error } = await supabaseClient
+                    .from('produtos')
+                    .update({ ativo })
+                    .eq('id', id);
+                if (error) throw error;
+
+                showAlert(`Produto ${ativo ? 'ativado' : 'inativado'} com sucesso!`, 'success');
+                await loadProdutos();
+                loadProductsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao atualizar status do produto: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('produtos')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+
+                showAlert('Produto excluído com sucesso!', 'success');
+                await loadProdutos();
+                loadProductsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir produto: ' + (error.message || error), 'error');
+            }
+        }
+
+        function getAdminProductFilters() {
+            const code = document.getElementById('admin_product_filter_code')?.value || '';
+            const text = document.getElementById('admin_product_filter_text')?.value || '';
+            const status = document.getElementById('admin_product_filter_status')?.value || 'todos';
+
+            appState.adminProductFilters = { code, text, status };
+            return appState.adminProductFilters;
+        }
+
+        function getFilteredAdminProducts() {
+            const list = appState.allProdutos || appState.produtos || [];
+            const filters = getAdminProductFilters();
+            const codeTerm = normalizeSearchText(filters.code);
+            const textTerm = normalizeSearchText(filters.text);
+
+            return list.filter(produto => {
+                const statusMatch = filters.status === 'todos'
+                    || (filters.status === 'ativo' && produto.ativo)
+                    || (filters.status === 'inativo' && !produto.ativo);
+
+                if (!statusMatch) return false;
+
+                const searchableCode = normalizeSearchText(produto.codigo || '');
+                const searchableText = normalizeSearchText([
+                    produto.titulo,
+                    produto.orgao,
+                    produto.cargo,
+                    produto.slug,
+                    produto.codigo
+                ].filter(Boolean).join(' '));
+
+                const codeMatch = !codeTerm || searchableCode.includes(codeTerm);
+                const textMatch = !textTerm || searchableText.includes(textTerm);
+                return codeMatch && textMatch;
+            });
+        }
+
+        function applyAdminProductFilters() {
+            loadProductsTable();
+        }
+
+        function clearAdminProductFilters() {
+            const codeInput = document.getElementById('admin_product_filter_code');
+            const textInput = document.getElementById('admin_product_filter_text');
+            const statusSelect = document.getElementById('admin_product_filter_status');
+            if (codeInput) codeInput.value = '';
+            if (textInput) textInput.value = '';
+            if (statusSelect) statusSelect.value = 'todos';
+            appState.adminProductFilters = { code: '', text: '', status: 'todos' };
+            loadProductsTable();
+        }
+
+        function loadProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            const summary = document.getElementById('productsTableSummary');
+            const list = getFilteredAdminProducts();
+            const total = (appState.allProdutos || appState.produtos || []).length;
+
+            if (summary) {
+                summary.textContent = `${list.length} de ${total} produto(s) exibido(s)`;
+            }
+
+            if (!tbody) return;
+
+            if (!list.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">
+                            Nenhum produto encontrado com os filtros informados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(p => `
                 <tr>
-                    <td>${escapeHtml(c.nome || '—')}</td>
-                    <td>${escapeHtml(c.email || '—')}</td>
-                    <td>${escapeHtml(c.telefone || '—')}</td>
-                    <td style="white-space:nowrap;">${formatarData(c.criado_em)}</td>
-                    <td>${info.qtd} <small style="color:var(--text-muted)">(R$ ${formatPrice(info.total)})</small></td>
+                    <td style="white-space:nowrap; font-weight:700;"><span class="admin-code-preview" title="${String(p.codigo || '').replace(/\"/g, '&quot;')}">${formatAdminProductCodePreview(p.codigo)}</span></td>
+                    <td>${p.titulo}</td>
+                    <td>${p.orgao || '—'}</td>
+                    <td>${p.cargo || '—'}</td>
+                    <td>R$ ${formatPrice(Number(p.preco || 0))}</td>
+                    <td>
+                        <span class="badge ${p.ativo ? 'badge-success' : 'badge-error'}">
+                            ${p.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-sm btn-primary" onclick="buscarPedidosDoCliente('${escapeHtml(c.email || '')}')"><i class="fas fa-receipt"></i> Pedidos</button>
-                            <a class="btn btn-sm" style="background:#25D366;color:#fff;" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('Olá ' + (c.nome || '') + '!')}"><i class="fab fa-whatsapp"></i></a>
+                            <button class="btn btn-sm btn-edit" onclick="showProductForm(${p.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm" onclick="duplicateProduct(${p.id})" style="background:#2563eb;color:#fff;">
+                                <i class="fas fa-copy"></i> Duplicar
+                            </button>
+                            <button class="btn btn-sm" onclick="toggleProductStatus(${p.id}, ${!p.ativo})" style="background:${p.ativo ? '#6b7280' : '#16a34a'}; color:#fff;">
+                                <i class="fas fa-${p.ativo ? 'eye-slash' : 'eye'}"></i> ${p.ativo ? 'Inativar' : 'Ativar'}
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteProduct(${p.id})">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
                         </div>
                     </td>
                 </tr>
-            `;
-        }).join('');
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:#DC2626;">Erro ao carregar clientes: ${escapeHtml(err.message || '')}</td></tr>`;
-    }
-}
+            `).join('');
+        }
 
-function buscarPedidosDoCliente(email) {
-    abrirAbaAdmin('vendas');
-    const tbody = document.getElementById('vendasTableBody');
-    if (!tbody) return;
-    supabaseClient.from('pedidos').select('*').ilike('cliente_email', email).order('criado_em', { ascending: false })
-        .then(({ data, error }) => {
-            if (error) { showAlert('Erro: ' + error.message, 'error'); return; }
-            const pedidos = data || [];
-            tbody.innerHTML = pedidos.length ? pedidos.map(p => `
+        // ==================== TESTIMONIALS CRUD ====================
+        function showTestimonialForm(testimonialId = null) {
+            document.getElementById('testimonialFormContainer').classList.remove('hidden');
+            document.getElementById('testimonialsTableContainer').classList.add('hidden');
+
+            if (testimonialId) {
+                const depoimento = appState.depoimentos.find(d => d.id === testimonialId);
+                if (depoimento) {
+                    Object.keys(depoimento).forEach(key => {
+                        const el = document.getElementById(`testimonial_${key}`);
+                        if (el) {
+                            if (el.type === 'checkbox') {
+                                el.checked = depoimento[key];
+                            } else {
+                                el.value = depoimento[key] || '';
+                            }
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('testimonialForm').reset();
+                document.getElementById('testimonial_id').value = '';
+            }
+        }
+
+        function hideTestimonialForm() {
+            document.getElementById('testimonialFormContainer').classList.add('hidden');
+            document.getElementById('testimonialsTableContainer').classList.remove('hidden');
+        }
+
+        async function saveTestimonial(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const testimonialData = {};
+
+            for (let [key, value] of formData.entries()) {
+                if (key === 'id') continue;
+                
+                const el = document.getElementById(`testimonial_${key}`);
+                if (el && el.type === 'checkbox') {
+                    testimonialData[key] = el.checked;
+                } else if (value) {
+                    testimonialData[key] = value;
+                }
+            }
+
+            try {
+                const id = document.getElementById('testimonial_id').value;
+                
+                if (id) {
+                    await supabaseClient
+                        .from('depoimentos')
+                        .update(testimonialData)
+                        .eq('id', id);
+                    showAlert('Depoimento atualizado com sucesso!', 'success');
+                } else {
+                    await supabaseClient
+                        .from('depoimentos')
+                        .insert([testimonialData]);
+                    showAlert('Depoimento criado com sucesso!', 'success');
+                }
+
+                await loadDepoimentos();
+                loadTestimonialsTable();
+                hideTestimonialForm();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar depoimento', 'error');
+            }
+        }
+
+        async function deleteTestimonial(id) {
+            if (!confirm('Tem certeza que deseja excluir este depoimento?')) return;
+
+            try {
+                await supabaseClient
+                    .from('depoimentos')
+                    .delete()
+                    .eq('id', id);
+                
+                showAlert('Depoimento excluído com sucesso!', 'success');
+                await loadDepoimentos();
+                loadTestimonialsTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir depoimento', 'error');
+            }
+        }
+
+        function loadTestimonialsTable() {
+            const tbody = document.getElementById('testimonialsTableBody');
+            tbody.innerHTML = appState.depoimentos.map(d => `
                 <tr>
-                    <td style="font-weight:700;">${escapeHtml(p.numero_pedido || ('#' + p.id))}</td>
-                    <td>${formatarData(p.criado_em)}</td>
-                    <td>${escapeHtml(p.cliente_nome || '')}</td>
-                    <td>${escapeHtml(p.produto_titulo || '')}</td>
-                    <td>R$ ${formatPrice(p.preco || 0)}</td>
-                    <td>${escapeHtml(p.metodo_pagamento || '')}</td>
-                    <td>${statusPedidoBadge(p.status)}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="loadPedidosAdmin()">Voltar</button></td>
+                    <td>${d.nome}</td>
+                    <td>${d.cargo_aprovado || '-'}</td>
+                    <td>${renderStars(d.avaliacao)}</td>
+                    <td>
+                        <span class="badge ${d.ativo ? 'badge-success' : 'badge-error'}">
+                            ${d.ativo ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-edit" onclick="showTestimonialForm(${d.id})">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteTestimonial(${d.id})">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </td>
                 </tr>
-            `).join('') : '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">Este cliente ainda não tem pedidos.</td></tr>';
-        });
-}
-
-/* ==================== UPLOAD DE CAPAS E PDF ==================== */
-function handleCoverModeChange() {
-    const modoUpload = document.getElementById('capa_modo_upload');
-    const usarUpload = modoUpload && modoUpload.checked;
-    const urlInput = document.getElementById('product_capa_url');
-    const fileInput = document.getElementById('product_capa_file');
-    if (urlInput) urlInput.classList.toggle('hidden', usarUpload);
-    if (fileInput) fileInput.classList.toggle('hidden', !usarUpload);
-}
-
-function onCoverFilePicked(input, urlFieldId, previewId) {
-    const file = input.files && input.files[0];
-    const preview = document.getElementById(previewId);
-    if (!file) { if (preview) preview.classList.add('hidden'); return; }
-    if (preview) {
-        preview.src = URL.createObjectURL(file);
-        preview.classList.remove('hidden');
-    }
-}
-
-let V2_CAPACIDADES = null;
-async function verificarColunasV2() {
-    if (V2_CAPACIDADES !== null) return V2_CAPACIDADES;
-    try {
-        const { error } = await supabaseClient.from('produtos').select('capa_storage_path, capa_impresso_storage_path, arquivo_pdf_path, tipo_venda').limit(1);
-        V2_CAPACIDADES = !error;
-        if (error) console.warn('Colunas v2 ausentes em produtos:', error.message);
-    } catch (e) { V2_CAPACIDADES = false; }
-    return V2_CAPACIDADES;
-}
-
-async function prepararCamposV2(productData) {
-    const colunasOk = await verificarColunasV2();
-    if (colunasOk) return productData;
-
-    ['capa_storage_path', 'capa_impresso_storage_path', 'arquivo_pdf_path', 'tipo_venda'].forEach(campo => {
-        delete productData[campo];
-    });
-
-    if (productData.tipo_botao === 'proprio') {
-        productData.tipo_botao = 'hotmart';
-        showAlert('Para vender produto próprio, rode o arquivo migrations-v2-site-proprio.sql no Supabase (a coluna tipo_venda ainda não existe).', 'warning');
-    }
-    return productData;
-}
-
-async function uploadArquivoSupabase(bucket, file, pasta) {
-    const nomeSeguro = String(file.name || 'arquivo').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '-');
-    const caminho = `${pasta}/${Date.now()}-${nomeSeguro}`;
-    const { error } = await supabaseClient.storage.from(bucket).upload(caminho, file, { cacheControl: '31536000', upsert: true });
-    if (error) throw error;
-    return caminho;
-}
-
-async function processarUploadsProduto() {
-    if (typeof supabaseClient === 'undefined') return;
-
-    const capaFile = document.getElementById('product_capa_file');
-    const capaImpressoFile = document.getElementById('product_capa_file_impresso');
-    const pdfFile = document.getElementById('product_arquivo_pdf_file');
-    const temCapa = capaFile && capaFile.files && capaFile.files[0];
-    const temCapaImpressa = capaImpressoFile && capaImpressoFile.files && capaImpressoFile.files[0];
-    const temPdf = pdfFile && pdfFile.files && pdfFile.files[0];
-    if (!temCapa && !temCapaImpressa && !temPdf) return;
-
-    showAlert('Enviando arquivos... aguarde.', 'info');
-
-    if (temCapa) {
-        const caminho = await uploadArquivoSupabase(V2_BUCKET_CAPAS, capaFile.files[0], 'capas');
-        const { data } = supabaseClient.storage.from(V2_BUCKET_CAPAS).getPublicUrl(caminho);
-        const urlInput = document.getElementById('product_capa_url');
-        if (urlInput && data && data.publicUrl) urlInput.value = data.publicUrl;
-        const pathInput = document.getElementById('product_capa_storage_path');
-        if (pathInput) pathInput.value = caminho;
-    }
-
-    if (temCapaImpressa) {
-        const caminho = await uploadArquivoSupabase(V2_BUCKET_CAPAS, capaImpressoFile.files[0], 'capas-impressas');
-        const { data } = supabaseClient.storage.from(V2_BUCKET_CAPAS).getPublicUrl(caminho);
-        const urlInput = document.getElementById('product_capa_url_impresso');
-        if (urlInput && data && data.publicUrl) urlInput.value = data.publicUrl;
-        const pathInput = document.getElementById('product_capa_impresso_storage_path');
-        if (pathInput) pathInput.value = caminho;
-    }
-
-    if (temPdf) {
-        const podeUsarPdf = await verificarColunasV2();
-        if (!podeUsarPdf) {
-            throw new Error('O bucket/coluna de PDF ainda não existe. Rode o arquivo migrations-v2-site-proprio.sql no Supabase antes de subir o PDF.');
+            `).join('');
         }
-        const caminho = await uploadArquivoSupabase(V2_BUCKET_PDF, pdfFile.files[0], 'apostilas');
-        const pathInput = document.getElementById('product_arquivo_pdf_path');
-        if (pathInput) pathInput.value = caminho;
-    }
-}
 
-/* ==================== INICIALIZAÇÃO ==================== */
-(function iniciarPatchV2() {
-    try {
-        injectEstadosNoTopo();
-        injectModaisV2();
-        injectAdminExtras();
+        // ==================== CATEGORIES ====================
+        function loadCategoriesTable() {
+            const tbody = document.getElementById('categoriesTableBody');
+            const list = appState.allCategorias || appState.categorias;
+            tbody.innerHTML = list.map(c => `
+                <tr>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>
+                        ${c.imagem_url
+                            ? `<img src="${c.imagem_url}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;"> <small>${c.imagem_url.substring(0,30)}...</small>`
+                            : `<i class="fas ${c.icone || 'fa-tag'}"></i> <small>${c.icone || ''}</small>`
+                        }
+                    </td>
+                    <td>${c.ordem}</td>
+                    <td>
+                        <span class="badge ${c.ativo ? 'badge-success' : 'badge-warning'}">
+                            ${c.ativo ? '✅ Ativo' : '⏸ Inativo'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-edit" onclick="editCategoryItem(${c.id})">
+                                <i class="fas fa-pen"></i> Editar
+                            </button>
+                            <button class="btn btn-sm btn-edit" onclick="toggleCategoryStatus(${c.id}, ${!c.ativo})" style="background:${c.ativo ? '#888' : 'var(--success)'}">
+                                <i class="fas fa-${c.ativo ? 'eye-slash' : 'eye'}"></i> 
+                                ${c.ativo ? 'Desativar' : 'Ativar'}
+                            </button>
+                            <button class="btn btn-sm btn-delete" onclick="deleteCategoryItem(${c.id}, '${c.nome.replace(/'/g, "\\'") }')">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-        // Overrides globais: abas do admin e atualizacao das vendas/clientes
-        window.switchAdminTab = function (tab, btn) {
-            switchAdminTabSeguro(tab, btn || (window.event && window.event.target) || null);
-        };
+        async function toggleCategoryStatus(id, ativo) {
+            try {
+                await supabaseClient
+                    .from('categorias')
+                    .update({ ativo })
+                    .eq('id', id);
+                
+                showAlert('Categoria ' + (ativo ? 'ativada' : 'desativada') + ' com sucesso!', 'success');
+                await loadCategorias();
+                loadCategoriesTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao atualizar categoria', 'error');
+            }
+        }
 
-        const loadAdminDataOriginal = window.loadAdminData;
-        if (typeof loadAdminDataOriginal === 'function') {
-            window.loadAdminData = async function (...args) {
-                await loadAdminDataOriginal.apply(this, args);
-                await loadPedidosAdmin();
-                await loadClientesAdmin();
+        // ==================== CATEGORY FORM ====================
+        function showCategoryForm(edit = false) {
+            document.getElementById('categoryFormContainer').classList.remove('hidden');
+            document.getElementById('categoryFormTitle').textContent = edit ? 'Editar Categoria' : 'Nova Categoria';
+            if (!edit) {
+                document.getElementById('cat_id').value = '';
+                document.getElementById('cat_nome').value = '';
+                document.getElementById('cat_slug').value = '';
+                document.getElementById('cat_icone').value = '';
+                document.getElementById('cat_imagem_url').value = '';
+                document.getElementById('cat_ordem').value = '99';
+                document.getElementById('cat_ativo').checked = true;
+            }
+            document.getElementById('categoryFormContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideCategoryForm() {
+            document.getElementById('categoryFormContainer').classList.add('hidden');
+        }
+
+        function autofillSlug() {
+            // Only auto-fill if it's a new category (no id set)
+            if (document.getElementById('cat_id').value) return;
+            const nome = document.getElementById('cat_nome').value;
+            const slug = nome
+                .toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+            document.getElementById('cat_slug').value = slug;
+        }
+
+        async function saveCategoryForm(event) {
+            event.preventDefault();
+            const id = document.getElementById('cat_id').value;
+            const payload = {
+                nome: document.getElementById('cat_nome').value.trim(),
+                slug: document.getElementById('cat_slug').value.trim(),
+                icone: document.getElementById('cat_icone').value.trim() || 'fa-tag',
+                imagem_url: document.getElementById('cat_imagem_url').value.trim() || null,
+                ordem: parseInt(document.getElementById('cat_ordem').value) || 99,
+                ativo: document.getElementById('cat_ativo').checked
             };
+
+            try {
+                if (id) {
+                    // Update
+                    const { error } = await supabaseClient
+                        .from('categorias').update(payload).eq('id', id);
+                    if (error) throw error;
+                    showAlert('Categoria atualizada com sucesso!', 'success');
+                } else {
+                    // Insert
+                    const { error } = await supabaseClient
+                        .from('categorias').insert([payload]);
+                    if (error) throw error;
+                    showAlert('Categoria criada com sucesso!', 'success');
+                }
+                hideCategoryForm();
+                await loadCategorias();
+                loadCategoriesTable();
+                // Refresh product category select
+                const categorySelect = document.getElementById('product_categoria_id');
+                if (categorySelect) {
+                    categorySelect.innerHTML = appState.categorias.map(c =>
+                        `<option value="${c.id}">${c.nome}</option>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar categoria: ' + (error.message || error), 'error');
+            }
         }
 
-        const clienteEmail = sessionStorage.getItem('cliente_email');
-        const clienteNome = sessionStorage.getItem('cliente_nome');
-        if (clienteEmail) {
-            const label = document.getElementById('accountButtonLabel');
-            if (label) label.textContent = (clienteNome || 'Minha conta').split(' ')[0] || 'Minha conta';
+        function editCategoryItem(id) {
+            const list = appState.allCategorias || appState.categorias;
+            const cat = list.find(c => c.id === id);
+            if (!cat) return;
+            showCategoryForm(true);
+            document.getElementById('cat_id').value = cat.id;
+            document.getElementById('cat_nome').value = cat.nome;
+            document.getElementById('cat_slug').value = cat.slug;
+            document.getElementById('cat_icone').value = cat.icone || '';
+            document.getElementById('cat_imagem_url').value = cat.imagem_url || '';
+            document.getElementById('cat_ordem').value = cat.ordem;
+            document.getElementById('cat_ativo').checked = cat.ativo;
         }
-    } catch (err) {
-        console.warn('Patch v2 parcialmente carregado:', err);
-    }
-})();
+
+        async function deleteCategoryItem(id, nome) {
+            if (!confirm(`Tem certeza que deseja excluir a categoria "${nome}"?\n\nATENÇÃO: Produtos vinculados a esta categoria perderão a associação.`)) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('categorias').delete().eq('id', id);
+                if (error) throw error;
+                showAlert('Categoria excluída com sucesso!', 'success');
+                await loadCategorias();
+                loadCategoriesTable();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir categoria: ' + (error.message || error), 'error');
+            }
+        }
+
+        // ==================== ALERTS ====================
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '100000';
+            alertDiv.style.minWidth = '300px';
+            alertDiv.style.animation = 'slideInRight 0.3s ease';
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Add keyframes for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ==================== FOOTER SOCIAL MEDIA ====================
+        function updateFooterSocials() {
+            const socialContainer = document.getElementById('footer-social-links');
+            if (!socialContainer) return;
+            
+            const socials = [
+                { key: 'social_youtube', icon: 'fab fa-youtube', label: 'YouTube' },
+                { key: 'social_tiktok', icon: 'fab fa-tiktok', label: 'TikTok' },
+                { key: 'social_instagram', icon: 'fab fa-instagram', label: 'Instagram' },
+                { key: 'social_facebook', icon: 'fab fa-facebook-f', label: 'Facebook' }
+            ];
+            
+            const html = socials
+                .filter(s => appState.config[s.key])
+                .map(s => `<a href="${appState.config[s.key]}" target="_blank" rel="noopener noreferrer" title="${s.label}"><i class="${s.icon}"></i></a>`)
+                .join('');
+            socialContainer.innerHTML = html;
+
+            // Reclame Aqui
+            const raContainer = document.getElementById('footer-reclame-aqui');
+            if (raContainer && appState.config.reclame_aqui_url) {
+                const badgeImg = appState.config.reclame_aqui_badge
+                    ? `<img src="${appState.config.reclame_aqui_badge}" alt="Reclame Aqui">`
+                    : '<i class="fas fa-star-half-alt"></i> Reclame Aqui';
+                raContainer.innerHTML = `
+                    <div class="reclame-aqui-badge">
+                        <a href="${appState.config.reclame_aqui_url}" target="_blank" rel="noopener noreferrer">
+                            ${badgeImg}
+                        </a>
+                    </div>`;
+            }
+
+            // WhatsApp flutuante
+            const waFloat = document.getElementById('whatsappFloat');
+            if (waFloat && appState.config.whatsapp) {
+                waFloat.style.display = 'flex';
+                waFloat.onclick = () => window.open('https://wa.me/' + appState.config.whatsapp, '_blank', 'noopener,noreferrer');
+            }
+        }
+
+        // ==================== CALCULAR PARCELA (admin form) ====================
+        function calcularParcela() {
+            // ===== Digital =====
+            const precoDigital = parseFloat(document.getElementById('product_preco')?.value) || 0;
+            const parcelasDigital = parseInt(document.getElementById('product_parcelas')?.value) || 0;
+            const previewDigital = document.getElementById('product_parcela_preview');
+
+            if (previewDigital) {
+                if (precoDigital > 0 && parcelasDigital >= 2) {
+                    const valorParcela = precoDigital / parcelasDigital;
+                    previewDigital.value = `${parcelasDigital}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
+                } else {
+                    previewDigital.value = '';
+                }
+            }
+
+            // ===== Impressa =====
+            const precoImpresso = parseFloat(document.getElementById('product_preco_impresso')?.value) || 0;
+            const parcelasImpresso = parseInt(document.getElementById('product_parcelas_impresso')?.value) || 0;
+            const previewImpresso = document.getElementById('product_parcela_preview_impresso');
+
+            if (previewImpresso) {
+                if (precoImpresso > 0 && parcelasImpresso >= 2) {
+                    const valorParcela = precoImpresso / parcelasImpresso;
+                    previewImpresso.value = `${parcelasImpresso}x de R$ ${valorParcela.toFixed(2).replace('.', ',')} s/ juros`;
+                } else {
+                    previewImpresso.value = '';
+                }
+            }
+        }
+
+        // Ajusta o banner principal quando a janela muda de tamanho
+        window.addEventListener('resize', () => {
+            if (document.querySelector('.hero-slider')) {
+                updateHeroBannerHeight();
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('globalModal').addEventListener('click', (e) => {
+            if (e.target.id === 'globalModal') {
+                closeModal();
+            }
+        });
+
+        // ===== FUNÇÕES DO CARROSSEL =====
+        function carouselScroll(gridId, direction) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            const card = grid.querySelector('.product-card');
+            if (!card) return;
+            const cardWidth = card.offsetWidth + 18; // 18 = gap
+            const scrollAmount = cardWidth * 2; // avança 2 cards por clique
+            grid.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        // ==================== DETAIL IMAGE CAROUSEL ====================
+        let detailCarouselState = {};
+
+        function detailCarouselPrev(productId) {
+            const state = detailCarouselState[productId] || { current: 0, total: 2 };
+            const newIdx = state.current > 0 ? state.current - 1 : state.total - 1;
+            detailCarouselGoTo(productId, newIdx);
+        }
+
+        function detailCarouselNext(productId) {
+            const state = detailCarouselState[productId] || { current: 0, total: 2 };
+            const newIdx = state.current < state.total - 1 ? state.current + 1 : 0;
+            detailCarouselGoTo(productId, newIdx);
+        }
+
+        function detailCarouselGoTo(productId, idx) {
+            const track = document.getElementById('detailCarouselTrack_' + productId);
+            if (!track) return;
+            const slides = track.querySelectorAll('.detail-carousel-slide');
+            const totalSlides = slides.length;
+            track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+            detailCarouselState[productId] = { current: idx, total: totalSlides };
+            const carousel = document.getElementById('detailCarousel_' + productId);
+            if (carousel) {
+                carousel.querySelectorAll('.detail-dot').forEach(function(dot, i) {
+                    dot.classList.toggle('active', i === idx);
+                });
+            }
+        }
+
+    </script>
+<script src="/v2_features.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
