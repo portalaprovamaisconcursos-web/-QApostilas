@@ -3134,7 +3134,6 @@
                                 </div>
                                 <div class="form-group">
                                     <label>📖 URL da Capa Impressa <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                    <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
                                 </div>
                             </div>
                         </div>
@@ -3142,23 +3141,12 @@
                         <div id="capaUploadBox" class="hidden">
                             <div class="capa-uploader" style="margin-bottom:16px;">
                                 <div class="capa-uploader-row">
-                                    <div class="capa-preview" id="preview_capa_digital">Capa digital</div>
+                                    <div class="capa-preview" id="preview_capa_digital">Capa</div>
                                     <div class="capa-uploader-actions">
-                                        <label style="font-weight:600;">📱 Enviar Capa Digital (JPG, PNG ou WEBP — até 5 MB)</label>
+                                        <label style="font-weight:600;">Enviar Capa (JPG, PNG ou WEBP — até 5 MB)</label>
                                         <input type="file" accept="image/*" onchange="handleCapaUpload(this, 'product_capa_url', 'preview_capa_digital')">
                                         <span class="upload-status" id="status_preview_capa_digital"></span>
                                         <input type="hidden" name="capa_storage_path" id="product_capa_storage_path">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="capa-uploader">
-                                <div class="capa-uploader-row">
-                                    <div class="capa-preview" id="preview_capa_impressa">Capa impressa</div>
-                                    <div class="capa-uploader-actions">
-                                        <label style="font-weight:600;">📖 Enviar Capa Impressa (opcional)</label>
-                                        <input type="file" accept="image/*" onchange="handleCapaUpload(this, 'product_capa_url_impresso', 'preview_capa_impressa')">
-                                        <span class="upload-status" id="status_preview_capa_impressa"></span>
-                                        <input type="hidden" name="capa_impresso_storage_path" id="product_capa_impresso_storage_path">
                                     </div>
                                 </div>
                             </div>
@@ -3166,7 +3154,7 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>🛒 Venda direta no site</label>
+                                <label>Venda direta no site</label>
                                 <select name="venda_direta" id="product_venda_direta">
                                     <option value="false">Não — só link externo (Hotmart/parceiro)</option>
                                     <option value="true">Sim — checkout no próprio site</option>
@@ -4437,29 +4425,16 @@
             const formats = [];
             const precoDigital = Number(produto?.preco || 0);
             const precoOriginal = Number(produto?.preco_original || 0);
-            const precoImpresso = Number(produto?.preco_impresso || 0);
 
             if (precoDigital > 0) {
                 formats.push({
                     value: 'digital',
-                    label: 'Versão Digital',
-                    badge: '📱 Digital',
+                    label: 'Versão Digital em PDF',
+                    badge: 'Digital',
                     price: precoDigital,
                     originalPrice: precoOriginal > precoDigital ? precoOriginal : null,
                     installments: parseInt(produto?.parcelas) || 0,
-                    buttonText: 'Comprar'
-                });
-            }
-
-            if (precoImpresso > 0) {
-                formats.push({
-                    value: 'impressa',
-                    label: 'Versão Impressa',
-                    badge: '📖 Impressa',
-                    price: precoImpresso,
-                    originalPrice: precoOriginal > precoImpresso ? precoOriginal : null,
-                    installments: parseInt(produto?.parcelas_impresso ?? produto?.parcelas) || 0,
-                    buttonText: 'Comprar'
+                    buttonText: 'Comprar agora'
                 });
             }
 
@@ -4487,7 +4462,7 @@
             if (selectedFormat === 'impressa' && produto.capa_url_impresso) {
                 return produto.capa_url_impresso;
             }
-            return produto.capa_url || produto.capa_url_impresso || 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
+            return produto.capa_url || 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
         }
 
         function getInstallmentText(price, installments) {
@@ -4563,7 +4538,7 @@
             const detailImage = document.getElementById(`productDetailImage_${produto.id}`);
             if (detailImage) {
                 detailImage.src = getProductImageByFormat(produto, format);
-                detailImage.alt = `${produto.titulo} - ${format === 'impressa' ? 'Impressa' : 'Digital'}`;
+                detailImage.alt = `${produto.titulo} - Digital`;
             }
         }
 
@@ -4815,8 +4790,8 @@
                 parcelaHtml = `<div class="product-installment">${produto.parcelas}x de R$ ${formatPrice(valorParcela)} s/ juros</div>`;
             }
 
-            // Parcelas separadas para impressa (fallback: usa parcelas do digital)
-            const parcelasImpresso = parseInt((produto.parcelas_impresso ?? produto.parcelas) || 0);
+            // (versão impressa removida — só digital)
+            void produto;
             
             return `
                 <div class="product-card" onclick="navigateTo('produto', '${produto.slug}')">
@@ -4917,11 +4892,7 @@
             const conteudos = contentSections.regular;
             const bonusItems = contentSections.bonus;
             const descricaoHtml = renderDescriptionContent(produto.descricao);
-            const formats = getProductFormats(produto);
-            const currentOffer = getCurrentProductOffer(produto);
-            const deliveryText = formats.length > 1
-                ? 'Escolha entre digital e impressa'
-                : 'Liberação rápida após a compra';
+            const deliveryText = 'Liberação automática do PDF na Área do Aluno, após o pagamento';
             const contentText = produto.atualizado_edital
                 ? 'Atualizado conforme o último edital'
                 : 'Material organizado por matérias';
@@ -4938,7 +4909,7 @@
                     <img
                         id="productDetailImage_${produto.id}"
                         src="${getProductImageByFormat(produto)}"
-                        alt="${produto.titulo} - ${getSelectedProductFormat(produto) === 'impressa' ? 'Impressa' : 'Digital'}"
+                        alt="${produto.titulo} - Versão Digital"
                         class="product-detail-image"
                         title="Clique para ampliar"
                         onclick="openProductZoom(this.src)"
@@ -7112,7 +7083,7 @@
                 forma_pagamento: formaPagamento,
                 parcelas,
                 cupom: cupomCodigo || null,
-                envio_status: formato === 'impressa' ? 'transportadora' : 'digital',
+                envio_status: 'digital',
                 observacoes: 'Como nos conheceu: ' + ((document.getElementById('checkout_conheceu') || {}).value || 'não informado')
             };
 
@@ -7579,7 +7550,7 @@
                                 <div class="student-order-title">${escapeHtml(p.produto_titulo || 'Apostila')}</div>
                                 <div class="student-order-meta">
                                     Pedido ${escapeHtml(p.codigo || p.id)} • ${formatDateBR(p.created_at, true)}
-                                    • ${p.formato === 'impressa' ? 'Impressa' : 'Digital'}
+                                    • ${p.formato && p.formato !== 'digital' ? p.formato : 'Digital'}
                                     • ${escapeHtml(ORIGEM_LABEL[p.origem] || p.origem || '')}
                                 </div>
                             </div>
@@ -7760,7 +7731,7 @@
                         <div class="product-summary-item"><span class="product-summary-label">Telefone</span><span class="product-summary-value">${escapeHtml(pedido.cliente_telefone || '—')}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Produto</span><span class="product-summary-value">${escapeHtml(pedido.produto_titulo || '—')}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Código do produto</span><span class="product-summary-value">${escapeHtml(pedido.produto_codigo || '—')}</span></div>
-                        <div class="product-summary-item"><span class="product-summary-label">Formato</span><span class="product-summary-value">${pedido.formato === 'impressa' ? 'Impressa' : 'Digital'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Formato</span><span class="product-summary-value">Digital (PDF)</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Origem</span><span class="product-summary-value">${escapeHtml(ORIGEM_LABEL[pedido.origem] || pedido.origem || '—')}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Pagamento</span><span class="product-summary-value">${escapeHtml(PAGTO_LABEL[pedido.forma_pagamento] || '—')} ${Number(pedido.parcelas || 1) > 1 ? `(${pedido.parcelas}x)` : ''}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Cupom</span><span class="product-summary-value">${escapeHtml(pedido.cupom || '—')} ${Number(pedido.cupom_desconto || 0) > 0 ? `(-R$ ${formatPrice(pedido.cupom_desconto)})` : ''}</span></div>
@@ -7888,7 +7859,7 @@
                             <label>Formato</label>
                             <select id="mo_formato">
                                 <option value="digital">Digital</option>
-                                <option value="impressa">Impressa</option>
+                                <option value="impressa" disabled style="display:none">Impressa (desabilitado nesta versão)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -7929,7 +7900,7 @@
                 status: document.getElementById('mo_status').value,
                 formato: document.getElementById('mo_formato').value,
                 tipo: document.getElementById('mo_tipo').value,
-                envio_status: document.getElementById('mo_formato').value === 'impressa' ? 'transportadora' : 'digital'
+                envio_status: 'digital'
             };
             try {
                 const { error } = await supabaseClient.from('pedidos').insert([payload]);
@@ -8387,6 +8358,7 @@
 
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>

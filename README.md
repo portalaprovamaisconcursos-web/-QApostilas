@@ -1,256 +1,228 @@
-# +QApostilas — Site de Apostilas para Concursos Públicos
+# +QApostilas — Guia definitivo (3.1)
 
-**Versão 2.0** — agora com **venda direta no site** (Pix, cartão de crédito em até 6x e débito), **Área do Aluno** (login do cliente com histórico de compras), **painel de Pedidos**, **cadastro de Clientes**, **cupons de desconto** e **upload de capas**.
+Esta versão **resolve todos os erros** que aparecem nas suas telas e implementa o **fluxo completo Mercado Pago → área do aluno → download do PDF**, **só versão digital**, **sem barra de categorias na home** e **sem emojis** (exceto 🔥 em "Destaques" e 🆕 em "Lançamentos").
 
 ---
 
-## 📦 O que mudou nesta versão
+## 🛠️ Antes de tudo: causa dos erros que aparecem nas suas telas
 
-| Recurso | Antes | Agora |
+| Erro na tela | Causa real | Correção |
 |---|---|---|
-| Compra | Só Hotmart / site parceiro | Também **venda direta no site** (Pix, crédito em até 6x, débito) |
-| Área do cliente | Não existia | **Área do Aluno** com login, histórico de compras e edição de dados |
-| Painel admin | Produtos, Depoimentos, Categorias, Configurações | + **Pedidos**, **Clientes** e **Cupons** |
-| Capas | Só por link (URL) | **Por link OU por upload** (Supabase Storage) |
-| Menu | Categorias | Categorias + **Estados** (todas as 27 siglas) |
-| Home | Grade de botões grandes de categoria | Categorias em barra compacta + seção "Apostilas por estado" |
-| Página do produto | Capa menor | **Capa maior com zoom** + botão de compra direta |
+| `Could not find the 'aceita_marketing' column of 'clientes'` | A coluna não existe ainda do lado do Supabase | Rodar o SQL completo (Passo 1) |
+| `Could not find the 'capa_origem' column of 'produtos'` | Migração ainda não foi executada | Rodar o SQL completo (Passo 1) |
+| `Could not find the table 'public.cupons'` | Tabela ainda não existe | Rodar o SQL completo (Passo 1) |
+| `column pedidos.cliente_user_id does not exist` | Migração ainda não foi executada | Rodar o SQL completo (Passo 1) |
+| `syntax error at or near //` (no print do SQL Editor) | Você colou o arquivo JavaScript `supabase-config.js` no editor SQL — ele não é SQL | Colar o `database-schema.sql` no SQL Editor |
+| Busca de cliente não acha nada | Filtros são case-sensitive e não tratam acentos | Versão 3.1 usa busca **case-insensitive e sem acento** |
+| "Sub básico" não dispara | Auth com confirmação de e-mail ligada trava o signUp | **Desligar** "Confirm email" (Passo 3) |
 
-> ⚠️ **Importante sobre vendas em sites parceiros:** quando o cliente clica e compra no site do parceiro, o pagamento acontece **fora** do seu sistema. Não existe como o site do parceiro avisar o seu automaticamente (só se o parceiro tiver API/webhook e liberar acesso). Por isso a Área do Aluno mostra essas compras quando:
-> 1. o **e-mail ou CPF** da compra for o mesmo do cadastro do aluno — nesse caso basta lançar o pedido no painel (**Pedidos → Lançar pedido manual**) ou o próprio aluno vincula na aba **"Meus dados" → Vincular compras antigas**; ou
-> 2. você registrar o pedido manualmente no painel, escolhendo a origem "Site parceiro" ou "Hotmart".
+> A v3.1 foi escrita para que **toda essa lista** se resolva com os passos abaixo, sem precisar editar código.
 
 ---
 
-## 🗂️ Arquivos do projeto
+## 📂 Onde vai cada arquivo
 
 ```
-+qapostilas/
-├── index.html              # Site completo (HTML + CSS + JS) — v2.0
-├── supabase-config.js      # Credenciais públicas do Supabase
-├── database-schema.sql     # Banco de dados completo (original + v2.0)
-├── vercel.json             # Rotas e cabeçalhos (não captura /api)
-├── sitemap.xml             # URLs do site (inclui /estado/UF)
-├── robots.txt              # Indexação
-├── README.md               # Este guia
++qapostilas/                          ← raiz do projeto na Vercel
+├── index.html                        ✅ substituir (reconstruído)
+├── supabase-config.js                ✅ substituir
+├── vercel.json                       ✅ cadastrar/substituir
+├── sitemap.xml                       ✅ substituir (não obrigatório)
+├── robots.txt                        ✅ substituir (não obrigatório)
+├── database-schema.sql               ❌ NÃO publicar (rodar no Supabase)
+├── README.md                         ❌ NÃO publicar (esse arquivo é seu)
 └── api/
-    ├── mp-checkout.js      # Cria a preferência do Mercado Pago (Checkout Pro)
-    └── mp-webhook.js       # Recebe a confirmação de pagamento
+    ├── mp-checkout.js                ✅ NOVO (criar pasta api)
+    └── mp-webhook.js                 ✅ NOVO
 ```
-
-**Os dois arquivos da pasta `api/` só são usados no modo "api" do checkout.** Se você usar o modo "link", o site funciona sem eles — mas mantenha a pasta publicada, pois ela não atrapalha.
 
 ---
 
-## 🚀 PASSO A PASSO PARA ATUALIZAR
+## 🚀 PASSO A PASSO (siga na ordem)
 
-### PASSO 1 — Rodar o SQL no Supabase
+### PASSO 1 — Banco de dados (Supabase)
 
-1. Acesse [https://supabase.com](https://supabase.com) e abra seu projeto.
+> Faz isso **uma única vez**. O script é idempotente: rodá-lo de novo não apaga nada.
+
+1. Abra https://supabase.com → seu projeto da +QApostilas.
 2. Menu lateral → **SQL Editor** → **New query**.
-3. Abra o arquivo **`database-schema.sql`** do projeto, **copie TODO o conteúdo** e cole no editor.
-4. Clique em **Run** (ou Ctrl+Enter) e aguarde a mensagem de sucesso.
+3. Abra o arquivo **`database-schema.sql`** que está junto deste README.
+4. **Copie TODO o conteúdo** e **cole no editor** (não cole `supabase-config.js` nem `index.html`).
+5. Clique **Run** (ou `Ctrl+Enter`).
+6. Aguarde a mensagem verde "Success". Pode levar alguns segundos.
 
-O arquivo é seguro para rodar mais de uma vez: ele usa `CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS` e `ON CONFLICT DO NOTHING` — **não apaga** seus produtos, depoimentos nem configurações.
+**O que ele cria/ajusta:**
+- `clientes` com as colunas do seu print: `aceita_marketing`, `data_nascimento`, `estado`, `aprovacao_pendente`, `perfil`, `cpf`, `telefone`.
+- `produtos` com: `capa_origem`, `capa_storage_path`, `venda_direta`, `permite_parcelamento`, `mp_link_pagamento`.
+- Tabela `cupons` (a do erro "table 'public.cupons' not found").
+- Coluna `pedidos.cliente_user_id` (a do erro dos pedidos).
+- Tabela `pedidos` com numeração automática começando em **00401906**, status, frete, cupom, IDs do Mercado Pago.
+- Tabela `mp_eventos` (log de notificações do MP).
+- Coluna nova **`produtos.pdf_storage_path`** + bucket privado **`apostilas-pdf`** para liberar o download só depois do pagamento.
+- Triggers, índices e políticas RLS completas.
 
-**O que ele cria/atualiza:**
+---
 
-- **`site_config`** — novas chaves: `checkout_modo`, `mp_link_pagamento`, `mp_pix_chave`, `mp_parcelas_max`, `mp_pix_ativo`, `mp_credito_ativo`, `mp_debito_ativo`, `mp_boleto_ativo` (boleto vem **desativado**), `area_aluno_ativa`.
-- **`produtos`** — novas colunas: `capa_origem`, `capa_storage_path`, `capa_impresso_origem`, `capa_impresso_storage_path`, `venda_direta`, `permite_parcelamento`, `mp_link_pagamento`.
-- **`clientes`** — cadastro do aluno/cliente (nome, e-mail, telefone, CPF, data de nascimento, perfil, aprovação, marketing).
-- **`pedidos`** — todos os pedidos, com **numeração automática** começando em `00401906` (o painel de exemplo mostrava `00401905`), status, forma de pagamento, parcelas, frete, cupom, IDs do Mercado Pago.
-- **`cupons`** — cupons de desconto (percentual ou valor fixo).
-- **`mp_eventos`** — log de tudo que o Mercado Pago enviar (auditoria).
-- Índices, triggers de `updated_at` e as **políticas de segurança (RLS)**.
+### PASSO 2 — Buckets de Storage (Supabase)
 
-### PASSO 2 — Criar o bucket de capas (upload de imagens)
+Você precisa de **dois buckets**:
 
-1. No Supabase, menu lateral → **Storage** → **New bucket**.
-2. Nome: **`capas`** (exatamente assim, minúsculo).
-3. Marque **Public bucket** → **Create bucket**.
-4. Clique no bucket `capas` → aba **Policies** → **New policy** → escolha o modelo **"For full customization"** e crie **quatro** políticas, todas com a expressão `true`:
-   - `SELECT` (leitura) para os papéis `anon` e `authenticated`
-   - `INSERT` (upload)
-   - `UPDATE`
-   - `DELETE`
+#### 2.1 — `capas` (público, para as imagens das apostilas)
+1. Supabase → **Storage** → **New bucket** → Nome: `capas` → marque **Public bucket** → Create.
+2. Clique no bucket `capas` → aba **Policies** → **New policy** → **For full customization** → crie 4 políticas (SELECT, INSERT, UPDATE, DELETE), todas com `USING (true)` e `WITH CHECK (true)`.
 
-> Enquanto o painel admin usa senha (sem login real), essas políticas permissivas são necessárias para o upload funcionar. Se depois você migrar o admin para o Supabase Auth, restrinja-as.
+#### 2.2 — `apostilas-pdf` (privado, para os PDFs liberados só pós-pagamento)
+1. **New bucket** → Nome: **`apostilas-pdf`** → **NÃO marque Public bucket** → Create.
+2. Policies → New policy → For full customization → crie **3 políticas permissivas** (SELECT, INSERT, UPDATE) com `USING (true)` / `WITH CHECK (true)`. (DELETE não precisa por enquanto.)
 
-### PASSO 3 — Ativar a Área do Aluno (Supabase Auth)
+> Os PDFs dos produtos vão pra `apostilas-pdf/<id-do-produto>/arquivo.pdf`. Quando o pagamento for aprovado, o webhook libera o link temporário na Área do Aluno.
 
-1. No Supabase, menu lateral → **Authentication** → **Sign In / Providers**.
-2. Confirme que **Email** está habilitado.
-3. Em **Authentication → URL Configuration**:
+---
+
+### PASSO 3 — Autenticação e confirmação de e-mail (DESLIGAR)
+
+Você pediu que o cliente **não precise confirmar e-mail**. Configure assim:
+
+1. **Authentication → Sign In / Providers** → **Email** → **desmarque** "Confirm email".
+2. **Authentication → URL Configuration**:
    - **Site URL**: `https://www.maisqapostilas.com.br`
    - **Redirect URLs**: adicione `https://www.maisqapostilas.com.br/**`
-4. **Importante:** se **"Confirm email"** estiver ligado, o aluno precisa clicar no link enviado por e-mail antes de entrar. Para simplificar (recomendado no começo), **desligue a confirmação de e-mail** em *Authentication → Sign In / Providers → Email → Confirm email*.
 
-### PASSO 4 — Configurar o Mercado Pago
+Pronto. Agora o aluno cria conta + entra direto, sem precisar abrir e-mail.
 
-Você tem **duas formas** de receber. Escolha uma e configure no painel do site (**Admin → Configurações → Pagamentos e Venda Direta**).
+---
 
-#### 🅰️ Modo "link" (mais simples, sem programação)
+### PASSO 4 — Mercado Pago
 
-1. Entre no [Mercado Pago](https://www.mercadopago.com.br) com a sua conta.
-2. Menu **Seu negócio → Cobranças → Link de pagamento** (ou *Link de pagamento* no menu lateral).
-3. Crie um link de pagamento. Na configuração de **meios de pagamento**, deixe **Pix, Cartão de crédito e Cartão de débito** marcados e **desmarque o Boleto**.
-4. Em **parcelamento**, defina o **máximo de 6 parcelas**.
-5. Copie o link (algo como `https://mpago.la/xxxxxxx`).
-6. No site: **Admin → Configurações → Pagamentos e Venda Direta**:
-   - **Modo de checkout**: `Link de pagamento do Mercado Pago (sem backend)`
-   - **Link de pagamento Mercado Pago (padrão do site)**: cole o link
-   - **Chave Pix**: informe a chave que aparecerá para quem escolher Pix (opcional, mas recomendado)
-   - **Máximo de parcelas**: `6`
-   - Marque **Pix**, **crédito** e **débito**; deixe **boleto desmarcado**
-   - Clique em **Salvar Configurações**
+Você tem dois modos. **Escolha UM**, configure no painel do site (**Admin → Configurações → Pagamentos**) e mexe nas variáveis da Vercel (Passo 5) só se for o modo "api".
 
-Cada produto pode ter o **seu próprio link** (campo *"Link de pagamento Mercado Pago do produto"* no cadastro da apostila).
+#### 🅰️ Modo "link" (simples, sem backend) — **recomendado pra começar**
 
-#### 🅱️ Modo "api" (Checkout Pro automático — recomendado a médio prazo)
+1. https://www.mercadopago.com.br → login → **Seu negócio → Cobranças → Link de pagamento**.
+2. Criar link → meios: ✅ Pix, ✅ Cartão de crédito (até 6x), ✅ Cartão de débito, ❌ Boleto.
+3. Copie o link (ex.: `https://mpago.la/xxxxxx`).
+4. No site: **Admin → Configurações → Pagamentos** → cole o link em **"Link padrão do Mercado Pago"** → Salvar.
+5. Em cada produto com `Venda direta = Sim`, o site usa o link padrão (ou o link próprio do produto, se você preencher).
 
-Neste modo o próprio site cria o pagamento e o Mercado Pago redireciona o cliente, sem você precisar criar link por produto.
+#### 🅱️ Modo "api" (Checkout Pro automático — o que você queria)
 
-1. Acesse [https://www.mercadopago.com.br/developers/panel/app](https://www.mercadopago.com.br/developers/panel/app) → **Criar aplicação**.
-2. Anote o **Access Token de produção** (começa com `APP_USR-...`).
-   > 🔒 O Access Token é **secreto**. Ele **nunca** vai no `index.html` nem no `supabase-config.js` — só nas variáveis de ambiente da Vercel (Passo 5).
-3. Ainda no painel da aplicação → **Webhooks** → **Configurar notificações**:
+1. https://www.mercadopago.com.br/developers/panel/app → **Criar aplicação**.
+2. Copie o **Access Token de produção** (começa com `APP_USR-...`). Esse token **nunca** vai para o `index.html` — fica só na Vercel (Passo 5).
+3. Na mesma tela → **Webhooks** → **Configurar notificações**:
    - **URL de produção**: `https://www.maisqapostilas.com.br/api/mp-webhook`
-   - **Eventos**: marque **Pagamentos** (*payment*)
-   - Clique em **Salvar** e copie a **chave secreta** que aparece (é o `MP_WEBHOOK_SECRET`).
-4. No site: **Admin → Configurações → Pagamentos e Venda Direta** → **Modo de checkout**: `Checkout Pro via API (/api/mp-checkout)`.
-
-**Como o checkout funciona nesse modo:** o cliente escolhe o formato, preenche nome/e-mail/telefone/CPF, escolhe a forma de pagamento (Pix, crédito com as parcelas calculadas, ou débito) e clica em **Finalizar e ir para o pagamento**. O sistema grava o pedido no Supabase e cria a preferência no Mercado Pago com:
-- `installments: 6` (limite de 6x) e `default_installments` conforme a escolha do cliente;
-- `excluded_payment_types: [{ id: "ticket" }]` → **boleto nunca aparece**;
-- `external_reference` = número do pedido (é o que liga o pagamento ao pedido);
-- `notification_url` = `/api/mp-webhook`;
-- `auto_return: "approved"` e as `back_urls` voltando para `/minha-conta`.
-
-Quando o pagamento é aprovado, o webhook atualiza o pedido para **Pagamento confirmado** e ele aparece na Área do Aluno.
-
-### PASSO 5 — Variáveis de ambiente na Vercel
-
-Na Vercel, abra o projeto → **Settings → Environment Variables** e cadastre (ambiente **Production**, e marque também Preview/Development se quiser):
-
-| Nome | Valor | Obrigatória? |
-|---|---|---|
-| `MP_ACCESS_TOKEN` | Access Token de produção do Mercado Pago | Só no modo "api" |
-| `MP_WEBHOOK_SECRET` | Chave secreta copiada em Webhooks | Só no modo "api" |
-| `SUPABASE_URL` | `https://cjawxciaybhgabxrrtdh.supabase.co` | Só no modo "api" |
-| `SUPABASE_SERVICE_KEY` | Supabase → Settings → API → **service_role** (secreta) | Só no modo "api" |
-| `SITE_URL` | `https://www.maisqapostilas.com.br` | Só no modo "api" |
-
-> 🔒 A chave **service_role** dá acesso total ao banco. Ela fica **apenas** na Vercel — nunca no navegador.
-> Sem `MP_WEBHOOK_SECRET`, o webhook aceita as notificações e apenas registra um aviso no log. Configure para valer a assinatura.
-
-Depois de salvar, faça **Redeploy** do projeto (Deployments → ⋯ → Redeploy) para as variáveis entrarem em vigor.
-
-### PASSO 6 — Publicar os arquivos atualizados
-
-Você pode enviar **todos de uma vez** (é o jeito mais seguro):
-
-1. Vercel → seu projeto → aba **Deployments** → ⋯ → **Redeploy** (se o projeto estiver ligado ao GitHub, basta dar *commit/push*; se for upload manual, use *Add New → Project* ou a CLI `vercel --prod`).
-2. **Certifique-se de que a pasta `api/` subiu junto com o `index.html`.** Sem ela, o modo "api" do checkout retorna erro 404.
-
-**Onde vai cada arquivo** (na raiz do projeto publicado):
-
-| Arquivo | Destino |
-|---|---|
-| `index.html` | raiz (`/`) |
-| `supabase-config.js` | raiz (`/`) — o site o carrega como `/supabase-config.js` |
-| `vercel.json` | raiz (`/`) |
-| `sitemap.xml` | raiz (`/`) |
-| `robots.txt` | raiz (`/`) |
-| `database-schema.sql` | **não precisa publicar** (é só para rodar no Supabase) |
-| `README.md` | **não precisa publicar** |
-| `api/mp-checkout.js` | pasta **`api/`** |
-| `api/mp-webhook.js` | pasta **`api/`** |
-
-### PASSO 7 — Testar tudo
-
-1. **Site**: abra `https://www.maisqapostilas.com.br` → a barra superior mostra **Área do Aluno** e o menu tem **Estados**.
-2. **Cadastro de aluno**: clique em **Entrar → Criar minha conta grátis**, preencha e confirme.
-3. **Venda direta**: em um produto com *Venda direta = Sim*, clique em **Comprar agora**, preencha os dados, escolha **Pix** → deve aparecer a chave Pix e o pedido é registrado. Confira em **Admin → Pedidos** (status "Aguardando pagamento", cor laranja).
-4. **Pagamento de teste**: no modo "api", o Mercado Pago oferece contas/ cartões de teste. Faça um pagamento aprovado e veja o status mudar para **Pagamento confirmado** (verde) — se não mudar, confira se o webhook está cadastrado com a URL exata e se as variáveis foram salvas.
-5. **Upload de capa**: **Admin → Produtos → Novo Produto** → em *Origem da capa* escolha **Upload de imagem** → envie um JPG. Se der erro, revise o **Passo 2** (bucket `capas` público + políticas).
-6. **Estados**: clique em qualquer sigla (ex.: **SP**) e confira a listagem.
+   - **Eventos**: marque **Pagamentos** (`payment`)
+   - Salve e **copie a chave secreta** que o MP mostra.
+4. No site: **Admin → Configurações → Pagamentos** → **Modo de checkout = Checkout Pro via API**.
 
 ---
 
-## 🧭 Como usar o painel
+### PASSO 5 — Variáveis de ambiente (Vercel) — **só se usar modo "api"**
 
-### Pedidos (novo)
-Filtros no topo (pedido, CPF/CNPJ, período, produto, status, forma de pagamento, cupom, envio, tipo), a **legenda de cores** dos status, a lista com status / pedido / cliente / data / frete / pagto / total e a lupa para abrir o pedido. Dentro do pedido você pode mudar o status, registrar rastreio, ver o ID do Mercado Pago e **falar com o cliente no WhatsApp**.
+Vercel → seu projeto → **Settings → Environment Variables** (ambiente **Production**):
 
-- **Lançar pedido manual** — registra vendas feitas na Hotmart ou em sites parceiros (aparece na Área do Aluno pelo e-mail/CPF).
-- **Exportar CSV** — baixa a lista filtrada.
-- Selecionando pedidos, os botões **Marcar em andamento / Marcar entregue / Cancelar** alteram em lote.
-
-**Cores dos status (iguais ao modelo que você enviou):**
-
-| Cor | Status |
+| Nome | O que colocar |
 |---|---|
-| 🟧 Laranja | Aguardando pagamento |
-| 🟪 Roxo | Em análise |
-| 🟩 Verde | Pagamento confirmado |
-| 🟦 Azul | Em andamento |
-| 🟢 Verde-limão | Entregue a transportadora |
-| 🩵 Turquesa | Entregue |
-| 🟥 Vermelho | Cancelado |
+| `MP_ACCESS_TOKEN` | Access Token `APP_USR-...` |
+| `MP_WEBHOOK_SECRET` | Chave secreta copiada no Webhook |
+| `SUPABASE_URL` | `https://cjawxciaybhgabxrrtdh.supabase.co` |
+| `SUPABASE_SERVICE_KEY` | Supabase → Settings → API → **`service_role`** (NUNCA vai no JS público) |
+| `SITE_URL` | `https://www.maisqapostilas.com.br` |
 
-### Clientes (novo)
-Lista com nome, e-mail, telefone, data de cadastro e **último pedido**, além de **Incluir novo cliente**, **Exportar registros**, **Excluir registros selecionados** e o painel lateral de filtros (nome/CPF, e-mail, perfil, aguardando aprovação, último pedido, estado e aniversariantes do mês).
-
-### Cupons (novo)
-Crie códigos de desconto (percentual ou valor fixo), com valor mínimo, limite de uso e validade. O cliente digita o cupom na tela de checkout e o desconto entra no total.
-
-### Produtos
-Agora com **Origem da capa** (link ou upload), **Venda direta no site** (Sim/Não) e **Link de pagamento do produto**. O campo *Tipo de Botão* ganhou a opção **Venda direta (site próprio)**. No formulário de produto você também vê a prévia da capa enviada.
-
-### Configurações
-Ganhou a seção **Pagamentos e Venda Direta** (modo de checkout, link padrão, chave Pix, parcelas, meios ativos, Área do Aluno).
+Depois de salvar, faça **Redeploy** do projeto (Deployments → ⋯ → Redeploy). Sem isso, as variáveis não entram em vigor.
 
 ---
 
-## 🔐 Segurança — leia antes de vender
+### PASSO 6 — Publicar no Vercel
 
-1. **Troque a senha do admin** (padrão `admin123`) em *Configurações → Senha Admin*.
-2. **Nunca** coloque o Access Token do Mercado Pago, a chave `service_role` ou senhas no `index.html` / `supabase-config.js` — esses arquivos são públicos.
-3. Enquanto o painel admin usar senha simples e o RLS estiver permissivo, qualquer pessoa com a chave pública do Supabase poderia, em tese, escrever no banco. Assim que as vendas começarem, o próximo passo recomendado é migrar o login do painel para o **Supabase Auth** (usuário admin) e restringir as políticas `admin_all_*`.
-4. Faça **backup** dos pedidos: *Supabase → Table Editor → pedidos → Export* de tempos em tempos (ou use o **Exportar CSV** do painel).
+Suba na **raiz do projeto**: `index.html`, `supabase-config.js`, `vercel.json`, `sitemap.xml`, `robots.txt`.
+
+Crie a **pasta `api/`** e coloque dentro dela: `mp-checkout.js` e `mp-webhook.js`.
+
+> ⚠️ Os arquivos da pasta `api/` são **obrigatórios** se você for usar o modo "api". Sem eles, `/api/mp-checkout` retorna 404.
+
+---
+
+### PASSO 7 — Testar ponta a ponta
+
+1. Abra `https://www.maisqapostilas.com.br`.
+2. **Entrar → Criar conta** → preencha nome, e-mail, telefone, CPF, senha → clique **Criar conta**: deve cair direto na Área do Aluno (sem precisar abrir e-mail).
+3. Em **Admin → Produtos**, edite um produto e marque **Venda direta = Sim**.
+4. Abra o produto (clique na home) → veja a página **nova com capa grande** e botão **Comprar agora**.
+5. Clique Comprar → preencha nome/e-mail/CPF/telefone → escolha **Pix** → **Finalizar**.
+   - Modo "link": você é redirecionado pro link do MP.
+   - Modo "api": você é redirecionado pro Checkout Pro do MP com Pix em destaque.
+6. Pague (use cartão de teste em modo "api" ou QR Pix de teste em modo "link").
+7. Volte à **Área do Aluno → Minhas compras**: o pedido deve estar verde **"Pagamento confirmado"** com botão **Baixar apostila**.
+   - O botão aponta para um PDF dentro do bucket privado `apostilas-pdf`. O link é gerado pelo webhook depois da aprovação.
+
+---
+
+## 🗂️ Como o Mercado Pago "amarra" o pagamento ao pedido
+
+```
+1. Cliente clica "Comprar agora"
+        ↓
+2. Site cria um pedido na tabela "pedidos"  (status = aguardando_pagamento)
+        ↓
+3. Site chama /api/mp-checkout passando pedido_id
+        ↓
+4. mp-checkout cria uma "preferência" no Mercado Pago com
+   external_reference = pedido_id
+   notification_url    = https://www.maisqapostilas.com.br/api/mp-webhook
+        ↓
+5. Cliente paga no Mercado Pago (Pix / crédito / débito)
+        ↓
+6. Mercado Pago chama /api/mp-webhook com o ID do pagamento
+        ↓
+7. mp-webhook consulta o pagamento na API do MP
+   - status = approved  → marca pedido como "pagamento_confirmado"
+                        → gera signed URL do PDF em /apostilas-pdf/<id>/arquivo.pdf
+                        → grava em pedido.pdf_signed_url (válido por 24h)
+                        → libera "Baixar apostila" na Área do Aluno
+   - status = pending   → marca "aguardando_pagamento"
+   - status = in_process → marca "em_analise"
+   - status = rejected/cancelled → marca "cancelado"
+        ↓
+8. O comprador abre Área do Aluno → Minhas compras → "Baixar apostila"
+```
+
+**Tudo automático.** Você só precisa conferir no **Admin → Pedidos** se algum ficou travado em "aguardando_pagamento" e disparar manualmente o webhook se necessário.
 
 ---
 
 ## 🆘 Solução de problemas
 
-**O botão "Comprar agora" não aparece** → no cadastro do produto, marque *Venda direta no site = Sim* (ou *Tipo de Botão = Venda direta*).
+**"Confirm email" continua pedindo confirmação mesmo eu desligando no painel do Supabase?**
+> Os usuários já criados antes da mudança continuam com a confirmação pendente. Delete-os em Authentication → Users ou peça para re-cadastrarem.
 
-**O upload de capa falha** → o bucket precisa se chamar `capas`, estar **público** e ter as 4 políticas (Passo 2).
+**Webhook chega mas o pedido continua laranja?**
+> Confirme o caminho exato: `https://www.maisqapostilas.com.br/api/mp-webhook` (sem barra no fim, com `/api`). Veja o log em **Vercel → Deployments → Logs** e procure por `mp-webhook`.
 
-**"new row violates row-level security policy"** → rode o `database-schema.sql` completo novamente; as políticas de `clientes`, `pedidos` e `cupons` estão na parte final do arquivo.
+**Botão Comprar leva para a Hotmart em vez do Mercado Pago?**
+> No cadastro do produto, **Venda direta = Sim**. Se for "Não", o botão usa o `link_compra` (Hotmart/parceiro).
 
-**A Área do Aluno não mostra as compras antigas** → o pedido precisa ter o mesmo **e-mail** do cadastro, ou use **Meus dados → Vincular compras antigas** informando o e-mail/CPF usado na compra.
+**Upload de capa dá erro?**
+> Bucket `capas` precisa existir, estar público e ter as 4 políticas permissivas (Passo 2.1).
 
-**O webhook não atualiza o status** → confirme a URL exata `https://www.maisqapostilas.com.br/api/mp-webhook`, o evento **Pagamentos** marcado, as variáveis `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET` / `SUPABASE_SERVICE_KEY` salvas na Vercel e o **Redeploy** feito depois.
+**PDF não baixa após o pagamento aprovado?**
+> O PDF do produto precisa estar no bucket **privado** `apostilas-pdf/<id-do-produto>/arquivo.pdf`. Sem o arquivo lá, a Área do Aluno mostra "PDF ainda não enviado pelo vendedor". Faça upload em **Admin → Produtos → campo PDF**.
 
-**Erro 404 no checkout (modo api)** → a pasta `api/` não foi publicada. Ela precisa ficar na raiz, ao lado do `index.html`.
-
-**Boleto aparecendo no Mercado Pago** → no modo "link", desmarque boleto no próprio link do Mercado Pago; no modo "api", o site já envia `excluded_payment_types: ticket`.
+**Boleto continua aparecendo no checkout?**
+> No modo "link": desmarque no próprio link do Mercado Pago. No modo "api": o site já envia `excluded_payment_types: [{id:"ticket"}]` — confira na aba Network do navegador.
 
 ---
 
 ## ✅ Checklist final
 
-- [ ] Rodei o `database-schema.sql` no Supabase
-- [ ] Criei o bucket público `capas` com as 4 políticas
-- [ ] Ativei o Auth por e-mail e configurei a Site URL
-- [ ] Configurei o Mercado Pago (link **ou** aplicação + webhook)
-- [ ] Cadastrei as variáveis de ambiente na Vercel (se usar o modo "api")
-- [ ] Publiquei `index.html`, `supabase-config.js`, `vercel.json`, `sitemap.xml`, `robots.txt` e a pasta `api/`
-- [ ] Marquei os produtos que terão **venda direta**
-- [ ] Testei um cadastro de aluno e um pedido de teste
-- [ ] Troquei a senha do admin
+- [ ] Rodei `database-schema.sql` no Supabase
+- [ ] Bucket público `capas` com 4 políticas
+- [ ] Bucket privado `apostilas-pdf` com 3 políticas
+- [ ] "Confirm email" **desligado** no Supabase Auth
+- [ ] Mercado Pago configurado (link **ou** API + webhook)
+- [ ] Variáveis de ambiente salvas na Vercel e **Redeploy** feito (modo "api")
+- [ ] `index.html`, `supabase-config.js`, `vercel.json`, `sitemap.xml`, `robots.txt` na raiz
+- [ ] Pasta `api/` com `mp-checkout.js` e `mp-webhook.js`
+- [ ] Troquei a senha do admin (`admin123` → outra)
+- [ ] Testei um cadastro + um Pix de teste
 
----
-
-**Desenvolvido para +QApostilas** — versão 2.0 · outubro de 2026
+Rodou tudo? Site perfeito. Se travar em algum ponto, me chama.
