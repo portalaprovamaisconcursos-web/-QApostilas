@@ -647,7 +647,8 @@
         /* ==================== NOVA PÁGINA DE PRODUTO (LAYOUT DOMÍNIO) ==================== */
         .product-detail {
             display: grid;
-            grid-template-columns: minmax(320px, 380px) 1fr minmax(280px, 320px);
+            grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(270px, 320px);
+            grid-template-areas: "cover info purchase";
             gap: 28px;
             background: var(--white);
             padding: 28px;
@@ -664,25 +665,87 @@
         .product-cover-shell {
             position: relative;
             width: 100%;
-            aspect-ratio: 3 / 4;
+            aspect-ratio: 21 / 29.7;
             border-radius: 18px;
             overflow: hidden;
             background: linear-gradient(135deg, #f4f7fb 0%, #e9eef7 100%);
             box-shadow: 0 20px 50px -20px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .product-detail-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            padding: 8px;
             transition: transform 0.4s ease;
         }
 
         .product-detail-image:hover { transform: scale(1.02); }
 
+        /* ==================== PATCH v2 (vendas próprias / estados / conta) ==================== */
+        .hidden { display: none !important; }
+        .v2-modal { max-width: 640px; width: min(94vw, 640px); }
+        .v2-modal .modal-body { max-height: 74vh; overflow-y: auto; }
+
+        .v2-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .v2-tab {
+            border: 1px solid var(--border); background: var(--white); color: var(--text);
+            padding: 9px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .v2-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .v2-pedido-card {
+            border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 12px; background: var(--white);
+        }
+        .v2-pedido-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--text-muted); }
+        .v2-resumo-compra {
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 16px;
+            background: linear-gradient(135deg, #f7faff 0%, #eef4ff 100%); display: flex; flex-direction: column; gap: 4px;
+        }
+        .v2-resumo-valor { font-size: 24px; font-weight: 800; color: var(--success); }
+        .v2-aviso { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 6px 0 14px; }
+
+        .v2-sucesso { text-align: center; }
+        .v2-sucesso-icon { font-size: 44px; color: var(--success); margin-bottom: 8px; }
+        .v2-codigo-box {
+            border: 2px dashed var(--success); border-radius: 14px; padding: 12px; margin: 14px 0;
+            display: flex; flex-direction: column; gap: 4px; background: #f3fff7;
+        }
+        .v2-codigo-box span { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+        .v2-codigo-box strong { font-size: 20px; letter-spacing: 1px; color: #15803d; }
+        .v2-pix-box { border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-top: 12px; text-align: left; }
+        .v2-chave-pix { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .v2-chave-pix code { background: #f1f5f9; padding: 8px 10px; border-radius: 8px; word-break: break-all; }
+
+        .v2-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .v2-kpi {
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--white);
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .v2-kpi span { font-size: 12px; color: var(--text-muted); }
+        .v2-kpi strong { font-size: 22px; }
+
+        .btn-buy-proprio { background: #16A34A !important; color: #fff !important; border-color: #16A34A !important; }
+        .btn-buy-proprio:hover { background: #15803D !important; }
+        .btn-buy-hotmart { background: #EA580C !important; color: #fff !important; border-color: #EA580C !important; }
+        .btn-buy-hotmart:hover { background: #C2410C !important; }
+        .btn-buy-parceiro { background: #DC2626 !important; color: #fff !important; border-color: #DC2626 !important; }
+        .btn-buy-parceiro:hover { background: #B91C1C !important; }
+
+        .v2-venda-selo {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
+            font-size: 11.5px; font-weight: 700; margin-bottom: 10px; color: #fff;
+        }
+        .v2-upload-box { border: 1px dashed var(--border); border-radius: 14px; padding: 12px; background: #fafcff; }
+        .v2-upload-preview { max-width: 130px; border-radius: 10px; border: 1px solid var(--border); margin-top: 8px; display: block; }
+        .dropdown-secondary-menu, .dropdown-menu { max-height: 60vh; overflow-y: auto; }
+
         @media (max-width: 1024px) {
             .product-detail {
-                grid-template-columns: minmax(280px, 360px) minmax(260px, 300px);
+                grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
                 grid-template-areas:
                     "cover info"
                     "purchase purchase"
@@ -2362,7 +2425,7 @@
                 <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
             </ul>
             
-            <button class="btn-admin" onclick="document.getElementById('accountModal').style.display='flex'">
+            <button class="btn-admin" onclick="openAccountModal()">
                 <i class="fas fa-user"></i>
                 <span id="accountButtonLabel">Minha conta</span>
             </button>
@@ -2680,9 +2743,21 @@
                             <small style="color:var(--text-muted)">Aparece no QR Code gerado pelo site para o cliente pagar e cai direto na sua conta/maquininha.</small>
                         </div>
                         <div class="form-group">
-                            <label><i class="fas fa-qrcode" style="color:#00B1EA"></i> Access Token Mercado Pago <small style="font-weight:400;color:var(--text-muted)">(opcional — habilita checkout transparente)</small></label>
+                            <label><i class="fas fa-qrcode" style="color:#00B1EA"></i> Public Key Mercado Pago <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
                             <input type="text" name="mercadopago_public_key" id="config_mercadopago_public_key" placeholder="APP_USR-xxxxxxxx">
-                            <small style="color:var(--text-muted)">Com isso o cliente compra Pix ou cartão 12x sem sair do seu site.</small>
+                            <small style="color:var(--text-muted)">O Access Token (secreto) vai nos secrets da Edge Function — nunca no site.</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card" style="color:var(--success)"></i> Máximo de parcelas (cartão)</label>
+                            <input type="number" min="1" max="24" name="mercadopago_parcelas" id="config_mercadopago_parcelas" placeholder="12">
+                            <small style="color:var(--text-muted)">Usado no seletor de parcelamento do checkout do site.</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-link" style="color:var(--primary)"></i> Link de pagamento Mercado Pago <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                            <input type="url" name="mercadopago_checkout_url" id="config_mercadopago_checkout_url" placeholder="https://mpago.la/xxxxxxx">
+                            <small style="color:var(--text-muted)">Se você preferir vender por link, cole aqui. O site envia o nº do pedido junto.</small>
                         </div>
                     </div>
 
@@ -2815,15 +2890,43 @@
                             <textarea name="descricao" id="product_descricao" required></textarea>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>📱 URL da Capa Digital *</label>
-                                <input type="url" name="capa_url" id="product_capa_url" required placeholder="https://...capa-digital.jpg">
+                        <div class="v2-upload-box" style="margin-bottom:18px;">
+                            <div class="checkbox-group" style="margin-bottom:10px;">
+                                <input type="checkbox" id="capa_modo_upload" onchange="handleCoverModeChange()">
+                                <label>Subir a capa como arquivo (em vez de usar link)</label>
                             </div>
-                            <div class="form-group">
-                                <label>📖 URL da Capa Impressa <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>📱 Capa Digital — link <small style="font-weight:400;color:var(--text-muted)">(produtos já cadastrados continuam por link)</small></label>
+                                    <input type="url" name="capa_url" id="product_capa_url" placeholder="https://...capa-digital.jpg">
+                                    <input type="hidden" name="capa_storage_path" id="product_capa_storage_path">
+                                </div>
+                                <div class="form-group">
+                                    <label>📱 Capa Digital — arquivo (JPG/PNG/WebP)</label>
+                                    <input type="file" id="product_capa_file" class="hidden" accept="image/*" onchange="onCoverFilePicked(this, 'product_capa_url', 'product_capa_preview')">
+                                    <small style="color:var(--text-muted)">Se enviar arquivo, ele vai para o bucket “apostilas” e a URL é preenchida automaticamente.</small>
+                                    <img id="product_capa_preview" class="v2-upload-preview hidden" alt="Prévia da capa">
+                                </div>
                             </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>📖 Capa Impressa — link <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                    <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                                    <input type="hidden" name="capa_impresso_storage_path" id="product_capa_impresso_storage_path">
+                                </div>
+                                <div class="form-group">
+                                    <label>📖 Capa Impressa — arquivo (opcional)</label>
+                                    <input type="file" id="product_capa_file_impresso" accept="image/*" onchange="onCoverFilePicked(this, 'product_capa_url_impresso', 'product_capa_impresso_preview')">
+                                    <img id="product_capa_impresso_preview" class="v2-upload-preview hidden" alt="Prévia da capa impressa">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="v2-upload-box" style="margin-bottom:18px;">
+                            <label style="font-weight:700; display:block; margin-bottom:6px;"><i class="fas fa-file-pdf" style="color:#DC2626"></i> PDF da apostila (entrega automática)</label>
+                            <input type="file" id="product_arquivo_pdf_file" accept="application/pdf">
+                            <input type="hidden" name="arquivo_pdf_path" id="product_arquivo_pdf_path">
+                            <small style="color:var(--text-muted)">O PDF fica em bucket privado e é liberado por link temporário após o pagamento. Deixe vazio para manter o PDF atual.</small>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
@@ -2893,15 +2996,17 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Tipo de Botão *</label>
+                                <label>Tipo de venda *</label>
                                 <select name="tipo_botao" id="product_tipo_botao" required onchange="handlePurchaseTypeChange(true)">
-                                    <option value="hotmart">Hotmart</option>
-                                    <option value="parceiro">Site Parceiro</option>
+                                    <option value="proprio">Produto próprio (vende no nosso site)</option>
+                                    <option value="hotmart">Hotmart (afiliado/nosso)</option>
+                                    <option value="parceiro">Site parceiro / terceiros</option>
                                 </select>
+                                <small style="color:var(--text-muted)">Próprio = checkout no site (verde) • Hotmart (laranja) • Parceiro (vermelho).</small>
                             </div>
                             <div class="form-group">
-                                <label>Link de Compra *</label>
-                                <input type="url" name="link_compra" id="product_link_compra" required>
+                                <label>Link de Compra <small style="font-weight:400;color:var(--text-muted)">(Hotmart/parceiro; opcional no próprio)</small></label>
+                                <input type="url" name="link_compra" id="product_link_compra">
                             </div>
                         </div>
                         
@@ -3627,12 +3732,12 @@
         }
 
         function getProductImageByFormat(produto, format = null) {
-            if (!produto) return 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
+            if (!produto) return getCoverPlaceholder();
             const selectedFormat = format || getSelectedProductFormat(produto);
             if (selectedFormat === 'impressa' && produto.capa_url_impresso) {
                 return produto.capa_url_impresso;
             }
-            return produto.capa_url || produto.capa_url_impresso || 'https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila';
+            return produto.capa_url || produto.capa_url_impresso || getCoverPlaceholder();
         }
 
         function getInstallmentText(price, installments) {
@@ -3675,12 +3780,11 @@
                             ${formats.map(format => `<option value="${format.value}" ${format.value === currentOffer.value ? 'selected' : ''}>${format.label}</option>`).join('')}
                         </select>
                     ` : `<div class="purchase-box-label-static">${currentOffer.badge}</div>`}
-                    <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'} purchase-box-action" onclick="buyProduct(event, '${produto.link_compra}')">
-                        ${currentOffer.buttonText}
-                    </button>
-                    <button type="button" class="btn" style="width:100%;margin-top:8px;background:#fff;border:2px solid var(--success);color:#16A34A;" onclick="handleCheckoutClick(${produto.id}, '${(produto.titulo || '').replace(/'/g, "\\'")}', ${currentOffer.price})">
-                        <i class="fas fa-bolt"></i> Comprar direto no site
-                    </button>
+                    ${(() => { const vt = getVendaTipo(produto); const vm = getVendaMeta(vt); return `
+                    <span class="v2-venda-selo" style="background:${vm.cor};">${vt === 'proprio' ? '<i class="fas fa-bolt"></i>' : '<i class="fas fa-cart-shopping"></i>'} ${vm.label}</span>
+                    <button type="button" class="btn ${vm.classe} purchase-box-action" onclick="handleBuyClick(event, ${produto.id})">
+                        <i class="fas fa-cart-shopping"></i> Comprar
+                    </button>`; })()}
                     <p class="purchase-box-secure"><i class="fas fa-lock"></i> Compra segura</p>
                 </div>
             `;
@@ -3851,9 +3955,6 @@
                 <!-- Hero Banner -->
                 ${heroHtml}
 
-                <!-- Apostilas por Estado (substitui a seção de Categorias) -->
-                ${renderEstadosSection()}
-
                 <!-- Destaques -->
                 ${renderProductsSection('destaques', '🔥 Destaques', destaques)}
 
@@ -4002,7 +4103,7 @@
             return `
                 <div class="product-card" onclick="navigateTo('produto', '${produto.slug}')">
                     <div class="product-image-container">
-                        <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
+                        <img src="${produto.capa_url || produto.capa_url_impresso || getCoverPlaceholder()}" alt="${produto.titulo}" class="product-image" loading="lazy" onerror="this.onerror=null;this.src=getCoverPlaceholder();">
                         <div class="product-badges">
                             ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check"></i> Atualizado</span>' : ''}
                             ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
@@ -4012,6 +4113,7 @@
                     <div class="product-content">
                         <div class="product-category">${categoria}${categoria2 ? `<span style="margin:0 4px;opacity:0.5;">•</span>${categoria2}` : ''}</div>
                         <h3 class="product-title">${produto.titulo}</h3>
+                        <div style="margin-top:6px;"><span class="v2-venda-selo" style="background:${getVendaMeta(getVendaTipo(produto)).cor};">${getVendaMeta(getVendaTipo(produto)).label}</span></div>
                         <div class="product-prices">
                             <div class="price-version-row">
                                 <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
@@ -4118,7 +4220,7 @@
                         src="${getProductImageByFormat(produto)}"
                         alt="${produto.titulo} - ${getSelectedProductFormat(produto) === 'impressa' ? 'Impressa' : 'Digital'}"
                         class="product-detail-image"
-                        onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'"
+                        onerror="this.onerror=null;this.src=getCoverPlaceholder();"
                     >
                 </div>
             `;
@@ -5125,6 +5227,16 @@
         }
 
         function fillProductForm(produto = {}) {
+            ['product_capa_file', 'product_capa_file_impresso', 'product_arquivo_pdf_file'].forEach(fileId => {
+                const fileEl = document.getElementById(fileId);
+                if (fileEl) fileEl.value = '';
+            });
+            ['product_capa_preview', 'product_capa_impresso_preview'].forEach(prevId => {
+                const prev = document.getElementById(prevId);
+                if (prev) prev.classList.add('hidden');
+            });
+            const modoUpload = document.getElementById('capa_modo_upload');
+            if (modoUpload) { modoUpload.checked = false; handleCoverModeChange(); }
             Object.keys(produto).forEach(key => {
                 const el = document.getElementById(`product_${key}`);
                 if (!el) return;
@@ -5234,6 +5346,21 @@
                     productData[key] = value;
                 }
             }
+
+            // ---- PATCH v2: envia capas/PDF escolhidos por arquivo antes de gravar ----
+            try {
+                await processarUploadsProduto();
+            } catch (uploadErr) {
+                console.error(uploadErr);
+                showAlert('Falha no envio de arquivo: ' + (uploadErr.message || uploadErr), 'error');
+                return;
+            }
+
+            const tipoVendaEl = document.getElementById('product_tipo_botao');
+            if (tipoVendaEl) productData.tipo_venda = tipoVendaEl.value;
+            if (productData.tipo_botao === 'proprio') delete productData.link_compra;
+            if (typeof prepararCamposV2 === 'function') await prepararCamposV2(productData);
+            if (!productData.capa_url && !productData.capa_storage_path) { showAlert('Informe a capa (link ou arquivo).', 'warning'); return; }
 
             // Tipagem básica (evita falhas de insert/update por tipo)
             if (productData.categoria_id) productData.categoria_id = parseInt(productData.categoria_id);
@@ -5893,6 +6020,7 @@
         }
 
     </script>
+<script src="/v2_features.js"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
@@ -5901,6 +6029,7 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
