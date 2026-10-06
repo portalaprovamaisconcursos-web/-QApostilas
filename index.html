@@ -2160,6 +2160,405 @@
             padding-bottom: 6px;
             border-bottom: 2px solid var(--border);
         }
+/* ==================== v2.0 — ESTADOS / ÁREA DO ALUNO / PEDIDOS / CHECKOUT ==================== */
+
+/* ---------- Menu de Estados ---------- */
+.nav-secondary-inner .dropdown-secondary-menu.estados-menu {
+    min-width: 470px;
+    left: 0;
+    transform: none;
+    padding: 14px;
+}
+.estados-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+}
+.estados-grid a {
+    justify-content: center !important;
+    padding: 9px 4px !important;
+    border-radius: 8px;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    color: #1a3a6b !important;
+    background: #f1f5fd;
+    text-transform: none !important;
+}
+.estados-grid a:hover {
+    background: var(--primary) !important;
+    color: #fff !important;
+}
+.estados-menu-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e6eefb;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* ---------- Botão Área do Aluno ---------- */
+.btn-student {
+    background: var(--primary);
+    color: var(--white);
+    padding: 10px 18px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+.btn-student:hover { background: var(--primary-dark); transform: translateY(-2px); }
+.navbar-actions { display: flex; align-items: center; gap: 10px; }
+.header-top-user { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- Selo de status do pedido (mesmas cores da legenda do painel) ---------- */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1f2937;
+    background: #f1f5f9;
+    border: 1px solid rgba(0,0,0,0.06);
+    white-space: nowrap;
+}
+.status-square {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+    flex: 0 0 auto;
+}
+.legendas-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 18px;
+    background: #f1f3f5;
+    border: 1px solid var(--border);
+    border-top: 3px solid #fff;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+.legendas-box strong { font-size: 13px; color: var(--text); }
+.legenda-item { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: #374151; }
+
+/* ---------- Filtros em grade (padrão do painel de pedidos) ---------- */
+.filtro-box {
+    background: #f1f3f5;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 0 18px;
+    margin-bottom: 20px;
+}
+.filtro-box-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 10px 10px 0 0;
+}
+.filtro-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 26px;
+    padding: 18px 16px 4px;
+}
+.filtro-grid .filtro-row {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) 22px;
+    align-items: center;
+    gap: 8px;
+}
+.filtro-grid .filtro-row label {
+    font-size: 13px;
+    color: #374151;
+    text-align: right;
+    font-weight: 500;
+}
+.filtro-grid .filtro-row input,
+.filtro-grid .filtro-row select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    font-family: inherit;
+}
+.filtro-help {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #d7dbe0;
+    color: #4b5563;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+}
+.filtro-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 6px 16px 0;
+}
+@media (max-width: 1100px) {
+    .filtro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+    .filtro-grid { grid-template-columns: 1fr; }
+    .filtro-grid .filtro-row { grid-template-columns: 92px minmax(0, 1fr) 22px; }
+}
+
+/* ---------- Painel de pedidos / clientes ---------- */
+.admin-table-compact th,
+.admin-table-compact td {
+    padding: 10px 12px;
+    font-size: 13px;
+}
+.admin-table-compact thead th {
+    background: #343a40;
+    color: #fff;
+}
+.admin-table-compact tbody tr:nth-child(even) { background: #fafbfc; }
+.row-selected { background: #e8f2ff !important; }
+.icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-dark);
+    cursor: pointer;
+}
+.icon-btn:hover { background: var(--primary-light); }
+.pagto-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-size: 12px; }
+.pagto-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    color: #0b5394;
+    font-size: 12px;
+}
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+.table-toolbar small { color: var(--text-muted); }
+
+/* ---------- Painel da Área do Aluno ---------- */
+.student-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 10000;
+    overflow-y: auto;
+}
+.student-panel.active { display: block; }
+.student-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 18px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.student-header h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.student-tabs {
+    display: flex;
+    gap: 10px;
+    background: var(--white);
+    padding: 14px 30px;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+}
+.student-tab {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.student-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.student-content { padding: 26px 30px 60px; max-width: 1100px; margin: 0 auto; }
+.student-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+}
+.student-order-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+}
+.student-order-row:last-child { border-bottom: none; }
+.student-order-title { font-weight: 700; color: var(--text); }
+.student-order-meta { font-size: 13px; color: var(--text-muted); }
+.auth-switch { text-align: center; margin-top: 14px; font-size: 14px; color: var(--text-muted); }
+.auth-switch a { color: var(--primary); font-weight: 600; cursor: pointer; }
+
+/* ---------- Checkout ---------- */
+.checkout-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.pay-methods { display: grid; gap: 10px; }
+.pay-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+.pay-option:hover { border-color: var(--primary); background: var(--primary-light); }
+.pay-option input { width: auto; }
+.pay-option.selected { border-color: var(--primary); background: var(--primary-light); }
+.pay-option-icon { font-size: 20px; width: 26px; text-align: center; }
+.pay-option-text { display: flex; flex-direction: column; }
+.pay-option-title { font-weight: 700; font-size: 14px; color: var(--text); }
+.pay-option-desc { font-size: 12px; color: var(--text-muted); }
+.checkout-summary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 14px;
+}
+.checkout-summary-line { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.checkout-summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--success);
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+    margin-top: 6px;
+}
+.pix-box {
+    background: #F0FDF4;
+    border: 1px solid #86EFAC;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+    font-size: 14px;
+}
+.pix-key {
+    display: block;
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #166534;
+    word-break: break-all;
+    background: #fff;
+    border: 1px dashed #86EFAC;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+}
+
+/* ---------- Upload de capa no admin ---------- */
+.capa-uploader {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    background: #fbfdff;
+}
+.capa-uploader-row { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.capa-preview {
+    width: 92px;
+    height: 128px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff center/contain no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: center;
+    flex: 0 0 auto;
+}
+.capa-uploader-actions { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 8px; }
+.origem-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+.origem-toggle label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+}
+.origem-toggle input { width: auto; }
+.upload-status { font-size: 12px; color: var(--text-muted); }
+
+/* ---------- Página de produto: foto maior ---------- */
+.product-detail-image,
+.detail-carousel { max-width: 520px; }
+.product-cover-shell { max-width: 520px; }
+.product-detail-image { padding: 14px; cursor: zoom-in; }
+.product-detail-media { align-items: flex-start; }
+.product-zoom {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: zoom-out;
+}
+.product-zoom.active { display: flex; }
+.product-zoom img { max-width: 92vw; max-height: 92vh; object-fit: contain; border-radius: 10px; background: #fff; }
+.product-buy-inline { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.buy-now-btn { width: 100%; justify-content: center; border-radius: 999px; }
+.direct-sale-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #166534;
+    background: #DCFCE7;
+    border-radius: 999px;
+    padding: 5px 11px;
+}
+
     </style>
 </head>
 <body>
@@ -2174,6 +2573,11 @@
             <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
                 <i class="fas fa-headset"></i> Contato
             </a>
+            <span class="header-top-user">
+                <a href="/minha-conta" onclick="event.preventDefault(); openStudentAuth();">
+                    <i class="fas fa-user-graduate"></i> Área do Aluno
+                </a>
+            </span>
         </div>
         <!-- Navbar principal -->
         <nav class="navbar container">
@@ -2204,10 +2608,15 @@
                 <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
             </ul>
             
-            <button class="btn-admin" onclick="openAdminLogin()">
-                <i class="fas fa-lock"></i>
-                Admin
-            </button>
+            <div class="navbar-actions">
+                <button class="btn-student" onclick="openStudentAuth()">
+                    <i class="fas fa-user-circle"></i> <span id="studentButtonLabel">Entrar</span>
+                </button>
+                <button class="btn-admin" onclick="openAdminLogin()">
+                    <i class="fas fa-lock"></i>
+                    Admin
+                </button>
+            </div>
             
             <div class="menu-toggle" onclick="toggleMobileMenu()">
                 <span></span>
@@ -2252,6 +2661,14 @@
                 <a href="/contato" onclick="event.preventDefault(); navigateTo('contato');">
                     <i class="fas fa-headset"></i> Contato
                 </a>
+            </li>
+            <li class="dropdown-secondary">
+                <span>
+                    <i class="fas fa-map-marker-alt"></i> Estados <i class="fas fa-chevron-down" style="font-size:11px;margin-left:2px;"></i>
+                </span>
+                <div class="dropdown-secondary-menu estados-menu" id="estadosDropdown">
+                    <!-- Populado dinamicamente -->
+                </div>
             </li>
         </ul>
     </nav>
@@ -2343,6 +2760,9 @@
             <button class="admin-tab" onclick="switchAdminTab('produtos')">Produtos</button>
             <button class="admin-tab" onclick="switchAdminTab('depoimentos')">Depoimentos</button>
             <button class="admin-tab" onclick="switchAdminTab('categorias')">Categorias</button>
+            <button class="admin-tab" onclick="switchAdminTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</button>
+            <button class="admin-tab" onclick="switchAdminTab('clientes')"><i class="fas fa-users"></i> Clientes</button>
+            <button class="admin-tab" onclick="switchAdminTab('cupons')"><i class="fas fa-tags"></i> Cupons</button>
         </div>
         
         <div class="admin-content">
@@ -2522,6 +2942,61 @@
                         </div>
                     </div>
                     
+                    <div class="admin-section-label"><i class="fas fa-credit-card"></i> Pagamentos e Venda Direta</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-store" style="color:var(--primary)"></i> Modo de checkout</label>
+                            <select name="checkout_modo" id="config_checkout_modo">
+                                <option value="link">Link de pagamento do Mercado Pago (sem backend)</option>
+                                <option value="api">Checkout Pro via API (/api/mp-checkout)</option>
+                            </select>
+                            <small style="color:var(--text-muted)">No modo "link" o botão abre um link de pagamento criado por você no Mercado Pago. No modo "api" o sistema cria a preferência automaticamente com Pix, cartão de crédito e débito (sem boleto).</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-link" style="color:var(--primary)"></i> Link de pagamento Mercado Pago (padrão do site)</label>
+                            <input type="url" name="mp_link_pagamento" id="config_mp_link_pagamento" placeholder="https://mpago.la/...">
+                            <small style="color:var(--text-muted)">Usado quando o produto não tem link próprio.</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-key" style="color:var(--primary)"></i> Chave Pix (recebimento direto)</label>
+                            <input type="text" name="mp_pix_chave" id="config_mp_pix_chave" placeholder="CPF/CNPJ, e-mail, telefone ou chave aleatória">
+                            <small style="color:var(--text-muted)">Mostrada ao cliente que escolher pagar por Pix no site.</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group" style="color:var(--primary)"></i> Máximo de parcelas no cartão de crédito</label>
+                            <input type="number" min="1" max="12" name="mp_parcelas_max" id="config_mp_parcelas_max" value="6">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="mp_pix_ativo" id="config_mp_pix_ativo" checked>
+                            <label for="config_mp_pix_ativo">Aceitar Pix</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="mp_credito_ativo" id="config_mp_credito_ativo" checked>
+                            <label for="config_mp_credito_ativo">Aceitar cartão de crédito</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="mp_debito_ativo" id="config_mp_debito_ativo" checked>
+                            <label for="config_mp_debito_ativo">Aceitar cartão de débito</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="mp_boleto_ativo" id="config_mp_boleto_ativo">
+                            <label for="config_mp_boleto_ativo">Aceitar boleto (desativado)</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user-graduate" style="color:var(--primary)"></i> Área do Aluno</label>
+                            <select name="area_aluno_ativa" id="config_area_aluno_ativa">
+                                <option value="true">Ativada</option>
+                                <option value="false">Desativada</option>
+                            </select>
+                            <small style="color:var(--text-muted)">Permite que o cliente crie login e acompanhe as compras (inclusive as feitas em sites parceiros, se registradas com o mesmo e-mail ou CPF).</small>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save"></i> Salvar Configurações
                     </button>
@@ -2639,14 +3114,69 @@
                             <textarea name="descricao" id="product_descricao" required></textarea>
                         </div>
                         
+                        <div class="admin-section-label" style="margin-top:4px;"><i class="fas fa-image"></i> Capa da apostila</div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>📱 URL da Capa Digital *</label>
-                                <input type="url" name="capa_url" id="product_capa_url" required placeholder="https://...capa-digital.jpg">
+                                <label>Origem da capa</label>
+                                <div class="origem-toggle">
+                                    <label><input type="radio" name="capa_origem" value="link" checked onchange="setCapaOrigem('link')"> Por link (URL)</label>
+                                    <label><input type="radio" name="capa_origem" value="upload" onchange="setCapaOrigem('upload')"> Upload de imagem</label>
+                                </div>
+                                <small style="color:var(--text-muted)">Você pode continuar usando links (como hoje) ou enviar o arquivo da capa direto para o Supabase Storage.</small>
+                            </div>
+                        </div>
+
+                        <div id="capaLinkBox">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>📱 URL da Capa Digital</label>
+                                    <input type="url" name="capa_url" id="product_capa_url" placeholder="https://...capa-digital.jpg">
+                                </div>
+                                <div class="form-group">
+                                    <label>📖 URL da Capa Impressa <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                    <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="capaUploadBox" class="hidden">
+                            <div class="capa-uploader" style="margin-bottom:16px;">
+                                <div class="capa-uploader-row">
+                                    <div class="capa-preview" id="preview_capa_digital">Capa digital</div>
+                                    <div class="capa-uploader-actions">
+                                        <label style="font-weight:600;">📱 Enviar Capa Digital (JPG, PNG ou WEBP — até 5 MB)</label>
+                                        <input type="file" accept="image/*" onchange="handleCapaUpload(this, 'product_capa_url', 'preview_capa_digital')">
+                                        <span class="upload-status" id="status_preview_capa_digital"></span>
+                                        <input type="hidden" name="capa_storage_path" id="product_capa_storage_path">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="capa-uploader">
+                                <div class="capa-uploader-row">
+                                    <div class="capa-preview" id="preview_capa_impressa">Capa impressa</div>
+                                    <div class="capa-uploader-actions">
+                                        <label style="font-weight:600;">📖 Enviar Capa Impressa (opcional)</label>
+                                        <input type="file" accept="image/*" onchange="handleCapaUpload(this, 'product_capa_url_impresso', 'preview_capa_impressa')">
+                                        <span class="upload-status" id="status_preview_capa_impressa"></span>
+                                        <input type="hidden" name="capa_impresso_storage_path" id="product_capa_impresso_storage_path">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>🛒 Venda direta no site</label>
+                                <select name="venda_direta" id="product_venda_direta">
+                                    <option value="false">Não — só link externo (Hotmart/parceiro)</option>
+                                    <option value="true">Sim — checkout no próprio site</option>
+                                </select>
+                                <small style="color:var(--text-muted)">Marque "Sim" para vender direto no site (Pix, crédito e débito). O link externo continua funcionando como alternativa.</small>
                             </div>
                             <div class="form-group">
-                                <label>📖 URL da Capa Impressa <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                                <label>🔗 Link de pagamento Mercado Pago do produto <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
+                                <input type="url" name="mp_link_pagamento" id="product_mp_link_pagamento" placeholder="https://mpago.la/...">
+                                <small style="color:var(--text-muted)">Se ficar vazio, o site usa o link padrão definido em Configurações → Pagamentos.</small>
                             </div>
                         </div>
                         <div class="form-row">
@@ -2721,11 +3251,12 @@
                                 <select name="tipo_botao" id="product_tipo_botao" required onchange="handlePurchaseTypeChange(true)">
                                     <option value="hotmart">Hotmart</option>
                                     <option value="parceiro">Site Parceiro</option>
+                                    <option value="site">Venda direta (site próprio)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Link de Compra *</label>
-                                <input type="url" name="link_compra" id="product_link_compra" required>
+                                <label>Link de Compra <small style="font-weight:400;color:var(--text-muted)">(obrigatório para Hotmart/parceiro)</small></label>
+                                <input type="url" name="link_compra" id="product_link_compra">
                             </div>
                         </div>
                         
@@ -2950,7 +3481,485 @@
                     </table>
                 </div>
             </div>
+            <!-- ==================== PEDIDOS ==================== -->
+            <div class="admin-section" id="admin-pedidos">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:14px; flex-wrap:wrap;">
+                    <h3 style="margin:0;"><i class="fas fa-shopping-cart"></i> Pedidos</h3>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="openManualOrderForm()"><i class="fas fa-plus"></i> Lançar pedido manual</button>
+                        <button class="btn" onclick="exportarPedidosCsv()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    </div>
+                </div>
+
+                <div class="filtro-box">
+                    <div class="filtro-box-header">Filtro</div>
+                    <div class="filtro-grid">
+                        <div class="filtro-row">
+                            <label for="ped_filter_codigo">Pedido:</label>
+                            <input type="text" id="ped_filter_codigo" placeholder="">
+                            <span class="filtro-help" title="Número do pedido (ex: 00401905)">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_de">De:</label>
+                            <input type="date" id="ped_filter_de">
+                            <span class="filtro-help" title="Data inicial da compra">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_produto">Produto:</label>
+                            <input type="text" id="ped_filter_produto" placeholder="">
+                            <span class="filtro-help" title="Parte do título ou do código da apostila">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_cpf">CPF/CNPJ:</label>
+                            <input type="text" id="ped_filter_cpf" placeholder="">
+                            <span class="filtro-help" title="Somente números ou com pontuação">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_ate">Até:</label>
+                            <input type="date" id="ped_filter_ate">
+                            <span class="filtro-help" title="Data final da compra">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_origem">Fabricante:</label>
+                            <select id="ped_filter_origem">
+                                <option value="">--</option>
+                                <option value="site">Site próprio</option>
+                                <option value="hotmart">Hotmart</option>
+                                <option value="parceiro">Site parceiro</option>
+                                <option value="manual">Lançado no painel</option>
+                            </select>
+                            <span class="filtro-help" title="Origem da venda">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_status">Status:</label>
+                            <select id="ped_filter_status">
+                                <option value="todos_pedidos_ativos">Todos pedidos ativos</option>
+                                <option value="">Todos os status</option>
+                                <option value="aguardando_pagamento">Aguardando pagamento</option>
+                                <option value="em_analise">Em análise</option>
+                                <option value="pagamento_confirmado">Pagamento confirmado</option>
+                                <option value="em_andamento">Em andamento</option>
+                                <option value="entregue_transportadora">Entregue a transportadora</option>
+                                <option value="entregue">Entregue</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                            <span class="filtro-help" title="Status do pedido">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_pagto">Pago via.:</label>
+                            <select id="ped_filter_pagto">
+                                <option value="">--</option>
+                                <option value="pix">Pix</option>
+                                <option value="credito">Cartão de crédito</option>
+                                <option value="debito">Cartão de débito</option>
+                                <option value="boleto">Boleto</option>
+                                <option value="externo">Site externo</option>
+                            </select>
+                            <span class="filtro-help" title="Forma de pagamento">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_cupom">Cupom:</label>
+                            <input type="text" id="ped_filter_cupom" placeholder="">
+                            <span class="filtro-help" title="Código do cupom usado">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_exibir">Exibir:</label>
+                            <select id="ped_filter_exibir">
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200" selected>200</option>
+                                <option value="500">500</option>
+                            </select>
+                            <span class="filtro-help" title="Quantidade de linhas por página">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_envio">Envio:</label>
+                            <select id="ped_filter_envio">
+                                <option value="">--</option>
+                                <option value="digital">Digital</option>
+                                <option value="transportadora">Transportadora</option>
+                            </select>
+                            <span class="filtro-help" title="Tipo de entrega">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_conheceu">Conheceu:</label>
+                            <select id="ped_filter_conheceu">
+                                <option value="">--</option>
+                                <option value="site">Site</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="google">Google</option>
+                                <option value="indicacao">Indicação</option>
+                            </select>
+                            <span class="filtro-help" title="Como o cliente chegou até você">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="ped_filter_tipo">Tipo:</label>
+                            <select id="ped_filter_tipo">
+                                <option value="">Todas</option>
+                                <option value="venda">Venda</option>
+                                <option value="pre_venda">Pré-venda</option>
+                            </select>
+                            <span class="filtro-help" title="Tipo do pedido">?</span>
+                        </div>
+                    </div>
+                    <div class="filtro-actions">
+                        <button class="btn btn-primary" onclick="renderOrdersTable()"><i class="fas fa-search"></i> Buscar</button>
+                        <button class="btn" onclick="clearOrderFilters()"><i class="fas fa-eraser"></i> Limpar</button>
+                    </div>
+                </div>
+
+                <div class="legendas-box">
+                    <strong>Legendas</strong>
+                    <span class="legenda-item"><span class="status-square" style="background:#F5A623"></span> Aguardando pagamento</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#9B7EDE"></span> Em análise</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#3FA34D"></span> Pagamento confirmado</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#4A90E2"></span> Em andamento</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#A8D04A"></span> Entregue a transportadora</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#1F9E8F"></span> Entregue</span>
+                    <span class="legenda-item"><span class="status-square" style="background:#E06C5A"></span> Cancelado</span>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table admin-table-compact">
+                        <thead>
+                            <tr>
+                                <th style="width:38px;"><input type="checkbox" id="ped_check_all" onchange="toggleAllOrders(this.checked)"></th>
+                                <th style="width:150px;">Status</th>
+                                <th style="width:110px;">Pedido</th>
+                                <th>Cliente</th>
+                                <th style="width:150px;">Data da compra</th>
+                                <th style="width:90px;">Frete</th>
+                                <th style="width:120px;">Pagto</th>
+                                <th style="width:100px;">Total</th>
+                                <th style="width:60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando pedidos…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-toolbar">
+                    <small id="ordersTableSummary">—</small>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-sm" style="background:#6b7280;color:#fff;" onclick="bulkOrderStatus('em_andamento')"><i class="fas fa-truck"></i> Marcar em andamento</button>
+                        <button class="btn btn-sm btn-success" onclick="bulkOrderStatus('entregue')"><i class="fas fa-check"></i> Marcar entregue</button>
+                        <button class="btn btn-sm btn-delete" onclick="bulkOrderStatus('cancelado')"><i class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== CLIENTES ==================== -->
+            <div class="admin-section" id="admin-clientes">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:14px; flex-wrap:wrap;">
+                    <h3 style="margin:0;"><i class="fas fa-users"></i> Cadastro de clientes</h3>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="showClientForm()"><i class="fas fa-user-plus"></i> Incluir novo cliente</button>
+                        <button class="btn" onclick="exportarClientesCsv()"><i class="fas fa-file-csv"></i> Exportar registros</button>
+                    </div>
+                </div>
+
+                <div id="clientFormContainer" class="hidden">
+                    <form id="clientForm" onsubmit="saveClient(event)" style="background:var(--bg); padding:22px; border-radius:12px; margin-bottom:22px; border:2px solid var(--border);">
+                        <input type="hidden" id="client_id">
+                        <h4 style="margin-bottom:16px;">Dados do cliente</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome completo *</label>
+                                <input type="text" id="client_nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail *</label>
+                                <input type="email" id="client_email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Telefone</label>
+                                <input type="text" id="client_telefone" placeholder="(11) 9 9999-9999">
+                            </div>
+                            <div class="form-group">
+                                <label>CPF</label>
+                                <input type="text" id="client_cpf" placeholder="000.000.000-00">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Perfil do cliente</label>
+                                <select id="client_perfil">
+                                    <option value="aluno">Aluno</option>
+                                    <option value="cliente">Cliente</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Data de nascimento</label>
+                                <input type="date" id="client_data_nascimento">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="client_aprovacao_pendente">
+                                <label for="client_aprovacao_pendente">Aguardando aprovação de perfil</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="client_aceita_marketing">
+                                <label for="client_aceita_marketing">Aceita receber novidades</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="client_ativo" checked>
+                                <label for="client_ativo">Ativo</label>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; margin-top:10px;">
+                            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Salvar cliente</button>
+                            <button type="button" class="btn" onclick="hideClientForm()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table admin-table-compact">
+                        <thead>
+                            <tr>
+                                <th style="width:38px;"><input type="checkbox" id="cli_check_all" onchange="toggleAllClients(this.checked)"></th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th style="width:150px;">Telefone</th>
+                                <th style="width:110px;">Cadastro</th>
+                                <th style="width:150px;">Último Pedido</th>
+                                <th style="width:70px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody">
+                            <tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Carregando clientes…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-toolbar">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-sm" style="background:#fff;border:1px solid var(--border);color:#6b7280;" onclick="deleteSelectedClients()"><i class="fas fa-trash"></i> Excluir registros selecionados</button>
+                        <button class="btn btn-sm btn-primary" onclick="exportarClientesCsv()"><i class="fas fa-download"></i> Exportar registros</button>
+                    </div>
+                    <small id="clientsTableSummary">—</small>
+                </div>
+
+                <div class="filtro-box" style="margin-top:22px;">
+                    <div class="filtro-box-header">Filtro de clientes</div>
+                    <div class="filtro-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+                        <div class="filtro-row">
+                            <label for="cli_filter_nome">Nome / CPF:</label>
+                            <input type="text" id="cli_filter_nome" oninput="renderClientsTable()">
+                            <span class="filtro-help" title="Nome ou CPF do cliente">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="cli_filter_email">E-mail:</label>
+                            <input type="text" id="cli_filter_email" oninput="renderClientsTable()">
+                            <span class="filtro-help" title="E-mail do cliente">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="cli_filter_perfil">Perfil:</label>
+                            <select id="cli_filter_perfil" onchange="renderClientsTable()">
+                                <option value="">Todos</option>
+                                <option value="aluno">Aluno</option>
+                                <option value="cliente">Cliente</option>
+                            </select>
+                            <span class="filtro-help" title="Perfil do cliente">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="cli_filter_pendente">Aprovação:</label>
+                            <select id="cli_filter_pendente" onchange="renderClientsTable()">
+                                <option value="">Todos</option>
+                                <option value="sim">Aguardando aprovação de perfil</option>
+                                <option value="nao">Já aprovados</option>
+                            </select>
+                            <span class="filtro-help" title="Clientes aguardando aprovação de perfil">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="cli_filter_ultimo">Último pedido:</label>
+                            <select id="cli_filter_ultimo" onchange="renderClientsTable()">
+                                <option value="">Selecione…</option>
+                                <option value="com">Com pedido</option>
+                                <option value="sem">Sem pedido</option>
+                            </select>
+                            <span class="filtro-help" title="Clientes com ou sem pedido registrado">?</span>
+                        </div>
+                        <div class="filtro-row">
+                            <label for="cli_filter_estado">Estado:</label>
+                            <select id="cli_filter_estado" onchange="renderClientsTable()">
+                                <option value="">Todos</option>
+                            </select>
+                            <span class="filtro-help" title="Estado (UF) do cliente">?</span>
+                        </div>
+                        <div class="filtro-row" style="grid-column:1 / -1;">
+                            <label for="cli_filter_aniversariantes">Aniversariantes:</label>
+                            <span>
+                                <label style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#374151;">
+                                    <input type="checkbox" id="cli_filter_aniversariantes" style="width:auto;" onchange="renderClientsTable()"> Apenas aniversariantes do mês
+                                </label>
+                            </span>
+                            <span class="filtro-help" title="Mostra apenas clientes que fazem aniversário no mês atual">?</span>
+                        </div>
+                    </div>
+                    <div class="filtro-actions">
+                        <button class="btn btn-primary" onclick="renderClientsTable()"><i class="fas fa-search"></i> Buscar</button>
+                        <button class="btn" onclick="clearClientFilters()"><i class="fas fa-eraser"></i> Limpar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== CUPONS ==================== -->
+            <div class="admin-section" id="admin-cupons">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:14px; flex-wrap:wrap;">
+                    <h3 style="margin:0;"><i class="fas fa-tags"></i> Cupons de desconto</h3>
+                    <button class="btn btn-primary" onclick="showCouponForm()"><i class="fas fa-plus"></i> Novo cupom</button>
+                </div>
+
+                <div id="couponFormContainer" class="hidden">
+                    <form id="couponForm" onsubmit="saveCoupon(event)" style="background:var(--bg); padding:22px; border-radius:12px; margin-bottom:22px; border:2px solid var(--border);">
+                        <input type="hidden" id="coupon_id">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Código *</label>
+                                <input type="text" id="coupon_codigo" required placeholder="Ex: APROVADO10" style="text-transform:uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select id="coupon_tipo">
+                                    <option value="percentual">Percentual (%)</option>
+                                    <option value="fixo">Valor fixo (R$)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Valor</label>
+                                <input type="number" step="0.01" id="coupon_valor" value="10">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Valor mínimo do pedido (R$)</label>
+                                <input type="number" step="0.01" id="coupon_valor_minimo" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Uso máximo</label>
+                                <input type="number" id="coupon_uso_maximo" placeholder="Deixe vazio para ilimitado">
+                            </div>
+                            <div class="form-group">
+                                <label>Válido até</label>
+                                <input type="date" id="coupon_valido_ate">
+                            </div>
+                        </div>
+                        <div class="checkbox-group" style="margin-bottom:14px;">
+                            <input type="checkbox" id="coupon_ativo" checked>
+                            <label for="coupon_ativo">Ativo</label>
+                        </div>
+                        <div style="display:flex; gap:12px;">
+                            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Salvar cupom</button>
+                            <button type="button" class="btn" onclick="hideCouponForm()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table admin-table-compact">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>Mínimo</th>
+                                <th>Usos</th>
+                                <th>Válido até</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="couponsTableBody">
+                            <tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cupom cadastrado.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+    </div>
+    <!-- ==================== PAINEL DA ÁREA DO ALUNO ==================== -->
+    <div class="student-panel" id="studentPanel">
+        <div class="student-header">
+            <h2><i class="fas fa-user-graduate"></i> Área do Aluno — <span id="studentName">+QApostilas</span></h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn" style="background:rgba(255,255,255,0.15);color:#fff;" onclick="closeStudentArea()"><i class="fas fa-times"></i> Fechar</button>
+                <button class="btn btn-accent" onclick="studentLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </div>
+        <div class="student-tabs">
+            <button class="student-tab active" onclick="switchStudentTab('pedidos', event)"><i class="fas fa-shopping-bag"></i> Minhas compras</button>
+            <button class="student-tab" onclick="switchStudentTab('dados', event)"><i class="fas fa-id-card"></i> Meus dados</button>
+        </div>
+        <div class="student-content">
+            <div id="student-orders">
+                <div id="studentOrdersList">
+                    <div class="loading"><div class="loading-spinner"></div><p>Carregando suas compras…</p></div>
+                </div>
+            </div>
+            <div id="student-data" class="hidden">
+                <form class="student-card" onsubmit="saveStudentData(event)">
+                    <h3 style="margin-bottom:16px;">Meus dados</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome completo *</label>
+                            <input type="text" id="student_nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail (login)</label>
+                            <input type="email" id="student_email" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="student_telefone" placeholder="(11) 9 9999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" id="student_cpf" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data de nascimento</label>
+                            <input type="date" id="student_data_nascimento">
+                        </div>
+                        <div class="checkbox-group" style="align-self:end;">
+                            <input type="checkbox" id="student_aceita_marketing">
+                            <label for="student_aceita_marketing">Quero receber novidades e promoções</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="margin-top:10px;"><i class="fas fa-save"></i> Salvar meus dados</button>
+                </form>
+                <div class="student-card">
+                    <h3 style="margin-bottom:8px;">Vincular compras antigas</h3>
+                    <p style="color:var(--text-muted); font-size:14px; margin-bottom:12px;">
+                        Se você já comprou usando outro e-mail ou CPF (inclusive em sites parceiros), informe abaixo para que essas compras apareçam aqui.
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail usado na compra</label>
+                            <input type="email" id="link_email" placeholder="outro-email@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF usado na compra</label>
+                            <input type="text" id="link_cpf" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="linkOrdersToStudent()"><i class="fas fa-link"></i> Vincular compras</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="product-zoom" id="productZoom" onclick="closeProductZoom()">
+        <img id="productZoomImage" src="" alt="Capa ampliada">
     </div>
 
     <!-- ==================== SUPABASE CONFIG ==================== -->
@@ -3128,8 +4137,13 @@
                 renderContato();
             } else if (parts[0] === 'categoria' && parts[1]) {
                 filterByCategory(decodeURIComponent(parts[1]), { navigate: false });
+            } else if (parts[0] === 'estado' && parts[1]) {
+                filterByEstado(decodeURIComponent(parts[1]), { navigate: false });
             } else if (parts[0] === 'produto' && parts[1]) {
                 renderProductDetail(decodeURIComponent(parts[1]), { navigate: false });
+            } else if (currentPath === '/minha-conta') {
+                renderHome();
+                setTimeout(() => { if (appState.aluno) { openStudentArea(); } else { openStudentAuth(); } }, 200);
             } else {
                 renderNotFound();
             }
@@ -3158,9 +4172,22 @@
             }
 
             await loadData();
+
+            // Restaura a sessão do aluno (Supabase Auth)
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                if (data && data.session && data.session.user) {
+                    appState.aluno = { id: data.session.user.id, email: data.session.user.email };
+                    await carregarPerfilAluno();
+                }
+            } catch (e) {
+                console.warn('Sessão do aluno não restaurada:', e.message || e);
+            }
+
             window.addEventListener('popstate', () => router());
             router();
             updateFooterSocials();
+            updateStudentButton();
         });
 
         // ==================== DATA LOADING ====================
@@ -3185,6 +4212,9 @@
                     showAlert('Alguns dados não puderam ser carregados. Verifique o Supabase/console.', 'warning');
                 }
             }
+
+            updateEstadosDropdown();
+            updateStudentButton();
         }
 
         async function loadConfig() {
@@ -3351,6 +4381,7 @@
             ];
 
             updateCategoriesDropdown();
+            updateEstadosDropdown();
         }
 
         // ==================== NAVIGATION ====================
@@ -3499,9 +4530,18 @@
                             ${formats.map(format => `<option value="${format.value}" ${format.value === currentOffer.value ? 'selected' : ''}>${format.label}</option>`).join('')}
                         </select>
                     ` : `<div class="purchase-box-label-static">${currentOffer.badge}</div>`}
-                    <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'} purchase-box-action" onclick="buyProduct(event, '${produto.link_compra}')">
-                        ${currentOffer.buttonText}
-                    </button>
+                    ${isDirectSale(produto) ? `
+                        <button class="btn btn-success purchase-box-action buy-now-btn" onclick="openCheckout('${produto.slug}')">
+                            <i class="fas fa-shopping-cart"></i> Comprar agora
+                        </button>
+                        <p class="purchase-box-secure" style="margin-top:8px;">
+                            <i class="fas fa-qrcode"></i> Pix, cartão de crédito em até ${parseInt((appState.config || {}).mp_parcelas_max, 10) || 6}x ou débito
+                        </p>
+                    ` : `
+                        <button class="btn ${produto.tipo_botao === 'hotmart' ? 'btn-accent' : 'btn-partner'} purchase-box-action" onclick="buyProduct(event, '${produto.link_compra}')">
+                            <i class="fas fa-external-link-alt"></i> ${currentOffer.buttonText}
+                        </button>
+                    `}
                     <p class="purchase-box-secure"><i class="fas fa-lock"></i> Compra segura</p>
                 </div>
             `;
@@ -3672,24 +4712,29 @@
                 <!-- Hero Banner -->
                 ${heroHtml}
 
-                <!-- Categories -->
-                <section class="categories-section">
+                <!-- Categorias (barra compacta, sem botões grandes) -->
+                <section class="categories-section" style="padding: 26px 20px 4px;">
                     <div class="container">
-                        <div class="section-header">
-                            <h2 class="section-title">Categorias</h2>
-                            <p class="section-subtitle">Encontre apostilas por área de interesse</p>
-                        </div>
-                        <div class="categories-grid">
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center;">
                             ${appState.categorias.map(cat => `
-                                <div class="category-card" onclick="navigateTo('categoria', '${cat.slug}')">
-                                    <div class="category-icon">
-                                        ${cat.imagem_url
-                                            ? `<img src="${cat.imagem_url}" alt="${cat.nome}" style="width:60px;height:60px;object-fit:cover;border-radius:12px;">`
-                                            : `<i class="fas ${cat.icone}"></i>`
-                                        }
-                                    </div>
-                                    <div class="category-name">${cat.nome}</div>
-                                </div>
+                                <button class="btn btn-sm" style="background:var(--white); border:1px solid var(--border); color:var(--text);" onclick="navigateTo('categoria', '${cat.slug}')">
+                                    <i class="fas ${cat.icone || 'fa-tag'}" style="color:var(--primary);"></i> ${cat.nome}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Apostilas divididas por estado -->
+                <section class="products-section" style="padding: 26px 20px 44px;">
+                    <div class="container">
+                        <div class="section-header" style="margin-bottom:18px;">
+                            <h2 class="section-title" style="font-size:clamp(22px,3vw,30px);">📍 Apostilas por estado</h2>
+                            <p class="section-subtitle">Clique na sigla do seu estado e veja as apostilas da sua região</p>
+                        </div>
+                        <div class="estados-grid" style="grid-template-columns:repeat(9, minmax(0,1fr));">
+                            ${UFS_BRASIL.map(([uf, nome]) => `
+                                <a href="/estado/${uf}" title="${nome}" onclick="event.preventDefault(); filterByEstado('${uf}');">${uf}</a>
                             `).join('')}
                         </div>
                     </div>
@@ -3800,6 +4845,12 @@
                             ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:2px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
                             ` : ''}
                         </div>
+                        ${isDirectSale(produto) ? `
+                            <button class="btn btn-success btn-sm" style="width:100%; justify-content:center; margin-top:8px;"
+                                onclick="event.stopPropagation(); openCheckout('${produto.slug}')">
+                                <i class="fas fa-shopping-cart"></i> Comprar
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -3889,8 +4940,13 @@
                         src="${getProductImageByFormat(produto)}"
                         alt="${produto.titulo} - ${getSelectedProductFormat(produto) === 'impressa' ? 'Impressa' : 'Digital'}"
                         class="product-detail-image"
+                        title="Clique para ampliar"
+                        onclick="openProductZoom(this.src)"
                         onerror="this.src='https://via.placeholder.com/400x550/1E90FF/FFFFFF?text=Apostila'"
                     >
+                </div>
+                <div style="text-align:center; margin-top:8px; font-size:12px; color:var(--text-muted);">
+                    <i class="fas fa-search-plus"></i> Clique na imagem para ampliar
                 </div>
             `;
 
@@ -3926,6 +4982,7 @@
                                     ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
                                     ${getProductAvailabilityBadge(produto)}
                                     ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+                                    ${isDirectSale(produto) ? '<span class="direct-sale-flag"><i class="fas fa-bolt"></i> Compra imediata no site</span>' : ''}
                                 </div>
 
                                 <div class="product-benefits">
@@ -4479,14 +5536,19 @@
             updateFooterSocials();
         }
 
-        function switchAdminTab(tab) {
-            // Update tabs
+        function switchAdminTab(tab, ev) {
+            const alvo = (ev && ev.target) || (window.event && window.event.target);
             document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            if (alvo) alvo.classList.add('active');
 
-            // Update sections
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`admin-${tab}`).classList.add('active');
+            const secao = document.getElementById(`admin-${tab}`);
+            if (secao) secao.classList.add('active');
+
+            // Carrega pedidos / clientes / cupons ao abrir essas abas
+            if (tab === 'pedidos' || tab === 'clientes' || tab === 'cupons') {
+                loadPedidosClientes();
+            }
         }
 
         async function loadAdminData() {
@@ -4845,6 +5907,10 @@
                 originSelect.value = 'manual';
             }
 
+            if (purchaseType === 'site' && (forceSuggestion || !codeInput.value)) {
+                originSelect.value = 'manual';
+            }
+
             handleProductCodeModeChange();
         }
 
@@ -4891,6 +5957,11 @@
             document.getElementById('product_tipo_editorial').value = 'normal';
             document.getElementById('product_codigo_origem').value = 'automatico';
             document.getElementById('product_codigo').value = '';
+            setCapaOrigem('link');
+            const prevD = document.getElementById('preview_capa_digital');
+            if (prevD) prevD.style.backgroundImage = '';
+            const prevI = document.getElementById('preview_capa_impressa');
+            if (prevI) prevI.style.backgroundImage = '';
             handlePurchaseTypeChange(true);
             calcularParcela();
         }
@@ -4909,6 +5980,15 @@
                 const typeEl = document.getElementById('product_tipo_editorial');
                 if (typeEl) typeEl.value = 'normal';
             }
+            const origemRadio = document.querySelector(`input[name="capa_origem"][value="${produto.capa_origem || 'link'}"]`);
+            if (origemRadio) {
+                origemRadio.checked = true;
+                setCapaOrigem(produto.capa_origem || 'link');
+            }
+            const prevDigital = document.getElementById('preview_capa_digital');
+            if (prevDigital && produto.capa_url) prevDigital.style.backgroundImage = `url('${produto.capa_url}')`;
+            const prevImpressa = document.getElementById('preview_capa_impressa');
+            if (prevImpressa && produto.capa_url_impresso) prevImpressa.style.backgroundImage = `url('${produto.capa_url_impresso}')`;
             calcularParcela();
             handlePurchaseTypeChange(false);
         }
@@ -5014,6 +6094,12 @@
             if (productData.preco) productData.preco = parseFloat(productData.preco);
             if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
             if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
+            if (productData.venda_direta !== undefined) productData.venda_direta = String(productData.venda_direta) === 'true';
+            if (productData.permite_parcelamento !== undefined) productData.permite_parcelamento = String(productData.permite_parcelamento) === 'true';
+            if (productData.tipo_botao === 'site' && !productData.link_compra) {
+                productData.link_compra = productData.mp_link_pagamento || 'https://www.maisqapostilas.com.br';
+            }
+            if (productData.venda_direta === true && productData.tipo_botao !== 'site') productData.tipo_botao = 'site';
 
             // Generate slug
             if (!productData.slug && productData.titulo) {
@@ -5663,14 +6749,1644 @@
             }
         }
 
+
+        // ============================================================================
+        // ==================== v2.0 — VENDA DIRETA / ÁREA DO ALUNO / PEDIDOS =========
+        // ============================================================================
+
+        const UFS_BRASIL = [
+            ['AC', 'Acre'], ['AL', 'Alagoas'], ['AP', 'Amapá'], ['AM', 'Amazonas'], ['BA', 'Bahia'],
+            ['CE', 'Ceará'], ['DF', 'Distrito Federal'], ['ES', 'Espírito Santo'], ['GO', 'Goiás'],
+            ['MA', 'Maranhão'], ['MT', 'Mato Grosso'], ['MS', 'Mato Grosso do Sul'], ['MG', 'Minas Gerais'],
+            ['PA', 'Pará'], ['PB', 'Paraíba'], ['PR', 'Paraná'], ['PE', 'Pernambuco'], ['PI', 'Piauí'],
+            ['RJ', 'Rio de Janeiro'], ['RN', 'Rio Grande do Norte'], ['RS', 'Rio Grande do Sul'],
+            ['RO', 'Rondônia'], ['RR', 'Roraima'], ['SC', 'Santa Catarina'], ['SP', 'São Paulo'],
+            ['SE', 'Sergipe'], ['TO', 'Tocantins']
+        ];
+
+        const PEDIDO_STATUS = {
+            aguardando_pagamento: { label: 'Aguardando pagamento', cor: '#F5A623' },
+            em_analise: { label: 'Em análise', cor: '#9B7EDE' },
+            pagamento_confirmado: { label: 'Pagamento confirmado', cor: '#3FA34D' },
+            em_andamento: { label: 'Em andamento', cor: '#4A90E2' },
+            entregue_transportadora: { label: 'Entregue a transportadora', cor: '#A8D04A' },
+            entregue: { label: 'Entregue', cor: '#1F9E8F' },
+            cancelado: { label: 'Cancelado', cor: '#E06C5A' }
+        };
+
+        const PAGTO_LABEL = {
+            pix: 'Pix',
+            credito: 'Crédito',
+            debito: 'Débito',
+            boleto: 'Boleto',
+            externo: 'Site externo',
+            '': '—'
+        };
+
+        const ORIGEM_LABEL = {
+            site: 'Site próprio',
+            hotmart: 'Hotmart',
+            parceiro: 'Site parceiro',
+            manual: 'Lançado no painel'
+        };
+
+        // Estado novo (não interfere no appState existente)
+        appState.pedidos = [];
+        appState.clientes = [];
+        appState.cupons = [];
+        appState.aluno = null;           // { id, email, nome }
+        appState.clientePerfil = null;   // registro da tabela clientes
+        appState.checkoutProduto = null;
+        appState.checkoutFormato = null;
+        appState.selectedOrders = new Set();
+        appState.selectedClients = new Set();
+
+        function escapeHtml(value) {
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function onlyDigits(value) {
+            return String(value || '').replace(/\D+/g, '');
+        }
+
+        function formatCpf(value) {
+            const d = onlyDigits(value).slice(0, 11);
+            if (d.length !== 11) return value || '';
+            return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
+        function formatDateBR(value, withTime) {
+            if (!value) return '—';
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return '—';
+            const data = d.toLocaleDateString('pt-BR');
+            if (!withTime) return data;
+            return `${data} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        function getUfName(uf) {
+            const found = UFS_BRASIL.find(item => item[0] === String(uf || '').toUpperCase());
+            return found ? found[1] : (uf || '');
+        }
+
+        // ==================== MENU DE ESTADOS ====================
+        function updateEstadosDropdown() {
+            const container = document.getElementById('estadosDropdown');
+            if (!container) return;
+            const estadosComProduto = new Set(
+                (appState.produtos || []).map(p => String(p.estado || '').toUpperCase()).filter(Boolean)
+            );
+            const links = UFS_BRASIL.map(([uf, nome]) => {
+                const ativo = estadosComProduto.has(uf);
+                return `<a href="/estado/${uf}" title="${escapeHtml(nome)}"
+                    onclick="event.preventDefault(); filterByEstado('${uf}');"
+                    style="${ativo ? '' : 'opacity:0.55;'}">${uf}</a>`;
+            }).join('');
+            container.innerHTML = `
+                <div class="estados-grid">${links}</div>
+                <div class="estados-menu-footer">
+                    <i class="fas fa-info-circle"></i> Clique na sigla do estado para ver as apostilas daquela região.
+                </div>
+            `;
+        }
+
+        function filterByEstado(uf, options = {}) {
+            const sigla = String(uf || '').toUpperCase();
+            if (options.navigate !== false) {
+                const path = `/estado/${sigla}`;
+                if (window.location.pathname !== path) window.history.pushState({}, '', path);
+                filterByEstado(sigla, { navigate: false });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            appState.currentView = 'estado';
+            appState.filters = { search: '', estado: sigla, categoria: '', type: '' };
+            const filtered = (appState.produtos || []).filter(p => String(p.estado || '').toUpperCase() === sigla);
+            renderFilteredResults(filtered, `📍 Apostilas de ${sigla} — ${getUfName(sigla)}`, {
+                title: `Apostilas de ${getUfName(sigla)} | +QApostilas`,
+                description: `Confira as apostilas para concursos de ${getUfName(sigla)} na +QApostilas.`,
+                path: `/estado/${sigla}`,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: `Apostilas de ${getUfName(sigla)} | +QApostilas`,
+                    description: `Confira as apostilas para concursos de ${getUfName(sigla)} na +QApostilas.`,
+                    url: getAbsoluteUrl(`/estado/${sigla}`)
+                }
+            });
+        }
+
+        // ==================== VENDA DIRETA ====================
+        function isDirectSale(produto) {
+            return Boolean(produto) && (produto.tipo_botao === 'site' || produto.venda_direta === true);
+        }
+
+        function getPaymentOptions() {
+            const cfg = appState.config || {};
+            const ativo = (key, padrao) => (cfg[key] === undefined || cfg[key] === '' ? padrao : String(cfg[key]) === 'true');
+            const opcoes = [];
+            if (ativo('mp_pix_ativo', true)) {
+                opcoes.push({ id: 'pix', icon: 'fa-qrcode', title: 'Pix', desc: 'Aprovação imediata e liberação rápida do material' });
+            }
+            if (ativo('mp_credito_ativo', true)) {
+                const max = parseInt(cfg.mp_parcelas_max, 10) || (window.APP_CONFIG && window.APP_CONFIG.mp_parcelas_max) || 6;
+                opcoes.push({ id: 'credito', icon: 'fa-credit-card', title: 'Cartão de crédito', desc: `Em até ${max}x`, parcelas: max });
+            }
+            if (ativo('mp_debito_ativo', true)) {
+                opcoes.push({ id: 'debito', icon: 'fa-money-check-dollar', title: 'Cartão de débito', desc: 'Débito à vista na sua conta' });
+            }
+            if (ativo('mp_boleto_ativo', false)) {
+                opcoes.push({ id: 'boleto', icon: 'fa-barcode', title: 'Boleto', desc: 'Compensação em até 2 dias úteis' });
+            }
+            return opcoes;
+        }
+
+        function openCheckout(produtoRef) {
+            const produto = (appState.produtos || []).find(p => p.slug === produtoRef || p.id === produtoRef);
+            if (!produto) return;
+
+            const formats = getProductFormats(produto);
+            const oferta = getCurrentProductOffer(produto);
+            if (!oferta) {
+                showAlert('Este produto ainda não tem preço cadastrado para venda no site.', 'warning');
+                return;
+            }
+            appState.checkoutProduto = produto;
+            appState.checkoutFormato = oferta.value;
+
+            const opcoes = getPaymentOptions();
+            if (!opcoes.length) {
+                showAlert('Nenhuma forma de pagamento está habilitada no painel.', 'warning');
+                return;
+            }
+
+            const aluno = appState.aluno || {};
+            const cliente = appState.clientePerfil || {};
+            const cpfPrefill = cliente.cpf || '';
+            const telPrefill = cliente.telefone || '';
+
+            document.getElementById('modalTitle').textContent = 'Finalizar compra';
+            document.getElementById('modalBody').innerHTML = `
+                <form onsubmit="submitCheckout(event)">
+                    <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; margin-bottom:18px;">
+                        <img src="${escapeHtml(getProductImageByFormat(produto, oferta.value))}" alt="${escapeHtml(produto.titulo)}"
+                             style="width:90px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="flex:1; min-width:220px;">
+                            <strong style="display:block; font-size:15px;">${escapeHtml(produto.titulo)}</strong>
+                            <span style="font-size:13px; color:var(--text-muted);">
+                                ${escapeHtml(produto.orgao || '')}${produto.cargo ? ' • ' + escapeHtml(produto.cargo) : ''}
+                            </span>
+                            ${formats.length > 1 ? `
+                                <label class="purchase-box-label" style="margin-top:10px;">Formato</label>
+                                <select id="checkout_formato" class="purchase-box-select" style="margin-bottom:0;" onchange="updateCheckoutFormato(this.value)">
+                                    ${formats.map(f => `<option value="${f.value}" ${f.value === oferta.value ? 'selected' : ''}>${f.label} — R$ ${formatPrice(f.price)}</option>`).join('')}
+                                </select>
+                            ` : `<div class="purchase-box-label-static" style="margin-top:10px;">${oferta.badge}</div>`}
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label" style="margin-top:0;"><i class="fas fa-user"></i> Seus dados</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome completo *</label>
+                            <input type="text" name="nome" id="checkout_nome" required value="${escapeHtml(cliente.nome || aluno.nome || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail *</label>
+                            <input type="email" name="email" id="checkout_email" required value="${escapeHtml(aluno.email || cliente.email || '')}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefone / WhatsApp *</label>
+                            <input type="text" name="telefone" id="checkout_telefone" required value="${escapeHtml(telPrefill)}" placeholder="(11) 9 9999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF *</label>
+                            <input type="text" name="cpf" id="checkout_cpf" required value="${escapeHtml(cpfPrefill)}" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cupom de desconto</label>
+                            <input type="text" id="checkout_cupom" placeholder="Ex: APROVADO10" style="text-transform:uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Como nos conheceu</label>
+                            <select id="checkout_conheceu">
+                                <option value="">--</option>
+                                <option value="site">Site</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="google">Google</option>
+                                <option value="indicacao">Indicação</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-credit-card"></i> Forma de pagamento</div>
+                    <div class="pay-methods">
+                        ${opcoes.map((op, i) => `
+                            <label class="pay-option ${i === 0 ? 'selected' : ''}" onclick="selectPayOption('${op.id}')">
+                                <input type="radio" name="forma_pagamento" value="${op.id}" ${i === 0 ? 'checked' : ''} onchange="selectPayOption('${op.id}')">
+                                <span class="pay-option-icon"><i class="fas ${op.icon}"></i></span>
+                                <span class="pay-option-text">
+                                    <span class="pay-option-title">${op.title}</span>
+                                    <span class="pay-option-desc">${op.desc}</span>
+                                </span>
+                            </label>
+                        `).join('')}
+                    </div>
+
+                    <div id="parcelasBox" class="hidden" style="margin-top:14px;">
+                        <label class="purchase-box-label">Número de parcelas</label>
+                        <select id="checkout_parcelas" class="purchase-box-select"></select>
+                    </div>
+
+                    <div class="checkout-summary" style="margin-top:18px;">
+                        <div class="checkout-summary-line"><span>Produto</span><span>R$ ${formatPrice(oferta.price)}</span></div>
+                        <div class="checkout-summary-line"><span>Desconto</span><span id="checkout_desconto">R$ 0,00</span></div>
+                        <div class="checkout-summary-line"><span>Frete</span><span id="checkout_frete">R$ 0,00</span></div>
+                        <div class="checkout-summary-total"><span>Total</span><span id="checkout_total">R$ ${formatPrice(oferta.price)}</span></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success purchase-box-action" style="margin-top:18px;">
+                        <i class="fas fa-lock"></i> Finalizar e ir para o pagamento
+                    </button>
+                    <p class="purchase-box-secure">
+                        <i class="fas fa-shield-alt"></i> Seus dados são usados apenas para processar o pedido.
+                    </p>
+                </form>
+            `;
+            document.getElementById('globalModal').classList.add('active');
+            selectPayOption(opcoes[0].id);
+        }
+
+        function selectPayOption(forma) {
+            document.querySelectorAll('.pay-option').forEach(el => {
+                const input = el.querySelector('input');
+                el.classList.toggle('selected', Boolean(input && input.checked));
+            });
+            const box = document.getElementById('parcelasBox');
+            const select = document.getElementById('checkout_parcelas');
+            if (!box || !select) return;
+
+            if (forma === 'credito') {
+                const max = parseInt((appState.config || {}).mp_parcelas_max, 10) || 6;
+                const produto = appState.checkoutProduto;
+                const oferta = getCurrentProductOffer(produto) || { price: 0 };
+                const limiteProduto = parseInt(produto && produto.parcelas, 10) || max;
+                const total = Math.max(1, Math.min(max, limiteProduto, 12));
+                let html = '';
+                for (let i = 1; i <= total; i += 1) {
+                    const valor = Number(oferta.price) / i;
+                    html += `<option value="${i}">${i}x de R$ ${formatPrice(valor)} ${i >= 2 ? 'sem juros' : 'à vista'}</option>`;
+                }
+                select.innerHTML = html;
+                box.classList.remove('hidden');
+            } else {
+                select.innerHTML = '<option value="1">1x (à vista)</option>';
+                box.classList.add('hidden');
+            }
+        }
+
+        function updateCheckoutFormato(formato) {
+            const produto = appState.checkoutProduto;
+            if (!produto) return;
+            appState.checkoutFormato = formato;
+            const oferta = (getProductFormats(produto) || []).find(f => f.value === formato);
+            if (!oferta) return;
+            document.getElementById('checkout_total').textContent = `R$ ${formatPrice(oferta.price)}`;
+            document.getElementById('checkout_frete').textContent = `R$ ${formatPrice(0)}`;
+            selectPayOption((document.querySelector('input[name="forma_pagamento"]:checked') || {}).value || 'pix');
+        }
+
+        async function calcularDescontoCupom(codigo, valor) {
+            if (!codigo) return { desconto: 0, cupom: null };
+            const { data, error } = await supabaseClient
+                .from('cupons')
+                .select('*')
+                .eq('codigo', String(codigo).trim().toUpperCase())
+                .eq('ativo', true)
+                .maybeSingle();
+            if (error || !data) return { desconto: 0, cupom: null };
+            if (data.valido_ate && new Date(data.valido_ate) < new Date()) return { desconto: 0, cupom: null };
+            if (Number(data.valor_minimo || 0) > Number(valor || 0)) return { desconto: 0, cupom: null };
+            const desconto = data.tipo === 'fixo'
+                ? Number(data.valor || 0)
+                : Number(valor || 0) * (Number(data.valor || 0) / 100);
+            return { desconto: Math.min(desconto, Number(valor || 0)), cupom: data };
+        }
+
+        async function submitCheckout(event) {
+            event.preventDefault();
+            const produto = appState.checkoutProduto;
+            if (!produto) return;
+
+            const formato = (document.getElementById('checkout_formato') || {}).value || appState.checkoutFormato || 'digital';
+            const oferta = (getProductFormats(produto) || []).find(f => f.value === formato) || getCurrentProductOffer(produto);
+            const formaPagamento = (document.querySelector('input[name="forma_pagamento"]:checked') || {}).value;
+            const parcelas = parseInt((document.getElementById('checkout_parcelas') || {}).value, 10) || 1;
+            const cupomCodigo = ((document.getElementById('checkout_cupom') || {}).value || '').trim().toUpperCase();
+
+            const payload = {
+                cliente_nome: document.getElementById('checkout_nome').value.trim(),
+                cliente_email: document.getElementById('checkout_email').value.trim().toLowerCase(),
+                cliente_telefone: document.getElementById('checkout_telefone').value.trim(),
+                cliente_cpf: onlyDigits(document.getElementById('checkout_cpf').value),
+                cliente_user_id: appState.aluno ? appState.aluno.id : null,
+                produto_id: produto.id,
+                produto_titulo: produto.titulo,
+                produto_codigo: produto.codigo || null,
+                formato,
+                origem: 'site',
+                tipo: produto.pre_venda ? 'pre_venda' : 'venda',
+                status: 'aguardando_pagamento',
+                valor: Number(oferta.price || 0),
+                frete: 0,
+                forma_pagamento: formaPagamento,
+                parcelas,
+                cupom: cupomCodigo || null,
+                envio_status: formato === 'impressa' ? 'transportadora' : 'digital',
+                observacoes: 'Como nos conheceu: ' + ((document.getElementById('checkout_conheceu') || {}).value || 'não informado')
+            };
+
+            try {
+                const { desconto } = await calcularDescontoCupom(cupomCodigo, payload.valor);
+                payload.cupom_desconto = desconto;
+                payload.total = payload.valor + payload.frete - desconto;
+
+                const { data, error } = await supabaseClient
+                    .from('pedidos')
+                    .insert([payload])
+                    .select('*')
+                    .single();
+                if (error) throw error;
+
+                await registrarClienteDoPedido(payload);
+
+                if (formaPagamento === 'pix') {
+                    renderPixInstructions(data);
+                    return;
+                }
+
+                const modo = (appState.config.checkout_modo || (window.APP_CONFIG && window.APP_CONFIG.checkout_modo) || 'link');
+                if (modo === 'api') {
+                    const resposta = await fetch('/api/mp-checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pedido_id: data.id, parcelas_max: (appState.config.mp_parcelas_max || 6) })
+                    });
+                    const json = await resposta.json();
+                    if (!resposta.ok || !json.init_point) {
+                        throw new Error((json && json.error) || 'Não foi possível iniciar o pagamento no Mercado Pago.');
+                    }
+                    window.location.href = json.init_point;
+                    return;
+                }
+
+                const link = produto.mp_link_pagamento || (appState.config || {}).mp_link_pagamento;
+                if (link) {
+                    document.getElementById('modalBody').innerHTML = `
+                        <div style="text-align:center; padding:10px;">
+                            <div style="font-size:54px; color:var(--success); margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
+                            <h3 style="margin-bottom:10px;">Pedido ${escapeHtml(data.codigo || data.id)} registrado!</h3>
+                            <p style="color:var(--text-muted); margin-bottom:18px;">
+                                Agora você será levado ao Mercado Pago para concluir o pagamento.
+                                Assim que ele for confirmado, a compra aparece na sua Área do Aluno.
+                            </p>
+                            <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="width:100%; justify-content:center;">
+                                <i class="fas fa-external-link-alt"></i> Ir para o pagamento
+                            </a>
+                            <button class="btn" style="margin-top:12px; width:100%; justify-content:center;" onclick="closeModal(); openStudentAuth();">
+                                <i class="fas fa-user-graduate"></i> Ver minhas compras
+                            </button>
+                        </div>
+                    `;
+                    window.open(link, '_blank', 'noopener,noreferrer');
+                    return;
+                }
+
+                renderPixInstructions(data, 'Nenhum link de pagamento configurado no painel. Use o Pix abaixo ou fale conosco pelo WhatsApp.');
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao registrar o pedido: ' + (error.message || error), 'error');
+            }
+        }
+
+        function renderPixInstructions(pedido, aviso) {
+            const chave = (appState.config || {}).mp_pix_chave || '';
+            document.getElementById('modalTitle').textContent = 'Pague com Pix';
+            document.getElementById('modalBody').innerHTML = `
+                <div style="text-align:center;">
+                    <div style="font-size:50px; color:var(--success); margin-bottom:8px;"><i class="fas fa-qrcode"></i></div>
+                    <h3 style="margin-bottom:6px;">Pedido ${escapeHtml(pedido.codigo || pedido.id)} registrado!</h3>
+                    <p style="color:var(--text-muted);">Valor: <strong>R$ ${formatPrice(pedido.total || pedido.valor || 0)}</strong></p>
+                </div>
+                ${aviso ? `<div class="alert alert-warning" style="margin-top:14px;"><i class="fas fa-info-circle"></i><span>${escapeHtml(aviso)}</span></div>` : ''}
+                <div class="pix-box">
+                    <strong><i class="fas fa-key"></i> Chave Pix para pagamento</strong>
+                    ${chave
+                        ? `<span class="pix-key" id="pixKeyValue">${escapeHtml(chave)}</span>
+                           <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="copiarChavePix('${escapeHtml(chave)}')">
+                               <i class="fas fa-copy"></i> Copiar chave Pix
+                           </button>`
+                        : `<p style="color:#92400E;">A chave Pix ainda não foi cadastrada no painel (Configurações → Pagamentos). Envie o comprovante pelo WhatsApp informando o número do pedido.</p>`}
+                    <p style="margin-top:12px; font-size:13px; color:#166534;">
+                        <i class="fas fa-info-circle"></i> Envie o comprovante informando o pedido <strong>${escapeHtml(pedido.codigo || pedido.id)}</strong>.
+                        Assim que confirmarmos, o status muda para "Pagamento confirmado".
+                    </p>
+                </div>
+                <button class="btn btn-success" style="width:100%; justify-content:center; margin-top:16px;" onclick="closeModal(); openStudentAuth();">
+                    <i class="fas fa-user-graduate"></i> Acompanhar na Área do Aluno
+                </button>
+            `;
+        }
+
+        function copiarChavePix(chave) {
+            const done = () => showAlert('Chave Pix copiada!', 'success');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(chave).then(done).catch(() => {
+                    window.prompt('Copie a chave Pix abaixo:', chave);
+                });
+            } else {
+                window.prompt('Copie a chave Pix abaixo:', chave);
+            }
+        }
+
+        async function registrarClienteDoPedido(payload) {
+            try {
+                const { data } = await supabaseClient
+                    .from('clientes')
+                    .select('id')
+                    .or(`email.eq.${payload.cliente_email}${payload.cliente_cpf ? `,cpf.eq.${payload.cliente_cpf}` : ''}`)
+                    .limit(1);
+                if (data && data.length) {
+                    await supabaseClient.from('clientes').update({
+                        telefone: payload.cliente_telefone,
+                        cpf: payload.cliente_cpf,
+                        updated_at: new Date().toISOString()
+                    }).eq('id', data[0].id);
+                    return data[0].id;
+                }
+                await supabaseClient.from('clientes').insert([{
+                    nome: payload.cliente_nome,
+                    email: payload.cliente_email,
+                    telefone: payload.cliente_telefone,
+                    cpf: payload.cliente_cpf || null,
+                    user_id: payload.cliente_user_id,
+                    perfil: 'cliente'
+                }]);
+            } catch (error) {
+                console.warn('Não foi possível sincronizar o cadastro do cliente:', error.message || error);
+            }
+        }
+
+        // ==================== ÁREA DO ALUNO ====================
+        function updateStudentButton() {
+            const label = document.getElementById('studentButtonLabel');
+            if (!label) return;
+            if (appState.aluno) {
+                const primeiro = String(appState.clientePerfil && appState.clientePerfil.nome || appState.aluno.email || '').split(' ')[0];
+                label.textContent = primeiro || 'Minha conta';
+            } else {
+                label.textContent = 'Entrar';
+            }
+        }
+
+        function openStudentAuth() {
+            if (appState.aluno) {
+                openStudentArea();
+                return;
+            }
+            document.getElementById('modalTitle').textContent = 'Área do Aluno';
+            document.getElementById('modalBody').innerHTML = `
+                <div style="text-align:center; margin-bottom:18px;">
+                    <div style="font-size:46px; color:var(--primary);"><i class="fas fa-user-graduate"></i></div>
+                    <p style="color:var(--text-muted); margin-top:8px;">
+                        Entre para acompanhar todas as suas compras — inclusive as feitas em sites parceiros.
+                    </p>
+                </div>
+                <form id="studentLoginForm" onsubmit="handleStudentLogin(event)">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="login_email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login_password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </form>
+                <div class="auth-switch">
+                    Ainda não tem conta? <a onclick="showStudentSignup()">Criar minha conta grátis</a>
+                </div>
+            `;
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        function showStudentSignup() {
+            document.getElementById('modalTitle').textContent = 'Criar conta de aluno';
+            document.getElementById('modalBody').innerHTML = `
+                <form id="studentSignupForm" onsubmit="handleStudentSignup(event)">
+                    <div class="form-group">
+                        <label>Nome completo *</label>
+                        <input type="text" id="signup_nome" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail *</label>
+                            <input type="email" id="signup_email" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="signup_telefone" placeholder="(11) 9 9999-9999">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" id="signup_cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>Senha (mínimo 6 caracteres) *</label>
+                            <input type="password" id="signup_password" required minlength="6" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width:100%; justify-content:center;">
+                        <i class="fas fa-user-plus"></i> Criar conta
+                    </button>
+                </form>
+                <div class="auth-switch">
+                    Já tem conta? <a onclick="openStudentAuth()">Fazer login</a>
+                </div>
+            `;
+        }
+
+        async function handleStudentLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login_email').value.trim().toLowerCase();
+            const senha = document.getElementById('login_password').value;
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+                if (error) throw error;
+                appState.aluno = { id: data.user.id, email: data.user.email };
+                await carregarPerfilAluno();
+                await vincularPedidosPorEmail();
+                closeModal();
+                updateStudentButton();
+                showAlert('Bem-vindo(a) de volta!', 'success');
+                openStudentArea();
+            } catch (error) {
+                console.error(error);
+                showAlert('Não foi possível entrar: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function handleStudentSignup(event) {
+            event.preventDefault();
+            const nome = document.getElementById('signup_nome').value.trim();
+            const email = document.getElementById('signup_email').value.trim().toLowerCase();
+            const telefone = document.getElementById('signup_telefone').value.trim();
+            const cpf = onlyDigits(document.getElementById('signup_cpf').value);
+            const senha = document.getElementById('signup_password').value;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password: senha });
+                if (error) throw error;
+                const user = data.user;
+                if (!user) throw new Error('Confirme o cadastro pelo e-mail enviado e depois faça login.');
+
+                await supabaseClient.from('clientes').upsert([{
+                    user_id: user.id,
+                    nome,
+                    email,
+                    telefone,
+                    cpf: cpf || null,
+                    perfil: 'aluno'
+                }], { onConflict: 'user_id' });
+
+                appState.aluno = { id: user.id, email: user.email || email };
+                await carregarPerfilAluno();
+                await vincularPedidosPorEmail();
+                closeModal();
+                updateStudentButton();
+                showAlert('Conta criada com sucesso!', 'success');
+                openStudentArea();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao criar a conta: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function carregarPerfilAluno() {
+            if (!appState.aluno) return;
+            const { data, error } = await supabaseClient
+                .from('clientes')
+                .select('*')
+                .eq('user_id', appState.aluno.id)
+                .maybeSingle();
+            if (error) {
+                console.warn('Perfil do aluno não carregado:', error.message);
+                appState.clientePerfil = null;
+                return;
+            }
+            if (!data) {
+                await supabaseClient.from('clientes').insert([{
+                    user_id: appState.aluno.id,
+                    nome: (appState.aluno.email || '').split('@')[0],
+                    email: appState.aluno.email,
+                    perfil: 'aluno'
+                }]);
+                return;
+            }
+            appState.clientePerfil = data;
+        }
+
+        async function vincularPedidosPorEmail() {
+            if (!appState.aluno) return 0;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('pedidos')
+                    .update({ cliente_user_id: appState.aluno.id })
+                    .is('cliente_user_id', null)
+                    .eq('cliente_email', appState.aluno.email)
+                    .select('id');
+                if (error) throw error;
+                return (data || []).length;
+            } catch (error) {
+                console.warn('Não foi possível vincular pedidos automaticamente:', error.message || error);
+                return 0;
+            }
+        }
+
+        async function studentLogout() {
+            try { await supabaseClient.auth.signOut(); } catch (e) { /* ignora */ }
+            appState.aluno = null;
+            appState.clientePerfil = null;
+            closeStudentArea();
+            updateStudentButton();
+            showAlert('Você saiu da sua conta.', 'info');
+        }
+
+        function openStudentArea() {
+            const panel = document.getElementById('studentPanel');
+            if (!panel) return;
+            if (!appState.aluno) { openStudentAuth(); return; }
+            document.getElementById('studentName').textContent =
+                (appState.clientePerfil && appState.clientePerfil.nome) || appState.aluno.email;
+            const dados = document.getElementById('student-data');
+            const pedidos = document.getElementById('student-orders');
+            if (dados) dados.classList.add('hidden');
+            if (pedidos) pedidos.classList.remove('hidden');
+            document.querySelectorAll('.student-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+            panel.classList.add('active');
+            preencherDadosAluno();
+            renderStudentOrders();
+        }
+
+        function closeStudentArea() {
+            const panel = document.getElementById('studentPanel');
+            if (panel) panel.classList.remove('active');
+        }
+
+        function switchStudentTab(tab, ev) {
+            if (ev && ev.target) {
+                document.querySelectorAll('.student-tab').forEach(t => t.classList.remove('active'));
+                ev.target.classList.add('active');
+            }
+            document.getElementById('student-orders').classList.toggle('hidden', tab !== 'pedidos');
+            document.getElementById('student-data').classList.toggle('hidden', tab !== 'dados');
+        }
+
+        function preencherDadosAluno() {
+            const c = appState.clientePerfil || {};
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ''; };
+            set('student_nome', c.nome || '');
+            set('student_email', appState.aluno ? appState.aluno.email : '');
+            set('student_telefone', c.telefone || '');
+            set('student_cpf', c.cpf ? formatCpf(c.cpf) : '');
+            set('student_data_nascimento', c.data_nascimento || '');
+            const chk = document.getElementById('student_aceita_marketing');
+            if (chk) chk.checked = Boolean(c.aceita_marketing);
+        }
+
+        async function saveStudentData(event) {
+            event.preventDefault();
+            if (!appState.aluno) return;
+            const payload = {
+                user_id: appState.aluno.id,
+                nome: document.getElementById('student_nome').value.trim(),
+                email: appState.aluno.email,
+                telefone: document.getElementById('student_telefone').value.trim(),
+                cpf: onlyDigits(document.getElementById('student_cpf').value) || null,
+                data_nascimento: document.getElementById('student_data_nascimento').value || null,
+                aceita_marketing: document.getElementById('student_aceita_marketing').checked,
+                updated_at: new Date().toISOString()
+            };
+            try {
+                const { error } = await supabaseClient.from('clientes').upsert([payload], { onConflict: 'user_id' });
+                if (error) throw error;
+                appState.clientePerfil = Object.assign({}, appState.clientePerfil, payload);
+                document.getElementById('studentName').textContent = payload.nome;
+                updateStudentButton();
+                showAlert('Dados atualizados com sucesso!', 'success');
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar seus dados: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function linkOrdersToStudent() {
+            if (!appState.aluno) return;
+            const email = (document.getElementById('link_email').value || '').trim().toLowerCase();
+            const cpf = onlyDigits(document.getElementById('link_cpf').value);
+            if (!email && !cpf) { showAlert('Informe um e-mail ou um CPF para vincular.', 'warning'); return; }
+            try {
+                let consulta = supabaseClient.from('pedidos').select('id');
+                if (email && cpf) consulta = consulta.or(`cliente_email.eq.${email},cliente_cpf.eq.${cpf}`);
+                else if (email) consulta = consulta.eq('cliente_email', email);
+                else consulta = consulta.eq('cliente_cpf', cpf);
+
+                const { data, error } = await consulta;
+                if (error) throw error;
+                const ids = (data || []).map(r => r.id);
+                if (!ids.length) { showAlert('Nenhuma compra encontrada com esses dados.', 'warning'); return; }
+
+                const { error: erroUpdate } = await supabaseClient
+                    .from('pedidos')
+                    .update({ cliente_user_id: appState.aluno.id })
+                    .in('id', ids);
+                if (erroUpdate) throw erroUpdate;
+
+                showAlert(`${ids.length} compra(s) vinculada(s) à sua conta!`, 'success');
+                document.getElementById('link_email').value = '';
+                document.getElementById('link_cpf').value = '';
+                renderStudentOrders();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao vincular compras: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function renderStudentOrders() {
+            const container = document.getElementById('studentOrdersList');
+            if (!container || !appState.aluno) return;
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Carregando suas compras…</p></div>';
+
+            const email = appState.aluno.email;
+            const { data, error } = await supabaseClient
+                .from('pedidos')
+                .select('*')
+                .or(`cliente_user_id.eq.${appState.aluno.id},cliente_email.eq.${email}`)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                container.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i><span>Não foi possível carregar suas compras: ${escapeHtml(error.message)}</span></div>`;
+                return;
+            }
+            const pedidos = data || [];
+            if (!pedidos.length) {
+                container.innerHTML = `
+                    <div class="student-card" style="text-align:center;">
+                        <div style="font-size:52px; color:var(--border); margin-bottom:12px;"><i class="fas fa-shopping-bag"></i></div>
+                        <h3 style="margin-bottom:8px;">Você ainda não tem compras registradas</h3>
+                        <p style="color:var(--text-muted); margin-bottom:18px;">Se já comprou usando outro e-mail ou CPF, use a aba "Meus dados" para vincular.</p>
+                        <button class="btn btn-primary" onclick="closeStudentArea(); navigateTo('home');"><i class="fas fa-book"></i> Ver apostilas</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const total = pedidos.reduce((soma, p) => soma + Number(p.total || 0), 0);
+            container.innerHTML = `
+                <div class="student-card" style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                    <div><span class="product-summary-label">Compras registradas</span><strong style="font-size:22px;">${pedidos.length}</strong></div>
+                    <div><span class="product-summary-label">Total investido</span><strong style="font-size:22px; color:var(--success);">R$ ${formatPrice(total)}</strong></div>
+                    <div><span class="product-summary-label">Área do aluno</span><strong style="font-size:15px;">${escapeHtml(appState.aluno.email)}</strong></div>
+                </div>
+                <div class="student-card">
+                    ${pedidos.map(p => `
+                        <div class="student-order-row">
+                            <div style="min-width:200px;">
+                                <div class="student-order-title">${escapeHtml(p.produto_titulo || 'Apostila')}</div>
+                                <div class="student-order-meta">
+                                    Pedido ${escapeHtml(p.codigo || p.id)} • ${formatDateBR(p.created_at, true)}
+                                    • ${p.formato === 'impressa' ? 'Impressa' : 'Digital'}
+                                    • ${escapeHtml(ORIGEM_LABEL[p.origem] || p.origem || '')}
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                                ${renderStatusBadge(p.status)}
+                                <strong>R$ ${formatPrice(p.total || p.valor || 0)}</strong>
+                                <button class="btn btn-sm btn-primary" onclick="openOrderDetail(${p.id})"><i class="fas fa-eye"></i> Detalhes</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ==================== ADMIN: PEDIDOS ====================
+        function renderStatusBadge(status) {
+            const info = PEDIDO_STATUS[status] || { label: status || '—', cor: '#9CA3AF' };
+            return `<span class="status-pill"><span class="status-square" style="background:${info.cor}"></span> ${escapeHtml(info.label)}</span>`;
+        }
+
+        async function loadPedidosClientes() {
+            try {
+                const [pedidosResp, clientesResp, cuponsResp] = await Promise.all([
+                    supabaseClient.from('pedidos').select('*').order('created_at', { ascending: false }).limit(1000),
+                    supabaseClient.from('clientes').select('*').order('created_at', { ascending: false }).limit(1000),
+                    supabaseClient.from('cupons').select('*').order('created_at', { ascending: false })
+                ]);
+                appState.pedidos = pedidosResp.error ? [] : (pedidosResp.data || []);
+                appState.clientes = clientesResp.error ? [] : (clientesResp.data || []);
+                appState.cupons = cuponsResp.error ? [] : (cuponsResp.data || []);
+                if (pedidosResp.error) console.warn('Pedidos:', pedidosResp.error.message);
+                if (clientesResp.error) console.warn('Clientes:', clientesResp.error.message);
+            } catch (error) {
+                console.warn('Falha ao carregar pedidos/clientes:', error.message || error);
+            }
+            popularFiltroEstadosClientes();
+            renderOrdersTable();
+            renderClientsTable();
+            renderCouponsTable();
+        }
+
+        function getOrderFilters() {
+            const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+            return {
+                codigo: val('ped_filter_codigo'),
+                cpf: val('ped_filter_cpf'),
+                de: val('ped_filter_de'),
+                ate: val('ped_filter_ate'),
+                produto: val('ped_filter_produto'),
+                origem: val('ped_filter_origem'),
+                status: val('ped_filter_status'),
+                pagto: val('ped_filter_pagto'),
+                cupom: val('ped_filter_cupom'),
+                envio: val('ped_filter_envio'),
+                conheceu: val('ped_filter_conheceu'),
+                tipo: val('ped_filter_tipo'),
+                exibir: parseInt(val('ped_filter_exibir'), 10) || 200
+            };
+        }
+
+        function clearOrderFilters() {
+            ['ped_filter_codigo', 'ped_filter_cpf', 'ped_filter_de', 'ped_filter_ate', 'ped_filter_produto',
+             'ped_filter_origem', 'ped_filter_pagto', 'ped_filter_cupom', 'ped_filter_envio',
+             'ped_filter_conheceu', 'ped_filter_tipo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const status = document.getElementById('ped_filter_status');
+            if (status) status.value = 'todos_pedidos_ativos';
+            renderOrdersTable();
+        }
+
+        function getFilteredOrders() {
+            const f = getOrderFilters();
+            const cpfDigits = onlyDigits(f.cpf);
+            return (appState.pedidos || []).filter(p => {
+                if (f.status === 'todos_pedidos_ativos' && p.status === 'cancelado') return false;
+                if (f.status && f.status !== 'todos_pedidos_ativos' && p.status !== f.status) return false;
+                if (f.codigo && !String(p.codigo || '').includes(f.codigo) && !String(p.id).includes(f.codigo)) return false;
+                if (cpfDigits && !onlyDigits(p.cliente_cpf || '').includes(cpfDigits)) return false;
+                if (f.produto) {
+                    const alvo = normalizeSearchText(f.produto);
+                    const alvoTexto = normalizeSearchText(`${p.produto_titulo || ''} ${p.produto_codigo || ''}`);
+                    if (!alvoTexto.includes(alvo)) return false;
+                }
+                if (f.origem && p.origem !== f.origem) return false;
+                if (f.pagto && p.forma_pagamento !== f.pagto) return false;
+                if (f.cupom && normalizeSearchText(p.cupom || '') !== normalizeSearchText(f.cupom)) return false;
+                if (f.envio && p.envio_status !== f.envio) return false;
+                if (f.tipo && p.tipo !== f.tipo) return false;
+                if (f.conheceu && !String(p.observacoes || '').toLowerCase().includes(f.conheceu)) return false;
+                if (f.de && new Date(p.created_at) < new Date(`${f.de}T00:00:00`)) return false;
+                if (f.ate && new Date(p.created_at) > new Date(`${f.ate}T23:59:59`)) return false;
+                return true;
+            });
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            const summary = document.getElementById('ordersTableSummary');
+            if (!tbody) return;
+            const filtros = getOrderFilters();
+            const lista = getFilteredOrders().slice(0, filtros.exibir);
+
+            if (summary) {
+                summary.textContent = `${lista.length} de ${(appState.pedidos || []).length} pedido(s) exibido(s)`;
+            }
+            if (!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum pedido encontrado com os filtros informados.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = lista.map(p => `
+                <tr class="${appState.selectedOrders.has(p.id) ? 'row-selected' : ''}">
+                    <td><input type="checkbox" ${appState.selectedOrders.has(p.id) ? 'checked' : ''} onchange="toggleOrderSelection(${p.id}, this.checked)"></td>
+                    <td>${renderStatusBadge(p.status)}</td>
+                    <td style="font-weight:700;">${escapeHtml(p.codigo || p.id)}</td>
+                    <td>
+                        <div style="font-weight:600;">${escapeHtml(p.cliente_nome || '—')}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">${escapeHtml(p.cliente_cpf ? formatCpf(p.cliente_cpf) : (p.cliente_email || ''))}</div>
+                    </td>
+                    <td>${formatDateBR(p.created_at, true)}</td>
+                    <td>${Number(p.frete || 0) > 0 ? 'R$ ' + formatPrice(p.frete) : '--'}</td>
+                    <td>
+                        <div class="pagto-cell">
+                            <span class="pagto-badge"><i class="fas ${p.forma_pagamento === 'pix' ? 'fa-qrcode' : p.forma_pagamento === 'credito' ? 'fa-credit-card' : p.forma_pagamento === 'debito' ? 'fa-money-check-dollar' : 'fa-receipt'}"></i> ${escapeHtml(PAGTO_LABEL[p.forma_pagamento] || '—')}</span>
+                            ${Number(p.parcelas || 1) > 1 ? `<span style="color:var(--text-muted);">${p.parcelas}x</span>` : ''}
+                        </div>
+                    </td>
+                    <td style="font-weight:700;">${formatPrice(p.total || p.valor || 0)}</td>
+                    <td><button class="icon-btn" title="Ver detalhes do pedido" onclick="openOrderDetail(${p.id})"><i class="fas fa-search"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleOrderSelection(id, checked) {
+            if (checked) appState.selectedOrders.add(id); else appState.selectedOrders.delete(id);
+            renderOrdersTable();
+        }
+
+        function toggleAllOrders(checked) {
+            appState.selectedOrders.clear();
+            if (checked) getFilteredOrders().forEach(p => appState.selectedOrders.add(p.id));
+            renderOrdersTable();
+        }
+
+        async function bulkOrderStatus(status) {
+            const ids = Array.from(appState.selectedOrders);
+            if (!ids.length) { showAlert('Selecione ao menos um pedido.', 'warning'); return; }
+            try {
+                const patch = { status, updated_at: new Date().toISOString() };
+                if (status === 'entregue') patch.entregue_em = new Date().toISOString();
+                const { error } = await supabaseClient.from('pedidos').update(patch).in('id', ids);
+                if (error) throw error;
+                showAlert(`${ids.length} pedido(s) atualizado(s) para "${PEDIDO_STATUS[status].label}".`, 'success');
+                appState.selectedOrders.clear();
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao atualizar pedidos: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function openOrderDetail(id) {
+            const pedido = (appState.pedidos || []).find(p => p.id === id);
+            if (!pedido) return;
+            const cliente = (appState.clientes || []).find(c => c.email === pedido.cliente_email) || {};
+            document.getElementById('modalTitle').textContent = `Pedido ${pedido.codigo || pedido.id}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div style="display:grid; gap:14px;">
+                    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                        ${renderStatusBadge(pedido.status)}
+                        <strong style="font-size:20px;">R$ ${formatPrice(pedido.total || pedido.valor || 0)}</strong>
+                    </div>
+                    <div class="product-summary-grid" style="max-width:none; grid-template-columns:repeat(2, minmax(0,1fr));">
+                        <div class="product-summary-item"><span class="product-summary-label">Cliente</span><span class="product-summary-value">${escapeHtml(pedido.cliente_nome || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">E-mail</span><span class="product-summary-value">${escapeHtml(pedido.cliente_email || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">CPF/CNPJ</span><span class="product-summary-value">${escapeHtml(pedido.cliente_cpf ? formatCpf(pedido.cliente_cpf) : '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Telefone</span><span class="product-summary-value">${escapeHtml(pedido.cliente_telefone || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Produto</span><span class="product-summary-value">${escapeHtml(pedido.produto_titulo || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Código do produto</span><span class="product-summary-value">${escapeHtml(pedido.produto_codigo || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Formato</span><span class="product-summary-value">${pedido.formato === 'impressa' ? 'Impressa' : 'Digital'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Origem</span><span class="product-summary-value">${escapeHtml(ORIGEM_LABEL[pedido.origem] || pedido.origem || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Pagamento</span><span class="product-summary-value">${escapeHtml(PAGTO_LABEL[pedido.forma_pagamento] || '—')} ${Number(pedido.parcelas || 1) > 1 ? `(${pedido.parcelas}x)` : ''}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Cupom</span><span class="product-summary-value">${escapeHtml(pedido.cupom || '—')} ${Number(pedido.cupom_desconto || 0) > 0 ? `(-R$ ${formatPrice(pedido.cupom_desconto)})` : ''}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Data da compra</span><span class="product-summary-value">${formatDateBR(pedido.created_at, true)}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Pago em</span><span class="product-summary-value">${formatDateBR(pedido.pago_em, true)}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">ID Mercado Pago</span><span class="product-summary-value">${escapeHtml(pedido.mp_payment_id || pedido.mp_preference_id || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Cliente cadastrado</span><span class="product-summary-value">${cliente.id ? 'Sim (#' + cliente.id + ')' : 'Não'}</span></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status do pedido</label>
+                            <select id="order_status_select">
+                                ${Object.keys(PEDIDO_STATUS).map(k => `<option value="${k}" ${k === pedido.status ? 'selected' : ''}>${PEDIDO_STATUS[k].label}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Envio / rastreio</label>
+                            <input type="text" id="order_rastreio" value="${escapeHtml(pedido.rastreio || '')}" placeholder="Código de rastreio (se houver)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações internas</label>
+                        <textarea id="order_obs" rows="3">${escapeHtml(pedido.observacoes || '')}</textarea>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-success" onclick="saveOrderChanges(${pedido.id})"><i class="fas fa-save"></i> Salvar alterações</button>
+                        ${pedido.cliente_telefone ? `<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="https://wa.me/${onlyDigits(pedido.cliente_telefone).length > 11 ? onlyDigits(pedido.cliente_telefone) : '55' + onlyDigits(pedido.cliente_telefone)}?text=${encodeURIComponent('Olá ' + (pedido.cliente_nome || '') + '! Sobre o seu pedido ' + (pedido.codigo || pedido.id) + ' na +QApostilas:')}"><i class="fab fa-whatsapp"></i> Falar com o cliente</a>` : ''}
+                    </div>
+                </div>
+            `;
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        async function saveOrderChanges(id) {
+            try {
+                const status = document.getElementById('order_status_select').value;
+                const patch = {
+                    status,
+                    rastreio: document.getElementById('order_rastreio').value.trim() || null,
+                    observacoes: document.getElementById('order_obs').value.trim() || null,
+                    updated_at: new Date().toISOString()
+                };
+                if (status === 'entregue') patch.entregue_em = new Date().toISOString();
+                if (status === 'pagamento_confirmado') patch.pago_em = new Date().toISOString();
+                const { error } = await supabaseClient.from('pedidos').update(patch).eq('id', id);
+                if (error) throw error;
+                closeModal();
+                showAlert('Pedido atualizado com sucesso!', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar o pedido: ' + (error.message || error), 'error');
+            }
+        }
+
+        function openManualOrderForm() {
+            const produtos = appState.allProdutos || appState.produtos || [];
+            document.getElementById('modalTitle').textContent = 'Lançar pedido manual';
+            document.getElementById('modalBody').innerHTML = `
+                <form onsubmit="saveManualOrder(event)">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Use este lançamento para registrar vendas feitas em sites parceiros ou pela Hotmart. Assim a compra aparece na Área do Aluno do cliente (pelo e-mail ou CPF informado).</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Produto *</label>
+                            <select id="mo_produto" required>
+                                <option value="">-- Selecionar produto --</option>
+                                ${produtos.map(p => `<option value="${p.id}" data-titulo="${escapeHtml(p.titulo)}" data-codigo="${escapeHtml(p.codigo || '')}">${escapeHtml(p.titulo)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$) *</label>
+                            <input type="number" step="0.01" id="mo_valor" required placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome do cliente *</label>
+                            <input type="text" id="mo_nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail *</label>
+                            <input type="email" id="mo_email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" id="mo_cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="mo_telefone" placeholder="(11) 9 9999-9999">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Origem</label>
+                            <select id="mo_origem">
+                                <option value="parceiro">Site parceiro</option>
+                                <option value="hotmart">Hotmart</option>
+                                <option value="manual">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Forma de pagamento</label>
+                            <select id="mo_pagto">
+                                <option value="externo">Site externo</option>
+                                <option value="pix">Pix</option>
+                                <option value="credito">Cartão de crédito</option>
+                                <option value="debito">Cartão de débito</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="mo_status">
+                                ${Object.keys(PEDIDO_STATUS).map(k => `<option value="${k}" ${k === 'pagamento_confirmado' ? 'selected' : ''}>${PEDIDO_STATUS[k].label}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Formato</label>
+                            <select id="mo_formato">
+                                <option value="digital">Digital</option>
+                                <option value="impressa">Impressa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select id="mo_tipo">
+                                <option value="venda">Venda</option>
+                                <option value="pre_venda">Pré-venda</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width:100%; justify-content:center; margin-top:8px;">
+                        <i class="fas fa-save"></i> Registrar pedido
+                    </button>
+                </form>
+            `;
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        async function saveManualOrder(event) {
+            event.preventDefault();
+            const select = document.getElementById('mo_produto');
+            const option = select.options[select.selectedIndex];
+            const payload = {
+                cliente_nome: document.getElementById('mo_nome').value.trim(),
+                cliente_email: document.getElementById('mo_email').value.trim().toLowerCase(),
+                cliente_cpf: onlyDigits(document.getElementById('mo_cpf').value) || null,
+                cliente_telefone: document.getElementById('mo_telefone').value.trim(),
+                produto_id: parseInt(select.value, 10),
+                produto_titulo: option.dataset.titulo,
+                produto_codigo: option.dataset.codigo || null,
+                valor: parseFloat(document.getElementById('mo_valor').value) || 0,
+                frete: 0,
+                cupom_desconto: 0,
+                total: parseFloat(document.getElementById('mo_valor').value) || 0,
+                forma_pagamento: document.getElementById('mo_pagto').value,
+                parcelas: 1,
+                origem: document.getElementById('mo_origem').value,
+                status: document.getElementById('mo_status').value,
+                formato: document.getElementById('mo_formato').value,
+                tipo: document.getElementById('mo_tipo').value,
+                envio_status: document.getElementById('mo_formato').value === 'impressa' ? 'transportadora' : 'digital'
+            };
+            try {
+                const { error } = await supabaseClient.from('pedidos').insert([payload]);
+                if (error) throw error;
+                await registrarClienteDoPedido(payload);
+                closeModal();
+                showAlert('Pedido registrado com sucesso!', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao registrar o pedido: ' + (error.message || error), 'error');
+            }
+        }
+
+        function exportarPedidosCsv() {
+            const lista = getFilteredOrders();
+            if (!lista.length) { showAlert('Nenhum pedido para exportar.', 'warning'); return; }
+            const linhas = [['Pedido', 'Data', 'Cliente', 'E-mail', 'CPF', 'Produto', 'Formato', 'Origem', 'Pagamento', 'Parcelas', 'Status', 'Total']];
+            lista.forEach(p => linhas.push([
+                p.codigo || p.id, formatDateBR(p.created_at, true), p.cliente_nome || '', p.cliente_email || '',
+                p.cliente_cpf || '', p.produto_titulo || '', p.formato || '', ORIGEM_LABEL[p.origem] || p.origem || '',
+                PAGTO_LABEL[p.forma_pagamento] || '', p.parcelas || 1,
+                (PEDIDO_STATUS[p.status] || {}).label || p.status || '', String(p.total || 0).replace('.', ',')
+            ]));
+            baixarCsv('pedidos-qapostilas.csv', linhas);
+        }
+
+        function baixarCsv(nome, linhas) {
+            const csv = linhas.map(l => l.map(c => `"${String(c === null || c === undefined ? '' : c).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nome;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==================== ADMIN: CLIENTES ====================
+        function popularFiltroEstadosClientes() {
+            const select = document.getElementById('cli_filter_estado');
+            if (!select) return;
+            const atuais = new Set((appState.clientes || []).map(c => String(c.estado || '').toUpperCase()).filter(Boolean));
+            select.innerHTML = '<option value="">Todos</option>' +
+                UFS_BRASIL.filter(([uf]) => atuais.has(uf)).map(([uf, nome]) => `<option value="${uf}">${uf} — ${nome}</option>`).join('');
+        }
+
+        function clearClientFilters() {
+            ['cli_filter_nome', 'cli_filter_email', 'cli_filter_perfil', 'cli_filter_pendente', 'cli_filter_ultimo', 'cli_filter_estado'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const chk = document.getElementById('cli_filter_aniversariantes');
+            if (chk) chk.checked = false;
+            renderClientsTable();
+        }
+
+        function getFilteredClients() {
+            const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+            const nomeCpf = normalizeSearchText(val('cli_filter_nome'));
+            const email = normalizeSearchText(val('cli_filter_email'));
+            const perfil = val('cli_filter_perfil');
+            const pendente = val('cli_filter_pendente');
+            const ultimo = val('cli_filter_ultimo');
+            const estado = val('cli_filter_estado');
+            const aniversariantes = (document.getElementById('cli_filter_aniversariantes') || {}).checked;
+            const mesAtual = new Date().getMonth();
+
+            return (appState.clientes || []).filter(c => {
+                if (nomeCpf) {
+                    const alvo = normalizeSearchText(`${c.nome || ''} ${c.cpf || ''}`);
+                    if (!alvo.includes(nomeCpf)) return false;
+                }
+                if (email && !normalizeSearchText(c.email || '').includes(email)) return false;
+                if (perfil && c.perfil !== perfil) return false;
+                if (pendente === 'sim' && !c.aprovacao_pendente) return false;
+                if (pendente === 'nao' && c.aprovacao_pendente) return false;
+                if (estado && String(c.estado || '').toUpperCase() !== estado) return false;
+
+                const pedidosCliente = (appState.pedidos || []).filter(p =>
+                    (c.email && p.cliente_email === c.email) || (c.cpf && onlyDigits(p.cliente_cpf || '') === onlyDigits(c.cpf))
+                );
+                if (ultimo === 'com' && !pedidosCliente.length) return false;
+                if (ultimo === 'sem' && pedidosCliente.length) return false;
+
+                if (aniversariantes) {
+                    if (!c.data_nascimento) return false;
+                    if (new Date(c.data_nascimento).getMonth() !== mesAtual) return false;
+                }
+                return true;
+            });
+        }
+
+        function getUltimoPedidoCliente(cliente) {
+            const pedidos = (appState.pedidos || []).filter(p =>
+                (cliente.email && p.cliente_email === cliente.email) ||
+                (cliente.cpf && onlyDigits(p.cliente_cpf || '') === onlyDigits(cliente.cpf))
+            );
+            if (!pedidos.length) return null;
+            return pedidos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+        }
+
+        function renderClientsTable() {
+            const tbody = document.getElementById('clientsTableBody');
+            const summary = document.getElementById('clientsTableSummary');
+            if (!tbody) return;
+            const lista = getFilteredClients();
+            if (summary) summary.textContent = `Total de Registros: ${lista.length} / Total de páginas: 1`;
+
+            if (!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cliente encontrado.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = lista.map(c => {
+                const ultimo = getUltimoPedidoCliente(c);
+                return `
+                    <tr class="${appState.selectedClients.has(c.id) ? 'row-selected' : ''}">
+                        <td><input type="checkbox" ${appState.selectedClients.has(c.id) ? 'checked' : ''} onchange="toggleClientSelection(${c.id}, this.checked)"></td>
+                        <td>
+                            <a href="#" onclick="event.preventDefault(); openClientDetail(${c.id});" style="color:var(--primary); font-weight:600;">${escapeHtml(c.nome)}</a>
+                            ${c.aprovacao_pendente ? '<span class="badge badge-warning" style="margin-left:6px;">Aguardando aprovação</span>' : ''}
+                        </td>
+                        <td>${escapeHtml(c.email)}</td>
+                        <td>${escapeHtml(c.telefone || '—')}</td>
+                        <td>${formatDateBR(c.created_at)}</td>
+                        <td>${ultimo ? formatDateBR(ultimo.created_at, true) : '—'}</td>
+                        <td><button class="icon-btn" title="Detalhes" onclick="openClientDetail(${c.id})"><i class="fas fa-ellipsis-h"></i></button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function toggleClientSelection(id, checked) {
+            if (checked) appState.selectedClients.add(id); else appState.selectedClients.delete(id);
+            renderClientsTable();
+        }
+
+        function toggleAllClients(checked) {
+            appState.selectedClients.clear();
+            if (checked) getFilteredClients().forEach(c => appState.selectedClients.add(c.id));
+            renderClientsTable();
+        }
+
+        function showClientForm() {
+            const container = document.getElementById('clientFormContainer');
+            if (container) container.classList.remove('hidden');
+            ['client_id', 'client_nome', 'client_email', 'client_telefone', 'client_cpf', 'client_data_nascimento'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const ativo = document.getElementById('client_ativo');
+            if (ativo) ativo.checked = true;
+            if (container) container.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideClientForm() {
+            const container = document.getElementById('clientFormContainer');
+            if (container) container.classList.add('hidden');
+        }
+
+        async function saveClient(event) {
+            event.preventDefault();
+            const payload = {
+                nome: document.getElementById('client_nome').value.trim(),
+                email: document.getElementById('client_email').value.trim().toLowerCase(),
+                telefone: document.getElementById('client_telefone').value.trim(),
+                cpf: onlyDigits(document.getElementById('client_cpf').value) || null,
+                perfil: document.getElementById('client_perfil').value,
+                data_nascimento: document.getElementById('client_data_nascimento').value || null,
+                aprovacao_pendente: document.getElementById('client_aprovacao_pendente').checked,
+                aceita_marketing: document.getElementById('client_aceita_marketing').checked,
+                ativo: document.getElementById('client_ativo').checked,
+                updated_at: new Date().toISOString()
+            };
+            const id = document.getElementById('client_id').value;
+            try {
+                if (id) {
+                    const { error } = await supabaseClient.from('clientes').update(payload).eq('id', id);
+                    if (error) throw error;
+                    showAlert('Cliente atualizado com sucesso!', 'success');
+                } else {
+                    const { error } = await supabaseClient.from('clientes').insert([payload]);
+                    if (error) throw error;
+                    showAlert('Cliente cadastrado com sucesso!', 'success');
+                }
+                hideClientForm();
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar o cliente: ' + (error.message || error), 'error');
+            }
+        }
+
+        function openClientDetail(id) {
+            const c = (appState.clientes || []).find(item => item.id === id);
+            if (!c) return;
+            const pedidos = (appState.pedidos || []).filter(p =>
+                (c.email && p.cliente_email === c.email) || (c.cpf && onlyDigits(p.cliente_cpf || '') === onlyDigits(c.cpf))
+            ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const total = pedidos.reduce((s, p) => s + Number(p.total || 0), 0);
+
+            document.getElementById('modalTitle').textContent = `Cliente: ${c.nome}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="product-summary-grid" style="max-width:none; grid-template-columns:repeat(2, minmax(0,1fr));">
+                    <div class="product-summary-item"><span class="product-summary-label">E-mail</span><span class="product-summary-value">${escapeHtml(c.email)}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Telefone</span><span class="product-summary-value">${escapeHtml(c.telefone || '—')}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">CPF</span><span class="product-summary-value">${escapeHtml(c.cpf ? formatCpf(c.cpf) : '—')}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Perfil</span><span class="product-summary-value">${escapeHtml(c.perfil || '—')}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Cadastro</span><span class="product-summary-value">${formatDateBR(c.created_at)}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Compras</span><span class="product-summary-value">${pedidos.length} — R$ ${formatPrice(total)}</span></div>
+                </div>
+                <h4 style="margin:18px 0 8px;">Histórico de compras</h4>
+                ${pedidos.length ? pedidos.map(p => `
+                    <div class="student-order-row">
+                        <div>
+                            <div class="student-order-title">${escapeHtml(p.produto_titulo || 'Apostila')}</div>
+                            <div class="student-order-meta">${escapeHtml(p.codigo || p.id)} • ${formatDateBR(p.created_at, true)} • ${escapeHtml(ORIGEM_LABEL[p.origem] || '')}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${renderStatusBadge(p.status)}
+                            <strong>R$ ${formatPrice(p.total || p.valor || 0)}</strong>
+                        </div>
+                    </div>
+                `).join('') : '<p style="color:var(--text-muted);">Nenhuma compra registrada para este cliente.</p>'}
+                <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="editClient(${c.id})"><i class="fas fa-pen"></i> Editar cadastro</button>
+                    <button class="btn btn-delete" onclick="deleteClient(${c.id})"><i class="fas fa-trash"></i> Excluir</button>
+                </div>
+            `;
+            document.getElementById('globalModal').classList.add('active');
+        }
+
+        function editClient(id) {
+            const c = (appState.clientes || []).find(item => item.id === id);
+            if (!c) return;
+            closeModal();
+            showClientForm();
+            document.getElementById('client_id').value = c.id;
+            document.getElementById('client_nome').value = c.nome || '';
+            document.getElementById('client_email').value = c.email || '';
+            document.getElementById('client_telefone').value = c.telefone || '';
+            document.getElementById('client_cpf').value = c.cpf ? formatCpf(c.cpf) : '';
+            document.getElementById('client_perfil').value = c.perfil || 'aluno';
+            document.getElementById('client_data_nascimento').value = c.data_nascimento || '';
+            document.getElementById('client_aprovacao_pendente').checked = Boolean(c.aprovacao_pendente);
+            document.getElementById('client_aceita_marketing').checked = Boolean(c.aceita_marketing);
+            document.getElementById('client_ativo').checked = Boolean(c.ativo);
+        }
+
+        async function deleteClient(id) {
+            if (!confirm('Tem certeza que deseja excluir este cliente? Os pedidos continuam registrados.')) return;
+            try {
+                const { error } = await supabaseClient.from('clientes').delete().eq('id', id);
+                if (error) throw error;
+                closeModal();
+                showAlert('Cliente excluído.', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir: ' + (error.message || error), 'error');
+            }
+        }
+
+        async function deleteSelectedClients() {
+            const ids = Array.from(appState.selectedClients);
+            if (!ids.length) { showAlert('Selecione ao menos um cliente.', 'warning'); return; }
+            if (!confirm(`Excluir ${ids.length} cliente(s) selecionado(s)?`)) return;
+            try {
+                const { error } = await supabaseClient.from('clientes').delete().in('id', ids);
+                if (error) throw error;
+                appState.selectedClients.clear();
+                showAlert('Clientes excluídos com sucesso.', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir clientes: ' + (error.message || error), 'error');
+            }
+        }
+
+        function exportarClientesCsv() {
+            const lista = getFilteredClients();
+            if (!lista.length) { showAlert('Nenhum cliente para exportar.', 'warning'); return; }
+            const linhas = [['Nome', 'E-mail', 'Telefone', 'CPF', 'Perfil', 'Cadastro', 'Último Pedido', 'Compras', 'Total']];
+            lista.forEach(c => {
+                const pedidos = (appState.pedidos || []).filter(p =>
+                    (c.email && p.cliente_email === c.email) || (c.cpf && onlyDigits(p.cliente_cpf || '') === onlyDigits(c.cpf))
+                ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const total = pedidos.reduce((s, p) => s + Number(p.total || 0), 0);
+                linhas.push([
+                    c.nome, c.email, c.telefone || '', c.cpf || '', c.perfil || '',
+                    formatDateBR(c.created_at), pedidos.length ? formatDateBR(pedidos[0].created_at, true) : '',
+                    pedidos.length, String(total).replace('.', ',')
+                ]);
+            });
+            baixarCsv('clientes-qapostilas.csv', linhas);
+        }
+
+        // ==================== ADMIN: CUPONS ====================
+        function showCouponForm() {
+            const container = document.getElementById('couponFormContainer');
+            if (container) container.classList.remove('hidden');
+            ['coupon_id', 'coupon_codigo', 'coupon_valido_ate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            const valor = document.getElementById('coupon_valor');
+            if (valor) valor.value = '10';
+            const ativo = document.getElementById('coupon_ativo');
+            if (ativo) ativo.checked = true;
+        }
+
+        function hideCouponForm() {
+            const container = document.getElementById('couponFormContainer');
+            if (container) container.classList.add('hidden');
+        }
+
+        async function saveCoupon(event) {
+            event.preventDefault();
+            const payload = {
+                codigo: document.getElementById('coupon_codigo').value.trim().toUpperCase(),
+                tipo: document.getElementById('coupon_tipo').value,
+                valor: parseFloat(document.getElementById('coupon_valor').value) || 0,
+                valor_minimo: parseFloat(document.getElementById('coupon_valor_minimo').value) || 0,
+                uso_maximo: parseInt(document.getElementById('coupon_uso_maximo').value, 10) || null,
+                valido_ate: document.getElementById('coupon_valido_ate').value || null,
+                ativo: document.getElementById('coupon_ativo').checked
+            };
+            const id = document.getElementById('coupon_id').value;
+            try {
+                if (id) {
+                    const { error } = await supabaseClient.from('cupons').update(payload).eq('id', id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseClient.from('cupons').insert([payload]);
+                    if (error) throw error;
+                }
+                hideCouponForm();
+                showAlert('Cupom salvo com sucesso!', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar o cupom: ' + (error.message || error), 'error');
+            }
+        }
+
+        function renderCouponsTable() {
+            const tbody = document.getElementById('couponsTableBody');
+            if (!tbody) return;
+            const lista = appState.cupons || [];
+            if (!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">Nenhum cupom cadastrado.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = lista.map(c => `
+                <tr>
+                    <td style="font-weight:700;">${escapeHtml(c.codigo)}</td>
+                    <td>${c.tipo === 'fixo' ? 'Valor fixo' : 'Percentual'}</td>
+                    <td>${c.tipo === 'fixo' ? 'R$ ' + formatPrice(c.valor) : formatPrice(c.valor) + '%'}</td>
+                    <td>R$ ${formatPrice(c.valor_minimo || 0)}</td>
+                    <td>${c.usos || 0}${c.uso_maximo ? ' / ' + c.uso_maximo : ''}</td>
+                    <td>${c.valido_ate ? formatDateBR(c.valido_ate) : '—'}</td>
+                    <td><span class="badge ${c.ativo ? 'badge-success' : 'badge-warning'}">${c.ativo ? 'Ativo' : 'Inativo'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-delete" onclick="deleteCoupon(${c.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteCoupon(id) {
+            if (!confirm('Excluir este cupom?')) return;
+            try {
+                const { error } = await supabaseClient.from('cupons').delete().eq('id', id);
+                if (error) throw error;
+                showAlert('Cupom excluído.', 'success');
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao excluir o cupom: ' + (error.message || error), 'error');
+            }
+        }
+
+        // ==================== UPLOAD DE CAPA (SUPABASE STORAGE) ====================
+        function setCapaOrigem(modo) {
+            const linkBox = document.getElementById('capaLinkBox');
+            const uploadBox = document.getElementById('capaUploadBox');
+            if (linkBox) linkBox.classList.toggle('hidden', modo === 'upload');
+            if (uploadBox) uploadBox.classList.toggle('hidden', modo !== 'upload');
+        }
+
+        function setCapaImpressaOrigem(modo) {
+            const linkBox = document.getElementById('capaImpressaLinkBox');
+            const uploadBox = document.getElementById('capaImpressaUploadBox');
+            if (linkBox) linkBox.classList.toggle('hidden', modo === 'upload');
+            if (uploadBox) uploadBox.classList.toggle('hidden', modo !== 'upload');
+        }
+
+        async function handleCapaUpload(input, destino, previewId) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const status = document.getElementById(`status_${previewId}`);
+            const bucket = (window.APP_CONFIG && window.APP_CONFIG.storage_bucket_capas) || 'capas';
+
+            if (!file.type.startsWith('image/')) {
+                showAlert('Envie um arquivo de imagem (JPG, PNG ou WEBP).', 'warning');
+                input.value = '';
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('A imagem deve ter no máximo 5 MB.', 'warning');
+                input.value = '';
+                return;
+            }
+
+            if (status) status.textContent = 'Enviando imagem…';
+            try {
+                const slug = slugifyText(document.getElementById('product_titulo')?.value || 'capa');
+                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+                const path = `${slug}-${Date.now()}.${ext}`;
+                const { error } = await supabaseClient.storage.from(bucket).upload(path, file, { upsert: true, cacheControl: '31536000' });
+                if (error) throw error;
+                const { data } = supabaseClient.storage.from(bucket).getPublicUrl(path);
+                const url = data.publicUrl;
+
+                const campo = document.getElementById(destino);
+                if (campo) campo.value = url;
+                const preview = document.getElementById(previewId);
+                if (preview) preview.style.backgroundImage = `url('${url}')`;
+                const caminho = document.getElementById(destino === 'product_capa_url' ? 'product_capa_storage_path' : 'product_capa_impresso_storage_path');
+                if (caminho) caminho.value = path;
+
+                if (status) status.textContent = '✅ Imagem enviada com sucesso.';
+                showAlert('Capa enviada!', 'success');
+            } catch (error) {
+                console.error(error);
+                if (status) status.textContent = '';
+                showAlert(`Falha no upload: ${error.message || error}. Verifique se o bucket "${bucket}" existe e está público.`, 'error');
+            }
+        }
+
+        // ==================== ZOOM DA CAPA ====================
+        function openProductZoom(src) {
+            const box = document.getElementById('productZoom');
+            const img = document.getElementById('productZoomImage');
+            if (!box || !img || !src) return;
+            img.src = src;
+            box.classList.add('active');
+        }
+
+        function closeProductZoom() {
+            const box = document.getElementById('productZoom');
+            if (box) box.classList.remove('active');
+        }
+
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>

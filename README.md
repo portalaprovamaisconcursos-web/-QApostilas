@@ -1,534 +1,256 @@
-# +QApostilas - Site Profissional de Apostilas para Concursos Públicos
+# +QApostilas — Site de Apostilas para Concursos Públicos
 
-## 📋 Visão Geral
-
-**+QApostilas** é um site profissional, moderno e totalmente administrável, funcionando como uma vitrine organizada de apostilas para concursos públicos. O site permite cadastro completo de produtos através de um painel administrativo intuitivo, com finalização de compras externa via Hotmart ou sites de parceiros.
-
-### ✨ Características Principais
-
-- 🎨 **Design Moderno**: Interface profissional com cores azul claro, branco e preto
-- 📱 **100% Responsivo**: Funciona perfeitamente em dispositivos móveis, tablets e desktop
-- 🔐 **Painel Admin Completo**: Gerencie produtos, depoimentos, categorias e configurações
-- 🗄️ **Integração Supabase**: Banco de dados PostgreSQL gratuito e escalável
-- 🔍 **Busca Avançada**: Pesquisa por concurso, cargo, órgão, estado e categoria
-- 🏷️ **Categorias Organizadas**: Prefeituras, Policial, Saúde, Bancos, Educação, Administrativo e Pré-venda
-- ⭐ **Seções Estratégicas**: Destaques, Lançamentos, Mais Vendidas e Pré-venda
-- 💬 **Depoimentos de Alunos**: Sistema completo de gerenciamento de testemunhais
-- 🛒 **Dois Tipos de Compra**: Hotmart (produtos próprios) ou Site Parceiro
-- 🚀 **SPA (Single Page Application)**: Navegação rápida sem recarregar a página
+**Versão 2.0** — agora com **venda direta no site** (Pix, cartão de crédito em até 6x e débito), **Área do Aluno** (login do cliente com histórico de compras), **painel de Pedidos**, **cadastro de Clientes**, **cupons de desconto** e **upload de capas**.
 
 ---
 
-## 🚀 Configuração Rápida (5 Minutos)
+## 📦 O que mudou nesta versão
 
-### Passo 1: Criar Conta no Supabase (GRATUITO)
+| Recurso | Antes | Agora |
+|---|---|---|
+| Compra | Só Hotmart / site parceiro | Também **venda direta no site** (Pix, crédito em até 6x, débito) |
+| Área do cliente | Não existia | **Área do Aluno** com login, histórico de compras e edição de dados |
+| Painel admin | Produtos, Depoimentos, Categorias, Configurações | + **Pedidos**, **Clientes** e **Cupons** |
+| Capas | Só por link (URL) | **Por link OU por upload** (Supabase Storage) |
+| Menu | Categorias | Categorias + **Estados** (todas as 27 siglas) |
+| Home | Grade de botões grandes de categoria | Categorias em barra compacta + seção "Apostilas por estado" |
+| Página do produto | Capa menor | **Capa maior com zoom** + botão de compra direta |
 
-1. Acesse [https://supabase.com](https://supabase.com)
-2. Clique em **"Start your project"** e crie uma conta gratuita
-3. Após login, clique em **"New Project"**
-4. Preencha:
-   - **Name**: qapostilas (ou o nome que preferir)
-   - **Database Password**: Crie uma senha forte e **anote-a**
-   - **Region**: Escolha o mais próximo do Brasil (South America - São Paulo)
-   - **Pricing Plan**: Free (gratuito - 500MB de dados)
-5. Clique em **"Create new project"** e aguarde 1-2 minutos
-
-### Passo 2: Configurar o Banco de Dados
-
-1. No painel do Supabase, clique em **"SQL Editor"** no menu lateral esquerdo
-2. Clique em **"New Query"**
-3. Abra o arquivo `database-schema.sql` deste projeto
-4. **Copie TODO o conteúdo** do arquivo
-5. **Cole** no SQL Editor do Supabase
-6. Clique em **"Run"** (ou pressione Ctrl+Enter)
-7. Aguarde a mensagem de sucesso ✅
-
-**Pronto!** Todas as tabelas, dados de demonstração e políticas de segurança foram criadas automaticamente.
-
-### Passo 3: Obter Credenciais do Supabase
-
-1. No painel do Supabase, clique em **"Settings"** (ícone de engrenagem) no menu inferior
-2. Clique em **"API"**
-3. Você verá duas informações importantes:
-   - **Project URL**: algo como `https://xxxxxxxxxxxxx.supabase.co`
-   - **anon public key**: uma chave longa começando com `eyJ...`
-
-### Passo 4: Configurar o Site
-
-1. Abra o arquivo **`supabase-config.js`** no seu editor de código
-2. Substitua `'SUA_URL_AQUI'` pela sua **Project URL**
-3. Substitua `'SUA_KEY_AQUI'` pela sua **anon public key**
-4. Salve o arquivo
-
-**Exemplo:**
-```javascript
-const SUPABASE_URL = 'https://abcdefghij.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS...';
-```
-
-### Passo 5: Abrir o Site
-
-1. Abra o arquivo **`index.html`** no seu navegador
-2. **Pronto!** O site está funcionando com dados de demonstração
+> ⚠️ **Importante sobre vendas em sites parceiros:** quando o cliente clica e compra no site do parceiro, o pagamento acontece **fora** do seu sistema. Não existe como o site do parceiro avisar o seu automaticamente (só se o parceiro tiver API/webhook e liberar acesso). Por isso a Área do Aluno mostra essas compras quando:
+> 1. o **e-mail ou CPF** da compra for o mesmo do cadastro do aluno — nesse caso basta lançar o pedido no painel (**Pedidos → Lançar pedido manual**) ou o próprio aluno vincula na aba **"Meus dados" → Vincular compras antigas**; ou
+> 2. você registrar o pedido manualmente no painel, escolhendo a origem "Site parceiro" ou "Hotmart".
 
 ---
 
-## 🎯 Como Usar o Painel Admin
-
-### Acessar o Admin
-
-1. No site, clique no botão **"Admin"** no canto superior direito
-2. **Usuário**: `admin`
-3. **Senha padrão**: `admin123`
-4. Clique em **"Entrar"**
-
-### Alterar a Senha Admin (RECOMENDADO)
-
-1. No painel admin, vá na aba **"Configurações"**
-2. Encontre o campo **"Senha Admin"**
-3. Digite uma nova senha segura
-4. Clique em **"Salvar Configurações"**
-
-### Gerenciar Produtos (Apostilas)
-
-#### Adicionar Novo Produto
-
-1. Vá na aba **"Produtos"**
-2. Clique em **"+ Novo Produto"**
-3. Preencha todos os campos:
-   - **Título**: Nome da apostila
-   - **Órgão**: Nome do órgão (Ex: Prefeitura Municipal de São Paulo)
-   - **Cargo**: Cargo da apostila (Ex: Agente Administrativo)
-   - **Estado/Cidade**: Localização (Ex: SP / São Paulo)
-   - **Descrição**: Descrição detalhada da apostila
-   - **URL da Capa**: Link da imagem da capa (pode usar Google Drive, Imgur, etc)
-   - **Número de Páginas**: Quantidade de páginas
-   - **Preço**: Preço de venda
-   - **Preço Original**: Preço antes do desconto (opcional)
-   - **Categoria**: Escolha a categoria apropriada
-   - **Conteúdo Programático**: Digite as matérias, uma por linha
-   - **Tipo de Botão**: 
-     - **Hotmart**: Para produtos próprios
-     - **Parceiro**: Para produtos de terceiros
-   - **Link de Compra**: URL para onde o cliente será redirecionado
-   - **Checkboxes**: Marque Destaque, Lançamento, Mais Vendida, etc conforme necessário
-4. Clique em **"Salvar Produto"**
-
-#### Editar Produto
-
-1. Na tabela de produtos, clique em **"Editar"** no produto desejado
-2. Altere os campos necessários
-3. Clique em **"Salvar Produto"**
-
-#### Excluir Produto
-
-1. Na tabela de produtos, clique em **"Excluir"** no produto desejado
-2. Confirme a exclusão
-
-### Gerenciar Depoimentos
-
-1. Vá na aba **"Depoimentos"**
-2. Clique em **"+ Novo Depoimento"**
-3. Preencha:
-   - **Nome**: Nome do aluno aprovado
-   - **Cargo Aprovado**: Cargo conquistado (Ex: Técnica Administrativa - Prefeitura SP)
-   - **Depoimento**: Texto do testemunhal
-   - **URL da Foto**: Link da foto do aluno (opcional)
-   - **Avaliação**: Estrelas de 1 a 5
-   - **Destaque**: Marque para destacar na home
-4. Clique em **"Salvar Depoimento"**
-
-### Configurações do Site
-
-Na aba **"Configurações"** você pode alterar:
-
-- **URL da Logo**: Link da logo da empresa
-- **URL do Banner**: Link da imagem do banner principal
-- **Título do Banner**: Texto grande do banner
-- **Subtítulo do Banner**: Texto menor do banner
-- **WhatsApp**: Número com código do país (Ex: 5511999999999)
-- **E-mail**: E-mail de contato
-- **Texto "Sobre Nós"**: Descrição da empresa
-- **Senha Admin**: Altere a senha de acesso ao painel
-
-### Gerenciar Categorias
-
-1. Vá na aba **"Categorias"**
-2. Você pode **Ativar/Desativar** cada categoria
-3. As categorias são predefinidas e não podem ser editadas
-
----
-
-## 📂 Estrutura de Arquivos
+## 🗂️ Arquivos do projeto
 
 ```
 +qapostilas/
-│
-├── index.html              # Arquivo principal do site (HTML + CSS + JS)
-├── supabase-config.js      # Configuração do Supabase (EDITAR AQUI)
-├── database-schema.sql     # Schema do banco de dados (executar no Supabase)
-└── README.md              # Este arquivo de documentação
+├── index.html              # Site completo (HTML + CSS + JS) — v2.0
+├── supabase-config.js      # Credenciais públicas do Supabase
+├── database-schema.sql     # Banco de dados completo (original + v2.0)
+├── vercel.json             # Rotas e cabeçalhos (não captura /api)
+├── sitemap.xml             # URLs do site (inclui /estado/UF)
+├── robots.txt              # Indexação
+├── README.md               # Este guia
+└── api/
+    ├── mp-checkout.js      # Cria a preferência do Mercado Pago (Checkout Pro)
+    └── mp-webhook.js       # Recebe a confirmação de pagamento
 ```
 
----
-
-## 🎨 Personalização
-
-### Alterar Cores
-
-O site usa CSS Variables. Edite o arquivo `index.html` na seção `<style>`:
-
-```css
-:root {
-  --primary: #1E90FF;        /* Azul principal */
-  --primary-dark: #0066CC;   /* Azul escuro */
-  --primary-light: #E8F4FF;  /* Azul claro */
-  --accent: #FF4444;         /* Vermelho de destaque */
-  /* ... outras cores */
-}
-```
-
-### Alterar Fontes
-
-As fontes usadas são **Inter** (corpo do texto) e **Poppins** (títulos), carregadas do Google Fonts. Para alterar, edite no `<head>` do `index.html`:
-
-```html
-<link href="https://fonts.googleapis.com/css2?family=SuaFonte:wght@400;700&display=swap" rel="stylesheet">
-```
-
-E atualize no CSS:
-```css
-body {
-  font-family: 'SuaFonte', sans-serif;
-}
-```
+**Os dois arquivos da pasta `api/` só são usados no modo "api" do checkout.** Se você usar o modo "link", o site funciona sem eles — mas mantenha a pasta publicada, pois ela não atrapalha.
 
 ---
 
-## 🔧 Recursos Técnicos
+## 🚀 PASSO A PASSO PARA ATUALIZAR
 
-### Tecnologias Utilizadas
+### PASSO 1 — Rodar o SQL no Supabase
 
-- **HTML5**: Estrutura semântica
-- **CSS3**: Estilização moderna com Flexbox e Grid
-- **JavaScript (ES6+)**: Lógica e interatividade
-- **Supabase**: Banco de dados PostgreSQL
-- **Supabase JS Client**: Biblioteca oficial via CDN
-- **Font Awesome 6**: Ícones vetoriais
-- **Google Fonts**: Tipografia (Inter + Poppins)
+1. Acesse [https://supabase.com](https://supabase.com) e abra seu projeto.
+2. Menu lateral → **SQL Editor** → **New query**.
+3. Abra o arquivo **`database-schema.sql`** do projeto, **copie TODO o conteúdo** e cole no editor.
+4. Clique em **Run** (ou Ctrl+Enter) e aguarde a mensagem de sucesso.
 
-### Compatibilidade
+O arquivo é seguro para rodar mais de uma vez: ele usa `CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS` e `ON CONFLICT DO NOTHING` — **não apaga** seus produtos, depoimentos nem configurações.
 
-- ✅ Chrome/Edge (versões recentes)
-- ✅ Firefox (versões recentes)
-- ✅ Safari (versões recentes)
-- ✅ Mobile (iOS/Android)
+**O que ele cria/atualiza:**
 
-### Performance
+- **`site_config`** — novas chaves: `checkout_modo`, `mp_link_pagamento`, `mp_pix_chave`, `mp_parcelas_max`, `mp_pix_ativo`, `mp_credito_ativo`, `mp_debito_ativo`, `mp_boleto_ativo` (boleto vem **desativado**), `area_aluno_ativa`.
+- **`produtos`** — novas colunas: `capa_origem`, `capa_storage_path`, `capa_impresso_origem`, `capa_impresso_storage_path`, `venda_direta`, `permite_parcelamento`, `mp_link_pagamento`.
+- **`clientes`** — cadastro do aluno/cliente (nome, e-mail, telefone, CPF, data de nascimento, perfil, aprovação, marketing).
+- **`pedidos`** — todos os pedidos, com **numeração automática** começando em `00401906` (o painel de exemplo mostrava `00401905`), status, forma de pagamento, parcelas, frete, cupom, IDs do Mercado Pago.
+- **`cupons`** — cupons de desconto (percentual ou valor fixo).
+- **`mp_eventos`** — log de tudo que o Mercado Pago enviar (auditoria).
+- Índices, triggers de `updated_at` e as **políticas de segurança (RLS)**.
 
-- Single Page Application (SPA) - navegação sem reload
-- Carregamento assíncrono de dados
-- Otimização de imagens recomendada
-- CSS e JS inline (sem requests extras)
+### PASSO 2 — Criar o bucket de capas (upload de imagens)
 
----
+1. No Supabase, menu lateral → **Storage** → **New bucket**.
+2. Nome: **`capas`** (exatamente assim, minúsculo).
+3. Marque **Public bucket** → **Create bucket**.
+4. Clique no bucket `capas` → aba **Policies** → **New policy** → escolha o modelo **"For full customization"** e crie **quatro** políticas, todas com a expressão `true`:
+   - `SELECT` (leitura) para os papéis `anon` e `authenticated`
+   - `INSERT` (upload)
+   - `UPDATE`
+   - `DELETE`
 
-## 🌐 Deploy / Publicação
+> Enquanto o painel admin usa senha (sem login real), essas políticas permissivas são necessárias para o upload funcionar. Se depois você migrar o admin para o Supabase Auth, restrinja-as.
 
-### Opção 1: Netlify (RECOMENDADO - GRATUITO)
+### PASSO 3 — Ativar a Área do Aluno (Supabase Auth)
 
-1. Acesse [https://www.netlify.com](https://www.netlify.com)
-2. Crie uma conta gratuita
-3. Clique em **"Add new site"** > **"Deploy manually"**
-4. Arraste os 3 arquivos (`index.html`, `supabase-config.js`, `database-schema.sql`)
-5. **Pronto!** Seu site está no ar com domínio gratuito (ex: `qapostilas.netlify.app`)
+1. No Supabase, menu lateral → **Authentication** → **Sign In / Providers**.
+2. Confirme que **Email** está habilitado.
+3. Em **Authentication → URL Configuration**:
+   - **Site URL**: `https://www.maisqapostilas.com.br`
+   - **Redirect URLs**: adicione `https://www.maisqapostilas.com.br/**`
+4. **Importante:** se **"Confirm email"** estiver ligado, o aluno precisa clicar no link enviado por e-mail antes de entrar. Para simplificar (recomendado no começo), **desligue a confirmação de e-mail** em *Authentication → Sign In / Providers → Email → Confirm email*.
 
-### Opção 2: Vercel (GRATUITO)
+### PASSO 4 — Configurar o Mercado Pago
 
-1. Acesse [https://vercel.com](https://vercel.com)
-2. Crie uma conta gratuita
-3. Clique em **"Add New"** > **"Project"**
-4. Faça upload dos arquivos ou conecte ao GitHub
-5. **Pronto!** Domínio gratuito disponível
+Você tem **duas formas** de receber. Escolha uma e configure no painel do site (**Admin → Configurações → Pagamentos e Venda Direta**).
 
-### Opção 3: GitHub Pages (GRATUITO)
+#### 🅰️ Modo "link" (mais simples, sem programação)
 
-1. Crie um repositório no GitHub
-2. Faça upload dos arquivos
-3. Vá em **Settings** > **Pages**
-4. Selecione a branch `main` e clique em **Save**
-5. Seu site estará em `https://seu-usuario.github.io/qapostilas`
+1. Entre no [Mercado Pago](https://www.mercadopago.com.br) com a sua conta.
+2. Menu **Seu negócio → Cobranças → Link de pagamento** (ou *Link de pagamento* no menu lateral).
+3. Crie um link de pagamento. Na configuração de **meios de pagamento**, deixe **Pix, Cartão de crédito e Cartão de débito** marcados e **desmarque o Boleto**.
+4. Em **parcelamento**, defina o **máximo de 6 parcelas**.
+5. Copie o link (algo como `https://mpago.la/xxxxxxx`).
+6. No site: **Admin → Configurações → Pagamentos e Venda Direta**:
+   - **Modo de checkout**: `Link de pagamento do Mercado Pago (sem backend)`
+   - **Link de pagamento Mercado Pago (padrão do site)**: cole o link
+   - **Chave Pix**: informe a chave que aparecerá para quem escolher Pix (opcional, mas recomendado)
+   - **Máximo de parcelas**: `6`
+   - Marque **Pix**, **crédito** e **débito**; deixe **boleto desmarcado**
+   - Clique em **Salvar Configurações**
 
-### Opção 4: Domínio Próprio
+Cada produto pode ter o **seu próprio link** (campo *"Link de pagamento Mercado Pago do produto"* no cadastro da apostila).
 
-Se você já tem um domínio pago:
+#### 🅱️ Modo "api" (Checkout Pro automático — recomendado a médio prazo)
 
-1. Faça o deploy em qualquer uma das opções acima
-2. Configure o DNS do seu domínio para apontar para o serviço escolhido
-3. Siga as instruções de custom domain de cada plataforma
+Neste modo o próprio site cria o pagamento e o Mercado Pago redireciona o cliente, sem você precisar criar link por produto.
 
----
+1. Acesse [https://www.mercadopago.com.br/developers/panel/app](https://www.mercadopago.com.br/developers/panel/app) → **Criar aplicação**.
+2. Anote o **Access Token de produção** (começa com `APP_USR-...`).
+   > 🔒 O Access Token é **secreto**. Ele **nunca** vai no `index.html` nem no `supabase-config.js` — só nas variáveis de ambiente da Vercel (Passo 5).
+3. Ainda no painel da aplicação → **Webhooks** → **Configurar notificações**:
+   - **URL de produção**: `https://www.maisqapostilas.com.br/api/mp-webhook`
+   - **Eventos**: marque **Pagamentos** (*payment*)
+   - Clique em **Salvar** e copie a **chave secreta** que aparece (é o `MP_WEBHOOK_SECRET`).
+4. No site: **Admin → Configurações → Pagamentos e Venda Direta** → **Modo de checkout**: `Checkout Pro via API (/api/mp-checkout)`.
 
-## 📊 Estrutura do Banco de Dados
+**Como o checkout funciona nesse modo:** o cliente escolhe o formato, preenche nome/e-mail/telefone/CPF, escolhe a forma de pagamento (Pix, crédito com as parcelas calculadas, ou débito) e clica em **Finalizar e ir para o pagamento**. O sistema grava o pedido no Supabase e cria a preferência no Mercado Pago com:
+- `installments: 6` (limite de 6x) e `default_installments` conforme a escolha do cliente;
+- `excluded_payment_types: [{ id: "ticket" }]` → **boleto nunca aparece**;
+- `external_reference` = número do pedido (é o que liga o pagamento ao pedido);
+- `notification_url` = `/api/mp-webhook`;
+- `auto_return: "approved"` e as `back_urls` voltando para `/minha-conta`.
 
-### Tabela: `site_config`
-Armazena configurações gerais do site (logo, banner, contatos, senha admin)
+Quando o pagamento é aprovado, o webhook atualiza o pedido para **Pagamento confirmado** e ele aparece na Área do Aluno.
 
-### Tabela: `categorias`
-7 categorias predefinidas: Prefeituras, Policial, Saúde, Bancos, Educação, Administrativo, Pré-venda
+### PASSO 5 — Variáveis de ambiente na Vercel
 
-### Tabela: `produtos`
-Apostilas cadastradas com todos os detalhes (título, órgão, cargo, preço, categoria, badges, etc)
+Na Vercel, abra o projeto → **Settings → Environment Variables** e cadastre (ambiente **Production**, e marque também Preview/Development se quiser):
 
-### Tabela: `depoimentos`
-Testemunhais de alunos aprovados com nome, cargo, texto, foto e avaliação
+| Nome | Valor | Obrigatória? |
+|---|---|---|
+| `MP_ACCESS_TOKEN` | Access Token de produção do Mercado Pago | Só no modo "api" |
+| `MP_WEBHOOK_SECRET` | Chave secreta copiada em Webhooks | Só no modo "api" |
+| `SUPABASE_URL` | `https://cjawxciaybhgabxrrtdh.supabase.co` | Só no modo "api" |
+| `SUPABASE_SERVICE_KEY` | Supabase → Settings → API → **service_role** (secreta) | Só no modo "api" |
+| `SITE_URL` | `https://www.maisqapostilas.com.br` | Só no modo "api" |
 
----
+> 🔒 A chave **service_role** dá acesso total ao banco. Ela fica **apenas** na Vercel — nunca no navegador.
+> Sem `MP_WEBHOOK_SECRET`, o webhook aceita as notificações e apenas registra um aviso no log. Configure para valer a assinatura.
 
-## 🔒 Segurança
+Depois de salvar, faça **Redeploy** do projeto (Deployments → ⋯ → Redeploy) para as variáveis entrarem em vigor.
 
-### Row Level Security (RLS)
+### PASSO 6 — Publicar os arquivos atualizados
 
-O banco de dados está configurado com RLS (Row Level Security) do Supabase:
+Você pode enviar **todos de uma vez** (é o jeito mais seguro):
 
-- **Leitura**: Todos podem visualizar dados públicos
-- **Escrita**: Por padrão, todos podem escrever (para facilitar desenvolvimento)
+1. Vercel → seu projeto → aba **Deployments** → ⋯ → **Redeploy** (se o projeto estiver ligado ao GitHub, basta dar *commit/push*; se for upload manual, use *Add New → Project* ou a CLI `vercel --prod`).
+2. **Certifique-se de que a pasta `api/` subiu junto com o `index.html`.** Sem ela, o modo "api" do checkout retorna erro 404.
 
-⚠️ **IMPORTANTE PARA PRODUÇÃO**: Configure políticas de segurança mais restritivas no Supabase ou implemente autenticação no painel admin.
+**Onde vai cada arquivo** (na raiz do projeto publicado):
 
-### Recomendações de Segurança
+| Arquivo | Destino |
+|---|---|
+| `index.html` | raiz (`/`) |
+| `supabase-config.js` | raiz (`/`) — o site o carrega como `/supabase-config.js` |
+| `vercel.json` | raiz (`/`) |
+| `sitemap.xml` | raiz (`/`) |
+| `robots.txt` | raiz (`/`) |
+| `database-schema.sql` | **não precisa publicar** (é só para rodar no Supabase) |
+| `README.md` | **não precisa publicar** |
+| `api/mp-checkout.js` | pasta **`api/`** |
+| `api/mp-webhook.js` | pasta **`api/`** |
 
-1. **Altere a senha admin** imediatamente após a configuração
-2. Use senhas fortes (mínimo 12 caracteres, letras, números e símbolos)
-3. Não compartilhe suas credenciais do Supabase publicamente
-4. Para produção, implemente autenticação com Supabase Auth
-5. Configure políticas RLS mais restritivas para operações de escrita
+### PASSO 7 — Testar tudo
 
----
-
-## 🐛 Solução de Problemas
-
-### Site não carrega os dados do banco
-
-**Problema**: Site mostra apenas dados de demonstração
-
-**Solução**:
-1. Verifique se editou o `supabase-config.js` corretamente
-2. Abra o Console do navegador (F12) e veja se há erros
-3. Confirme se executou o `database-schema.sql` no Supabase
-4. Verifique se a Project URL e anon key estão corretas
-
-### Erro ao salvar produtos no admin
-
-**Problema**: Mensagem de erro ao tentar criar/editar produtos
-
-**Solução**:
-1. Verifique se o banco de dados foi criado corretamente
-2. Abra o SQL Editor do Supabase e execute novamente o `database-schema.sql`
-3. Verifique se as políticas RLS estão ativas
-
-### Imagens não aparecem
-
-**Problema**: Capas de apostilas ou fotos não carregam
-
-**Solução**:
-1. Verifique se as URLs das imagens estão corretas e públicas
-2. Certifique-se de que as imagens estão hospedadas em serviços que permitem hotlinking
-3. Recomendamos usar: Google Drive (modo público), Imgur, Cloudinary ou Supabase Storage
-
-### Login admin não funciona
-
-**Problema**: Senha não aceita
-
-**Solução**:
-1. A senha padrão é `admin123`
-2. Se alterou a senha, use a nova senha configurada
-3. Para resetar, vá no Supabase > Table Editor > `site_config` > edite o campo `admin_password`
+1. **Site**: abra `https://www.maisqapostilas.com.br` → a barra superior mostra **Área do Aluno** e o menu tem **Estados**.
+2. **Cadastro de aluno**: clique em **Entrar → Criar minha conta grátis**, preencha e confirme.
+3. **Venda direta**: em um produto com *Venda direta = Sim*, clique em **Comprar agora**, preencha os dados, escolha **Pix** → deve aparecer a chave Pix e o pedido é registrado. Confira em **Admin → Pedidos** (status "Aguardando pagamento", cor laranja).
+4. **Pagamento de teste**: no modo "api", o Mercado Pago oferece contas/ cartões de teste. Faça um pagamento aprovado e veja o status mudar para **Pagamento confirmado** (verde) — se não mudar, confira se o webhook está cadastrado com a URL exata e se as variáveis foram salvas.
+5. **Upload de capa**: **Admin → Produtos → Novo Produto** → em *Origem da capa* escolha **Upload de imagem** → envie um JPG. Se der erro, revise o **Passo 2** (bucket `capas` público + políticas).
+6. **Estados**: clique em qualquer sigla (ex.: **SP**) e confira a listagem.
 
 ---
 
-## 📈 Próximos Passos Recomendados
+## 🧭 Como usar o painel
 
-### Funcionalidades Não Implementadas (Possíveis Melhorias)
+### Pedidos (novo)
+Filtros no topo (pedido, CPF/CNPJ, período, produto, status, forma de pagamento, cupom, envio, tipo), a **legenda de cores** dos status, a lista com status / pedido / cliente / data / frete / pagto / total e a lupa para abrir o pedido. Dentro do pedido você pode mudar o status, registrar rastreio, ver o ID do Mercado Pago e **falar com o cliente no WhatsApp**.
 
-1. **Autenticação Admin Robusta**: Integrar com Supabase Auth para login seguro
-2. **Analytics**: Integrar Google Analytics ou similar
-3. **SEO**: Adicionar meta tags dinâmicas e Open Graph
-4. **Sistema de Reviews**: Permitir que usuários avaliem produtos
-5. **Filtros Avançados**: Múltiplos filtros simultâneos na busca
-6. **Favoritos**: Sistema para usuários salvarem apostilas favoritas
-7. **Newsletter**: Integrar sistema de e-mail marketing
-8. **Carrinho de Compras**: Permitir compra de múltiplos produtos (requer backend)
-9. **Chat/WhatsApp Widget**: Botão flutuante de atendimento
-10. **Blog/Artigos**: Seção de conteúdo educativo sobre concursos
+- **Lançar pedido manual** — registra vendas feitas na Hotmart ou em sites parceiros (aparece na Área do Aluno pelo e-mail/CPF).
+- **Exportar CSV** — baixa a lista filtrada.
+- Selecionando pedidos, os botões **Marcar em andamento / Marcar entregue / Cancelar** alteram em lote.
 
-### Sugestões de Conteúdo
+**Cores dos status (iguais ao modelo que você enviou):**
 
-1. Cadastre **pelo menos 20-30 produtos** para o site ficar robusto
-2. Adicione **10-15 depoimentos** autênticos de alunos
-3. Atualize o **"Sobre Nós"** com a história da sua empresa
-4. Configure **WhatsApp e E-mail** reais para contato
-5. Use **imagens profissionais** para capas das apostilas (mockups de PDF)
-6. Mantenha sempre o **banner principal atualizado** com promoções
+| Cor | Status |
+|---|---|
+| 🟧 Laranja | Aguardando pagamento |
+| 🟪 Roxo | Em análise |
+| 🟩 Verde | Pagamento confirmado |
+| 🟦 Azul | Em andamento |
+| 🟢 Verde-limão | Entregue a transportadora |
+| 🩵 Turquesa | Entregue |
+| 🟥 Vermelho | Cancelado |
 
----
+### Clientes (novo)
+Lista com nome, e-mail, telefone, data de cadastro e **último pedido**, além de **Incluir novo cliente**, **Exportar registros**, **Excluir registros selecionados** e o painel lateral de filtros (nome/CPF, e-mail, perfil, aguardando aprovação, último pedido, estado e aniversariantes do mês).
 
-## 🏆 Funcionalidades Implementadas
+### Cupons (novo)
+Crie códigos de desconto (percentual ou valor fixo), com valor mínimo, limite de uso e validade. O cliente digita o cupom na tela de checkout e o desconto entra no total.
 
-### ✅ Front-End
-- [x] Design moderno e profissional
-- [x] 100% responsivo (mobile-first)
-- [x] Single Page Application (SPA) com navegação fluida
-- [x] Banner hero personalizável
-- [x] Barra de pesquisa com filtros
-- [x] Grid de categorias interativo
-- [x] Cards de produtos com badges dinâmicos
-- [x] Página de detalhes do produto (modal)
-- [x] Seções: Destaques, Lançamentos, Mais Vendidas, Pré-venda
-- [x] Seção de depoimentos
-- [x] Páginas: Sobre Nós, Contato
-- [x] Rodapé com links e avisos legais
-- [x] Sistema de alertas (sucesso/erro)
-- [x] Loading states
+### Produtos
+Agora com **Origem da capa** (link ou upload), **Venda direta no site** (Sim/Não) e **Link de pagamento do produto**. O campo *Tipo de Botão* ganhou a opção **Venda direta (site próprio)**. No formulário de produto você também vê a prévia da capa enviada.
 
-### ✅ Painel Administrativo
-- [x] Login com senha
-- [x] Tabs: Configurações, Produtos, Depoimentos, Categorias
-- [x] CRUD completo de Produtos
-- [x] CRUD completo de Depoimentos
-- [x] Gerenciamento de Configurações do Site
-- [x] Ativar/Desativar Categorias
-- [x] Interface intuitiva e responsiva
-
-### ✅ Back-End (Supabase)
-- [x] 4 tabelas criadas e configuradas
-- [x] Row Level Security (RLS) ativo
-- [x] Políticas de segurança configuradas
-- [x] Índices para melhor performance
-- [x] Triggers para updated_at automático
-- [x] Dados de demonstração
-
-### ✅ Integração
-- [x] Supabase JS Client via CDN
-- [x] Operações assíncronas (async/await)
-- [x] Tratamento de erros
-- [x] Fallback para dados demo se Supabase não configurado
+### Configurações
+Ganhou a seção **Pagamentos e Venda Direta** (modo de checkout, link padrão, chave Pix, parcelas, meios ativos, Área do Aluno).
 
 ---
 
-## 📞 Suporte
+## 🔐 Segurança — leia antes de vender
 
-### Problemas Técnicos
-
-Se encontrar algum problema:
-
-1. Verifique a seção **"Solução de Problemas"** acima
-2. Abra o Console do navegador (F12) e veja erros no JavaScript
-3. Verifique se seguiu todos os passos de configuração corretamente
-
-### Documentação Adicional
-
-- **Supabase**: [https://supabase.com/docs](https://supabase.com/docs)
-- **Font Awesome**: [https://fontawesome.com/icons](https://fontawesome.com/icons)
-- **Google Fonts**: [https://fonts.google.com](https://fonts.google.com)
+1. **Troque a senha do admin** (padrão `admin123`) em *Configurações → Senha Admin*.
+2. **Nunca** coloque o Access Token do Mercado Pago, a chave `service_role` ou senhas no `index.html` / `supabase-config.js` — esses arquivos são públicos.
+3. Enquanto o painel admin usar senha simples e o RLS estiver permissivo, qualquer pessoa com a chave pública do Supabase poderia, em tese, escrever no banco. Assim que as vendas começarem, o próximo passo recomendado é migrar o login do painel para o **Supabase Auth** (usuário admin) e restringir as políticas `admin_all_*`.
+4. Faça **backup** dos pedidos: *Supabase → Table Editor → pedidos → Export* de tempos em tempos (ou use o **Exportar CSV** do painel).
 
 ---
 
-## 📝 Informações Importantes
+## 🆘 Solução de problemas
 
-### URLs de Compra (Hotmart / Parceiros)
+**O botão "Comprar agora" não aparece** → no cadastro do produto, marque *Venda direta no site = Sim* (ou *Tipo de Botão = Venda direta*).
 
-- **Produtos Hotmart**: Use o link do checkout da Hotmart (Ex: `https://pay.hotmart.com/...`)
-- **Produtos Parceiros**: Use o link direto do site do parceiro
-- Todos os links abrem em **nova aba** com `target="_blank"`
+**O upload de capa falha** → o bucket precisa se chamar `capas`, estar **público** e ter as 4 políticas (Passo 2).
 
-### Dados de Demonstração
+**"new row violates row-level security policy"** → rode o `database-schema.sql` completo novamente; as políticas de `clientes`, `pedidos` e `cupons` estão na parte final do arquivo.
 
-O site vem com dados de demonstração incluindo:
-- 4 produtos de exemplo
-- 6 depoimentos fictícios
-- 7 categorias padrão
-- Configurações iniciais
+**A Área do Aluno não mostra as compras antigas** → o pedido precisa ter o mesmo **e-mail** do cadastro, ou use **Meus dados → Vincular compras antigas** informando o e-mail/CPF usado na compra.
 
-### Política de Uso
+**O webhook não atualiza o status** → confirme a URL exata `https://www.maisqapostilas.com.br/api/mp-webhook`, o evento **Pagamentos** marcado, as variáveis `MP_ACCESS_TOKEN` / `MP_WEBHOOK_SECRET` / `SUPABASE_SERVICE_KEY` salvas na Vercel e o **Redeploy** feito depois.
 
-Este site é uma **vitrine organizacional**. Você é responsável por:
-- Garantir que os produtos cadastrados são legítimos
-- Informar claramente que compras externas são de responsabilidade do vendedor
-- Manter políticas de privacidade e termos de uso atualizados
-- Cumprir legislação vigente sobre comércio eletrônico
+**Erro 404 no checkout (modo api)** → a pasta `api/` não foi publicada. Ela precisa ficar na raiz, ao lado do `index.html`.
+
+**Boleto aparecendo no Mercado Pago** → no modo "link", desmarque boleto no próprio link do Mercado Pago; no modo "api", o site já envia `excluded_payment_types: ticket`.
 
 ---
 
-## 🎉 Conclusão
+## ✅ Checklist final
 
-Seu site **+QApostilas** está pronto para uso! Com este sistema você tem:
-
-✅ Uma **vitrine profissional** de apostilas
-✅ **Painel admin completo** para gerenciar tudo
-✅ **Integração com Supabase** gratuita e escalável
-✅ **Design moderno** e totalmente responsivo
-✅ **Facilidade de uso** para administradores e visitantes
-
-### Checklist Final
-
-- [ ] Configurei o Supabase corretamente
-- [ ] Executei o database-schema.sql
-- [ ] Atualizei o supabase-config.js com minhas credenciais
-- [ ] Testei o site localmente
-- [ ] Alterei a senha admin padrão
-- [ ] Cadastrei meus primeiros produtos reais
-- [ ] Adicionei depoimentos autênticos
-- [ ] Configurei logo, banner e informações de contato
-- [ ] Fiz deploy do site
-- [ ] Configurei meu domínio próprio (se aplicável)
+- [ ] Rodei o `database-schema.sql` no Supabase
+- [ ] Criei o bucket público `capas` com as 4 políticas
+- [ ] Ativei o Auth por e-mail e configurei a Site URL
+- [ ] Configurei o Mercado Pago (link **ou** aplicação + webhook)
+- [ ] Cadastrei as variáveis de ambiente na Vercel (se usar o modo "api")
+- [ ] Publiquei `index.html`, `supabase-config.js`, `vercel.json`, `sitemap.xml`, `robots.txt` e a pasta `api/`
+- [ ] Marquei os produtos que terão **venda direta**
+- [ ] Testei um cadastro de aluno e um pedido de teste
+- [ ] Troquei a senha do admin
 
 ---
 
-## 📄 Licença
-
-Este projeto foi desenvolvido para uso comercial. Você tem total liberdade para:
-- Usar comercialmente
-- Modificar o código
-- Personalizar design
-- Integrar com outros sistemas
-
----
-
-**Desenvolvido com ❤️ para +QApostilas**
-
-**Versão**: 1.0.0  
-**Data**: 2025  
-**Autor**: Sistema desenvolvido especialmente para vitrine de apostilas
-
----
-
-## 💡 Dicas Profissionais
-
-### Marketing Digital
-
-1. **SEO Local**: Otimize para concursos específicos da sua região
-2. **Google Ads**: Invista em palavras-chave específicas de concursos
-3. **Instagram/Facebook**: Poste dicas de estudo e promoções
-4. **YouTube**: Crie vídeos sobre editais e dicas de aprovação
-5. **E-mail Marketing**: Envie novidades sobre novos editais
-
-### Conversão
-
-1. Use **badges** chamativos (Atualizado, Novo, Desconto)
-2. Destaque **depoimentos autênticos** com fotos reais
-3. Mantenha **preços competitivos** e mostre descontos
-4. Ofereça **pré-venda** com desconto para novos editais
-5. Tenha **WhatsApp** ativo para tirar dúvidas rapidamente
-
-### Qualidade
-
-1. **Atualize sempre** conforme novos editais
-2. Use **mockups profissionais** para as capas
-3. Descreva **detalhadamente** o conteúdo programático
-4. Seja **transparente** sobre a origem dos produtos
-5. Responda **rapidamente** às dúvidas dos clientes
-
----
-
-**Boa sorte com seu negócio de apostilas! 🚀📚**
+**Desenvolvido para +QApostilas** — versão 2.0 · outubro de 2026
