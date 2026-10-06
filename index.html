@@ -647,7 +647,8 @@
         /* ==================== NOVA PÁGINA DE PRODUTO (LAYOUT DOMÍNIO) ==================== */
         .product-detail {
             display: grid;
-            grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(270px, 320px);
+            /* PATCH v3: a capa ganhou mais espaço (antes travava em 360px). */
+            grid-template-columns: minmax(340px, 480px) minmax(0, 1fr) minmax(270px, 320px);
             grid-template-areas: "cover info purchase";
             gap: 28px;
             background: var(--white);
@@ -665,6 +666,9 @@
         .product-cover-shell {
             position: relative;
             width: 100%;
+            /* PATCH v3: capa maior — o produto é o destaque da página. */
+            max-width: 480px;
+            margin: 0 auto;
             aspect-ratio: 21 / 29.7;
             border-radius: 18px;
             overflow: hidden;
@@ -679,11 +683,51 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            padding: 8px;
+            padding: 10px;
             transition: transform 0.4s ease;
         }
 
         .product-detail-image:hover { transform: scale(1.02); }
+
+        /* ==================== PATCH v3 (formas de pagamento / capa / selos) ==================== */
+        /* Formas de pagamento no checkout: o cliente escolhe, não é mais um select escondido */
+        .v2-pag-opcoes { display: grid; gap: 10px; margin-top: 6px; }
+        .v2-pag-option {
+            display: grid;
+            grid-template-columns: 22px 1fr;
+            grid-template-areas: "radio titulo" "radio desc";
+            align-items: center;
+            gap: 2px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            background: var(--white);
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+        }
+        .v2-pag-option:hover { border-color: var(--primary); }
+        .v2-pag-option.selecionado {
+            border-color: var(--primary);
+            background: #f3f8ff;
+            box-shadow: 0 6px 18px -12px rgba(30,144,255,.75);
+        }
+        .v2-pag-option input[type=radio] { grid-area: radio; width: 18px; height: 18px; accent-color: var(--primary); }
+        .v2-pag-titulo { grid-area: titulo; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .v2-pag-desc { grid-area: desc; font-size: 12px; color: var(--text-muted); }
+
+        /* Selo de origem do produto: SÓ na página do produto e SÓ para parceiro */
+        .v2-venda-selo-parceiro { margin-bottom: 4px; }
+
+        /* Card da vitrine: capa mais presente, sem selo de origem */
+        .product-card .product-image-container { padding: 10px; }
+        .product-card .product-image { border-radius: 14px; }
+
+        /* Selo da capa (canto) */
+        .v2-capa-selo {
+            position: absolute; top: 10px; left: 10px; z-index: 3;
+            background: rgba(15, 23, 42, .78); color: #fff; font-size: 11px; font-weight: 700;
+            padding: 4px 9px; border-radius: 999px; letter-spacing: .02em;
+        }
 
         /* ==================== PATCH v2 (vendas próprias / estados / conta) ==================== */
         .hidden { display: none !important; }
@@ -745,7 +789,7 @@
 
         @media (max-width: 1024px) {
             .product-detail {
-                grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+                grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
                 grid-template-areas:
                     "cover info"
                     "purchase purchase"
@@ -2898,7 +2942,7 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>📱 Capa Digital — link <small style="font-weight:400;color:var(--text-muted)">(produtos já cadastrados continuam por link)</small></label>
-                                    <input type="url" name="capa_url" id="product_capa_url" placeholder="https://...capa-digital.jpg">
+                                    <input type="text" name="capa_url" id="product_capa_url" placeholder="https://...capa-digital.jpg">
                                     <input type="hidden" name="capa_storage_path" id="product_capa_storage_path">
                                 </div>
                                 <div class="form-group">
@@ -2911,7 +2955,7 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>📖 Capa Impressa — link <small style="font-weight:400;color:var(--text-muted)">(opcional)</small></label>
-                                    <input type="url" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
+                                    <input type="text" name="capa_url_impresso" id="product_capa_url_impresso" placeholder="https://...capa-impressa.jpg">
                                     <input type="hidden" name="capa_impresso_storage_path" id="product_capa_impresso_storage_path">
                                 </div>
                                 <div class="form-group">
@@ -3006,7 +3050,8 @@
                             </div>
                             <div class="form-group">
                                 <label>Link de Compra <small style="font-weight:400;color:var(--text-muted)">(Hotmart/parceiro; opcional no próprio)</small></label>
-                                <input type="url" name="link_compra" id="product_link_compra">
+                                <input type="text" name="link_compra" id="product_link_compra" placeholder="https://pay.hotmart.com/... ou https://site-do-parceiro.com/...">
+                                <small style="color:var(--text-muted)">Para <strong>remover</strong> o link: apague o campo, deixe em branco e clique em Salvar. Aceita endereço com ou sem https://.</small>
                             </div>
                         </div>
                         
@@ -3780,11 +3825,20 @@
                             ${formats.map(format => `<option value="${format.value}" ${format.value === currentOffer.value ? 'selected' : ''}>${format.label}</option>`).join('')}
                         </select>
                     ` : `<div class="purchase-box-label-static">${currentOffer.badge}</div>`}
-                    ${(() => { const vt = getVendaTipo(produto); const vm = getVendaMeta(vt); return `
-                    <span class="v2-venda-selo" style="background:${vm.cor};">${vt === 'proprio' ? '<i class="fas fa-bolt"></i>' : '<i class="fas fa-cart-shopping"></i>'} ${vm.label}</span>
+                    ${(() => {
+                        const vt = getVendaTipo(produto);
+                        const vm = getVendaMeta(vt);
+                        /* PATCH v3: o selo de origem aparece SÓ na página do produto e SÓ
+                           quando o produto for de parceiro. Produto próprio e Hotmart
+                           ficam sem selo. */
+                        const seloOrigem = (vt === 'parceiro')
+                            ? `<span class="v2-venda-selo v2-venda-selo-parceiro" style="background:${vm.cor};"><i class="fas fa-store"></i> ${vm.label}</span>`
+                            : '';
+                        return `${seloOrigem}
                     <button type="button" class="btn ${vm.classe} purchase-box-action" onclick="handleBuyClick(event, ${produto.id})">
                         <i class="fas fa-cart-shopping"></i> Comprar
-                    </button>`; })()}
+                    </button>`;
+                    })()}
                     <p class="purchase-box-secure"><i class="fas fa-lock"></i> Compra segura</p>
                 </div>
             `;
@@ -4035,9 +4089,14 @@
 
         function filterByEstado(sigla) {
             const estadoUpper = (sigla || '').toUpperCase();
+            // PATCH v3: "Nacional" precisa listar TODOS os produtos.
+            // Antes ele filtrava por estado === 'NACIONAL' e não retornava nada.
+            const nacional = (estadoUpper === 'NACIONAL' || estadoUpper === 'BR' || estadoUpper === 'TODOS' || estadoUpper === '');
             appState.currentView = 'estado';
-            appState.filters = { search: '', estado: estadoUpper, categoria: '', type: '' };
-            const filtered = appState.produtos.filter(p => (p.estado || '').toUpperCase() === estadoUpper);
+            appState.filters = { search: '', estado: nacional ? '' : estadoUpper, categoria: '', type: '' };
+            const filtered = nacional
+                ? [...appState.produtos]
+                : appState.produtos.filter(p => (p.estado || '').toUpperCase() === estadoUpper);
             const stateNames = {
                 'AC':'Acre','AL':'Alagoas','AM':'Amazonas','AP':'Amapá','BA':'Bahia',
                 'CE':'Ceará','DF':'Distrito Federal','ES':'Espírito Santo','GO':'Goiás',
@@ -4047,13 +4106,14 @@
                 'RS':'Rio Grande do Sul','SC':'Santa Catarina','SE':'Sergipe','SP':'São Paulo',
                 'TO':'Tocantins','NACIONAL':'Nacional'
             };
-            const nome = stateNames[estadoUpper] || estadoUpper;
+            const nome = nacional ? 'todo o Brasil' : (stateNames[estadoUpper] || estadoUpper);
+            const caminho = nacional ? '/' : `/estado/${estadoUpper.toLowerCase()}`;
             renderFilteredResults(filtered, `Apostilas para ${nome}`, {
                 title: `Apostilas para concursos em ${nome} | +QApostilas`,
                 description: `Confira as apostilas disponíveis para concursos públicos em ${nome}. Material digital 100% atualizado.`,
-                path: `/estado/${estadoUpper.toLowerCase()}`
+                path: caminho
             });
-            window.history.pushState({}, '', `/estado/${estadoUpper.toLowerCase()}`);
+            window.history.pushState({}, '', caminho);
         }
 
         function renderProductsSection(id, title, produtos) {
@@ -4103,9 +4163,11 @@
             return `
                 <div class="product-card" onclick="navigateTo('produto', '${produto.slug}')">
                     <div class="product-image-container">
+                        <!-- PATCH v3: selo "Atualizado" ancorado na CAPA (como nas páginas
+                             de referência) e capa com mais destaque dentro do card. -->
+                        ${produto.atualizado_edital ? '<span class="v2-capa-selo"><i class="fas fa-check"></i> ATUALIZADO</span>' : ''}
                         <img src="${produto.capa_url || produto.capa_url_impresso || getCoverPlaceholder()}" alt="${produto.titulo}" class="product-image" loading="lazy" onerror="this.onerror=null;this.src=getCoverPlaceholder();">
                         <div class="product-badges">
-                            ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check"></i> Atualizado</span>' : ''}
                             ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
                             ${produto.lancamento ? '<span class="badge badge-accent"><i class="fas fa-star"></i> Novo</span>' : ''}
                         </div>
@@ -4113,7 +4175,9 @@
                     <div class="product-content">
                         <div class="product-category">${categoria}${categoria2 ? `<span style="margin:0 4px;opacity:0.5;">•</span>${categoria2}` : ''}</div>
                         <h3 class="product-title">${produto.titulo}</h3>
-                        <div style="margin-top:6px;"><span class="v2-venda-selo" style="background:${getVendaMeta(getVendaTipo(produto)).cor};">${getVendaMeta(getVendaTipo(produto)).label}</span></div>
+                        <!-- PATCH v3: selo de origem (Produto próprio / Hotmart / Site parceiro)
+                             REMOVIDO dos cards. Ele aparece apenas na página do produto e
+                             apenas quando o produto for de parceiro. -->
                         <div class="product-prices">
                             <div class="price-version-row">
                                 <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
@@ -5331,6 +5395,15 @@
             document.getElementById('productsTableContainer').classList.remove('hidden');
         }
 
+        // PATCH v3 — campos que o admin pode APAGAR no formulário do produto.
+        // Antes, campo vazio era simplesmente ignorado no update: o valor antigo
+        // continuava no banco e reaparecia ao editar o produto de novo.
+        const CAMPOS_QUE_PODEM_SER_LIMPOS = [
+            'link_compra', 'preco_original', 'preco_impresso', 'parcelas',
+            'parcelas_impresso', 'paginas', 'cidade', 'sigla_concurso',
+            'conteudo_programatico', 'avaliacao_media', 'total_avaliacoes', 'estado'
+        ];
+
         async function saveProduct(event) {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -5344,7 +5417,17 @@
                     productData[key] = el.checked;
                 } else if (value !== null && value !== undefined && value !== '') {
                     productData[key] = value;
+                } else if (CAMPOS_QUE_PODEM_SER_LIMPOS.includes(key)) {
+                    // campo apagado de propósito → grava NULL para limpar no banco
+                    productData[key] = null;
                 }
+            }
+
+            // Capa por link apagada (e sem arquivo enviado) → precisa gravar NULL,
+            // senão o link antigo volta a aparecer quando o formulário for reaberto.
+            const capaPathEl = document.getElementById('product_capa_storage_path');
+            if (!productData.capa_url && !(capaPathEl && capaPathEl.value)) {
+                productData.capa_url = null;
             }
 
             // ---- PATCH v2: envia capas/PDF escolhidos por arquivo antes de gravar ----
@@ -5352,13 +5435,17 @@
                 await processarUploadsProduto();
             } catch (uploadErr) {
                 console.error(uploadErr);
-                showAlert('Falha no envio de arquivo: ' + (uploadErr.message || uploadErr), 'error');
+                const msgUpload = (typeof v2MensagemErroUpload === 'function')
+                    ? v2MensagemErroUpload(uploadErr)
+                    : (uploadErr.message || uploadErr);
+                showAlert('Falha no envio de arquivo: ' + msgUpload, 'error');
                 return;
             }
 
             const tipoVendaEl = document.getElementById('product_tipo_botao');
             if (tipoVendaEl) productData.tipo_venda = tipoVendaEl.value;
-            if (productData.tipo_botao === 'proprio') delete productData.link_compra;
+            // PATCH v3: grava NULL em vez de "delete" — assim o link antigo é realmente apagado.
+            if (productData.tipo_botao === 'proprio') productData.link_compra = null;
             if (typeof prepararCamposV2 === 'function') await prepararCamposV2(productData);
             if (!productData.capa_url && !productData.capa_storage_path) { showAlert('Informe a capa (link ou arquivo).', 'warning'); return; }
 
@@ -5418,24 +5505,47 @@
                     productData.slug = ensureUniqueValue(baseSlug, (appState.allProdutos || []).map(p => p.slug), 'produto');
                 }
 
+                let produtoSalvo = null;
+
                 if (id) {
-                    const { error } = await supabaseClient
+                    // PATCH v3: .select().single() devolve a linha realmente gravada.
+                    // Se algum campo não for salvo, aparece na hora — em vez de só quando
+                    // o formulário for reaberto.
+                    const { data, error } = await supabaseClient
                         .from('produtos')
                         .update(productData)
-                        .eq('id', id);
+                        .eq('id', id)
+                        .select('*')
+                        .single();
                     if (error) throw error;
+                    produtoSalvo = data;
                     showAlert('Produto atualizado com sucesso!', 'success');
                 } else {
-                    const { error } = await supabaseClient
+                    const { data, error } = await supabaseClient
                         .from('produtos')
-                        .insert([productData]);
+                        .insert([productData])
+                        .select('*')
+                        .single();
                     if (error) throw error;
+                    produtoSalvo = data;
                     showAlert(`Produto criado com sucesso!${productData.codigo ? ` Código: ${productData.codigo}` : ''}`, 'success');
                 }
 
                 await loadProdutos();
+
+                // Mantém o estado local igual ao banco (a lista do admin e a vitrine
+                // passam a mostrar o valor novo imediatamente).
+                if (produtoSalvo) {
+                    [appState.allProdutos, appState.produtos].forEach(lista => {
+                        if (!Array.isArray(lista)) return;
+                        const idx = lista.findIndex(p => String(p.id) === String(produtoSalvo.id));
+                        if (idx > -1) lista[idx] = Object.assign({}, lista[idx], produtoSalvo);
+                    });
+                }
+
                 loadProductsTable();
                 hideProductForm();
+                if (typeof updateEstadosDropdown === 'function') { try { updateEstadosDropdown(); } catch (e) {} }
             } catch (error) {
                 console.error(error);
                 showAlert('Erro ao salvar produto: ' + (error.message || error), 'error');
@@ -6029,6 +6139,7 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
