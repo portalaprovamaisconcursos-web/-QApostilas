@@ -1,5 +1,5 @@
 // ============================================================================
-// supabase-config.js — +QApostilas (v3.1)
+// supabase-config.js — +QApostilas (v3.2)
 // AVISO: este arquivo é público (vai para o navegador do visitante).
 // NUNCA coloque aqui: Access Token do Mercado Pago, chave service_role ou senhas.
 // ============================================================================
@@ -14,7 +14,12 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON
 });
 
 window.APP_CONFIG = {
-  checkout_modo: 'link',          // 'link' | 'api'
+  // 'link'  -> tenta gerar um LINK ÚNICO do pedido no Mercado Pago (Checkout Pro,
+  //            via /api/mp-checkout). Se a Vercel ainda não tiver as variáveis
+  //            de ambiente, cai automaticamente para o link fixo do produto/painel
+  //            e, se não houver nenhum, mostra o Pix.
+  // 'api'   -> igual, porém mostra erro caso a API não esteja configurada.
+  checkout_modo: 'link',
   mp_parcelas_max: 6,
   storage_bucket_capas: 'capas',
   storage_bucket_pdfs: 'apostilas-pdf',

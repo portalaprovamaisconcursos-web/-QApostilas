@@ -4117,8 +4117,8 @@
             const currentPath = normalizePath(window.location.pathname);
             const parts = currentPath.split('/').filter(Boolean);
 
-            if (currentPath === '/') {
-                renderHome();
+if (currentPath === '/') {
+                renderHomeSeguro();
             } else if (currentPath === '/sobre') {
                 renderSobre();
             } else if (currentPath === '/contato') {
@@ -4159,8 +4159,14 @@
                 appState.isAdmin = true;
             }
 
-            await loadData();
-
+try {
+                await loadData();
+            } catch (error) {
+                // Sem este try/catch, qualquer falha aqui abortava o init e a rota
+                // nunca era montada: era isso que deixava a home em branco.
+                console.error('Falha ao carregar dados:', error);
+                showAlert('Não foi possível carregar os dados do banco: ' + (error.message || error), 'error');
+            }
             // Restaura a sessão do aluno (Supabase Auth)
             try {
                 const { data } = await supabaseClient.auth.getSession();
@@ -4619,6 +4625,26 @@
         }
 
         // ==================== RENDER HOME ====================
+function renderHomeSeguro() {
+            try {
+                renderHome();
+            } catch (error) {
+                console.error('Erro ao montar a pagina inicial:', error);
+                const mainContent = document.getElementById('mainContent');
+                if (mainContent) {
+                    mainContent.innerHTML = `
+                        <section style="padding:60px 20px; text-align:center;">
+                            <h1 style="font-size:24px; margin-bottom:12px;">Nao foi possivel montar a pagina inicial</h1>
+                            <p style="color:var(--text-muted); margin-bottom:8px;">Detalhe tecnico: ${String((error && error.message) || error)}</p>
+                            <p style="color:var(--text-muted); margin-bottom:18px;">Envie esta mensagem para o suporte. Enquanto isso voce pode navegar pelo menu.</p>
+                            <button class="btn btn-primary" onclick="location.reload()">Tentar novamente</button>
+                        </section>
+                    `;
+                }
+                showAlert('Erro na pagina inicial: ' + ((error && error.message) || error), 'error');
+            }
+        }
+
         function renderHome() {
             appState.currentView = 'home';
             const mainContent = document.getElementById('mainContent');
@@ -4811,14 +4837,7 @@
                                 <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
                                 ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
                             </div>
-                            ${parcelaHtml}
-                            ${produto.preco_impresso ? `
-                            <div class="price-version-row" style="margin-top:3px;">
-                                <span class="price-version-icon">📖</span>
-                                <span class="price-impresso">R$ ${formatPrice(produto.preco_impresso)}</span>
-                            </div>
-                            ${parcelasImpresso && parcelasImpresso >= 2 ? `<div class="product-installment" style="margin-top:2px;">${parcelasImpresso}x de R$ ${formatPrice(parseFloat(produto.preco_impresso) / parcelasImpresso)} s/ juros</div>` : ''}
-                            ` : ''}
+${parcelaHtml}
                         </div>
                         ${isDirectSale(produto) ? `
                             <button class="btn btn-success btn-sm" style="width:100%; justify-content:center; margin-top:8px;"
@@ -5560,13 +5579,22 @@
             const formData = new FormData(event.target);
             
             try {
+const valores = {};
                 for (let [key, value] of formData.entries()) {
-                    // Use upsert so new keys (like favicon_url) are also inserted if not present
+                    valores[key] = value;
+                }
+                // Checkboxes NAO marcados nao aparecem no FormData e os marcados chegam como "on".
+                // Normalizamos para "true"/"false" - era isso que fazia o site entender que
+                // NENHUMA forma de pagamento estava habilitada no painel.
+                (event.target.querySelectorAll ? event.target.querySelectorAll('input[type="checkbox"][name]') : []).forEach(chk => {
+                    valores[chk.name] = chk.checked ? 'true' : 'false';
+                });
+
+                for (const [key, value] of Object.entries(valores)) {
                     await supabaseClient
                         .from('site_config')
-                        .upsert({ key: key, value: value }, { onConflict: 'key' });
-                    
-                    appState.config[key] = value;
+                        .upsert({ key: key, value: String(value) }, { onConflict: 'key' });
+                    appState.config[key] = String(value);
                 }
 
                 // Apply favicon immediately if changed
@@ -6064,7 +6092,11 @@
             if (productData.parcelas_impresso) productData.parcelas_impresso = parseInt(productData.parcelas_impresso);
             if (productData.preco) productData.preco = parseFloat(productData.preco);
             if (productData.preco_original) productData.preco_original = parseFloat(productData.preco_original);
-            if (productData.preco_impresso) productData.preco_impresso = parseFloat(productData.preco_impresso);
+// A versao impressa foi removida do projeto: estes campos nao existem no banco
+                // e faziam o insert/update falhar ("Could not find the 'preco_impresso' column").
+                delete productData.preco_impresso;
+                delete productData.parcelas_impresso;
+                delete productData.capa_url_impresso;
             if (productData.venda_direta !== undefined) productData.venda_direta = String(productData.venda_direta) === 'true';
             if (productData.permite_parcelamento !== undefined) productData.permite_parcelamento = String(productData.permite_parcelamento) === 'true';
             if (productData.tipo_botao === 'site' && !productData.link_compra) {
@@ -6558,6 +6590,20 @@
         }
 
         // ==================== ALERTS ====================
+function erroBanco(prefixo, error) {
+            const msg = String((error && error.message) || error || '');
+            if (/schema cache|does not exist|Could not find/i.test(msg)) {
+                return prefixo + ': ' + msg + ' — rode o database-schema.sql no SQL Editor do Supabase para criar as colunas/tabelas que faltam.';
+            }
+            if (/duplicate key|unique constraint/i.test(msg)) {
+                return prefixo + ': já existe um cadastro com este e-mail/CPF.';
+            }
+            if (/row-level security|permission denied|JWT/i.test(msg)) {
+                return prefixo + ': permissão negada pelo banco (RLS). Confira as políticas do Supabase.';
+            }
+            return prefixo + ': ' + msg;
+        }
+
         function showAlert(message, type = 'info') {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
@@ -6857,7 +6903,14 @@
 
         function getPaymentOptions() {
             const cfg = appState.config || {};
-            const ativo = (key, padrao) => (cfg[key] === undefined || cfg[key] === '' ? padrao : String(cfg[key]) === 'true');
+const ativo = (key, padrao) => {
+                const bruto = cfg[key];
+                if (bruto === undefined || bruto === null || bruto === '') return padrao;
+                const valor = String(bruto).trim().toLowerCase();
+                if (['true', 'on', '1', 'sim', 'yes'].indexOf(valor) !== -1) return true;
+                if (['false', 'off', '0', 'nao', 'não', 'no'].indexOf(valor) !== -1) return false;
+                return padrao;
+            };
             const opcoes = [];
             if (ativo('mp_pix_ativo', true)) {
                 opcoes.push({ id: 'pix', icon: 'fa-qrcode', title: 'Pix', desc: 'Aprovação imediata e liberação rápida do material' });
@@ -7106,21 +7159,31 @@
                     return;
                 }
 
-                const modo = (appState.config.checkout_modo || (window.APP_CONFIG && window.APP_CONFIG.checkout_modo) || 'link');
-                if (modo === 'api') {
+// 1) Tenta SEMPRE gerar um LINK UNICO deste pedido no Mercado Pago
+                //    (Checkout Pro via /api/mp-checkout). Assim cada venda pode ser
+                //    controlada: pago / nao pago, valor e liberacao do PDF.
+                let linkUnico = '';
+                try {
                     const resposta = await fetch('/api/mp-checkout', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ pedido_id: data.id, parcelas_max: (appState.config.mp_parcelas_max || 6) })
                     });
-                    const json = await resposta.json();
-                    if (!resposta.ok || !json.init_point) {
-                        throw new Error((json && json.error) || 'Não foi possível iniciar o pagamento no Mercado Pago.');
+                    const json = await resposta.json().catch(() => ({}));
+                    if (resposta.ok && json.init_point) {
+                        linkUnico = json.init_point;
+                    } else {
+                        console.warn('Link do Mercado Pago nao gerado:', (json && json.error) || resposta.status);
                     }
-                    window.location.href = json.init_point;
+                } catch (e) {
+                    console.warn('Falha ao chamar /api/mp-checkout:', e.message || e);
+                }
+                if (linkUnico) {
+                    renderLinkPagamento(data, linkUnico, produto);
                     return;
                 }
 
+                // 2) API indisponivel: usa o link fixo (do produto ou do painel).
                 const link = produto.mp_link_pagamento || (appState.config || {}).mp_link_pagamento;
                 if (link) {
                     document.getElementById('modalBody').innerHTML = `
@@ -7148,6 +7211,38 @@
                 console.error(error);
                 showAlert('Erro ao registrar o pedido: ' + (error.message || error), 'error');
             }
+        }
+
+function renderLinkPagamento(pedido, url, produto) {
+            document.getElementById('modalTitle').textContent = 'Finalizar pagamento';
+            document.getElementById('modalBody').innerHTML = `
+                <div style="text-align:center;">
+                    <div style="font-size:50px; color:var(--success); margin-bottom:8px;"><i class="fas fa-check-circle"></i></div>
+                    <h3 style="margin-bottom:6px;">Pedido ${escapeHtml(pedido.codigo || pedido.id)} registrado!</h3>
+                    <p style="color:var(--text-muted); margin-bottom:4px;">${escapeHtml((produto && produto.titulo) || '')}</p>
+                    <p style="color:var(--text-muted);">Valor: <strong>R$ ${formatPrice(pedido.total || pedido.valor || 0)}</strong></p>
+                    <p style="margin:10px 0 6px; font-size:13px; color:#92400E;">
+                        <i class="fas fa-clock"></i> Status atual: <strong>Aguardando pagamento</strong>.
+                        Quando o Mercado Pago confirmar, o pedido passa para "Pagamento confirmado"
+                        e o PDF e liberado na Area do Aluno.
+                    </p>
+                </div>
+                <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="width:100%; justify-content:center; margin-top:12px;">
+                    <i class="fas fa-external-link-alt"></i> Pagar agora no Mercado Pago
+                </a>
+                <div class="pix-box" style="margin-top:14px;">
+                    <strong><i class="fas fa-link"></i> Link exclusivo deste pedido</strong>
+                    <span class="pix-key" style="word-break:break-all; font-size:12px;">${escapeHtml(url)}</span>
+                    <p style="margin-top:8px; font-size:13px; color:#166534;">
+                        <i class="fas fa-info-circle"></i> Este link e do pedido
+                        <strong>${escapeHtml(pedido.codigo || pedido.id)}</strong>. E por ele que o painel
+                        sabe se o pagamento foi feito.
+                    </p>
+                </div>
+                <button class="btn" style="width:100%; justify-content:center; margin-top:12px;" onclick="closeModal(); openStudentAuth();">
+                    <i class="fas fa-user-graduate"></i> Acompanhar na Area do Aluno
+                </button>
+            `;
         }
 
         function renderPixInstructions(pedido, aviso) {
@@ -7369,16 +7464,48 @@
                 appState.clientePerfil = null;
                 return;
             }
-            if (!data) {
-                await supabaseClient.from('clientes').insert([{
-                    user_id: appState.aluno.id,
-                    nome: (appState.aluno.email || '').split('@')[0],
-                    email: appState.aluno.email,
-                    perfil: 'aluno'
-                }]);
+if (data) {
+                appState.clientePerfil = data;
                 return;
             }
-            appState.clientePerfil = data;
+
+            // Nao existe linha ligada a este usuario. Pode existir um cadastro antigo
+            // (criado numa compra) com o MESMO e-mail e user_id nulo: reaproveitamos,
+            // pois a coluna email e UNIQUE e o insert falhava com "duplicate key".
+            const { data: porEmail } = await supabaseClient
+                .from('clientes')
+                .select('*')
+                .eq('email', appState.aluno.email)
+                .maybeSingle();
+
+            if (porEmail) {
+                const { data: vinculado, error: erroVinculo } = await supabaseClient
+                    .from('clientes')
+                    .update({ user_id: appState.aluno.id, updated_at: new Date().toISOString() })
+                    .eq('id', porEmail.id)
+                    .select('*')
+                    .single();
+                if (erroVinculo) {
+                    console.warn('Nao foi possivel vincular o cadastro antigo:', erroVinculo.message);
+                    appState.clientePerfil = porEmail;
+                    return;
+                }
+                appState.clientePerfil = vinculado || porEmail;
+                return;
+            }
+
+            const { data: criado, error: erroCriar } = await supabaseClient.from('clientes').insert([{
+                user_id: appState.aluno.id,
+                nome: (appState.aluno.email || '').split('@')[0],
+                email: appState.aluno.email,
+                perfil: 'aluno'
+            }]).select('*').single();
+            if (erroCriar) {
+                console.warn('Perfil do aluno nao criado:', erroCriar.message);
+                appState.clientePerfil = null;
+                return;
+            }
+            appState.clientePerfil = criado;
         }
 
         async function vincularPedidosPorEmail() {
@@ -7463,15 +7590,30 @@
                 updated_at: new Date().toISOString()
             };
             try {
-                const { error } = await supabaseClient.from('clientes').upsert([payload], { onConflict: 'user_id' });
+const { data: atualizado, error } = await supabaseClient
+                    .from('clientes')
+                    .update(payload)
+                    .or(`user_id.eq.${appState.aluno.id},email.eq.${appState.aluno.email}`)
+                    .select('*');
                 if (error) throw error;
+                if (!atualizado || !atualizado.length) {
+                    const { data: inserido, error: erroInsert } = await supabaseClient
+                        .from('clientes')
+                        .insert([payload])
+                        .select('*')
+                        .single();
+                    if (erroInsert) throw erroInsert;
+                    appState.clientePerfil = inserido;
+                } else {
+                    appState.clientePerfil = atualizado[0];
+                }
                 appState.clientePerfil = Object.assign({}, appState.clientePerfil, payload);
                 document.getElementById('studentName').textContent = payload.nome;
                 updateStudentButton();
                 showAlert('Dados atualizados com sucesso!', 'success');
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao salvar seus dados: ' + (error.message || error), 'error');
+showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
             }
         }
 
@@ -7709,7 +7851,7 @@
                 await loadPedidosClientes();
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao atualizar pedidos: ' + (error.message || error), 'error');
+showAlert(erroBanco('Erro ao atualizar pedidos', error), 'error');
             }
         }
 
@@ -7757,12 +7899,41 @@
                         <textarea id="order_obs" rows="3">${escapeHtml(pedido.observacoes || '')}</textarea>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
+<button class="btn btn-primary" onclick="verificarPagamentoPedido(${pedido.id})"><i class="fas fa-rotate"></i> Verificar pagamento</button>
                         <button class="btn btn-success" onclick="saveOrderChanges(${pedido.id})"><i class="fas fa-save"></i> Salvar alterações</button>
                         ${pedido.cliente_telefone ? `<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="https://wa.me/${onlyDigits(pedido.cliente_telefone).length > 11 ? onlyDigits(pedido.cliente_telefone) : '55' + onlyDigits(pedido.cliente_telefone)}?text=${encodeURIComponent('Olá ' + (pedido.cliente_nome || '') + '! Sobre o seu pedido ' + (pedido.codigo || pedido.id) + ' na +QApostilas:')}"><i class="fab fa-whatsapp"></i> Falar com o cliente</a>` : ''}
                     </div>
                 </div>
             `;
             document.getElementById('globalModal').classList.add('active');
+        }
+
+async function verificarPagamentoPedido(id) {
+            const pedido = (appState.pedidos || []).find(p => p.id === id);
+            if (!pedido) return;
+            showAlert('Consultando o Mercado Pago...', 'info');
+            try {
+                const resposta = await fetch('/api/mp-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pedido_id: id })
+                });
+                const json = await resposta.json().catch(() => ({}));
+                if (!resposta.ok || !json.ok) {
+                    throw new Error((json && json.error) || 'Nao foi possivel consultar o pagamento.');
+                }
+                closeModal();
+                if (json.encontrado) {
+                    const rotulo = (PEDIDO_STATUS[json.status_pedido] || {}).label || json.status_pedido;
+                    showAlert('Pagamento encontrado (' + json.status_mp + '). Pedido atualizado para "' + rotulo + '".', 'success');
+                } else {
+                    showAlert('Ainda nao existe pagamento deste pedido no Mercado Pago.', 'warning');
+                }
+                await loadPedidosClientes();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao verificar pagamento: ' + ((error && error.message) || error), 'error');
+            }
         }
 
         async function saveOrderChanges(id) {
@@ -7783,7 +7954,7 @@
                 await loadPedidosClientes();
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao salvar o pedido: ' + (error.message || error), 'error');
+showAlert(erroBanco('Erro ao salvar o pedido', error), 'error');
             }
         }
 
@@ -7911,7 +8082,7 @@
                 await loadPedidosClientes();
             } catch (error) {
                 console.error(error);
-                showAlert('Erro ao registrar o pedido: ' + (error.message || error), 'error');
+showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
             }
         }
 
@@ -8358,6 +8529,7 @@
 
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
