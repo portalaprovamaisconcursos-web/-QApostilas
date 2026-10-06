@@ -1,0 +1,74 @@
+/* =========================================================================
+   +QApostilas — site-fix.css
+   Correções visuais aplicadas sobre o index.html, sem mexer no HTML.
+   Carregue <link rel="stylesheet" href="site-fix.css"> DEPOIS do <style>
+   principal (ou inlinamente no <head>, antes de </head>).
+   ========================================================================= */
+
+/* 1) CAPA DO PRODUTO MAYOR E SEM GRADIENTE ESTICADO */
+.product-detail-sidebar { grid-area: purchase; position: static !important; top: auto !important; }
+.product-cover-shell {
+  max-width: 480px !important;
+  aspect-ratio: 21/29.7 !important;
+  background: #fff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 38px -24px rgba(15,23,42,.45) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+.product-detail-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  padding: 12px !important;
+  background: #fff !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  transform: none !important;
+}
+.product-detail-image:hover { transform: none !important; }
+
+/* Layout do detalhe — capa grande, info ao lado, caixa de compra abaixo */
+.product-detail {
+  display: grid !important;
+  grid-template-columns: minmax(360px, 1fr) 1fr !important;
+  grid-template-areas:
+    "media info"
+    "purchase purchase" !important;
+  gap: 28px !important;
+}
+.product-detail-media  { grid-area: media !important; }
+.product-detail-info   { grid-area: info !important; }
+.product-detail-sidebar { grid-area: purchase !important; }
+@media (max-width: 900px) {
+  .product-detail {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "media" "info" "purchase" !important;
+  }
+}
+
+/* 2) PREÇO NÃO ROLA MAIS JUNTO COM A PÁGINA
+      A caixa de compra fica ABAIXO do bloco de informações, em vez de
+      "sticky" ao lado. */
+.purchase-box {
+  position: relative !important;
+  align-self: start !important;
+}
+@media (min-width: 901px) {
+  /* Na versão grande, mantém ao lado do "info" — não no topo da página. */
+  .product-detail-sidebar { position: static !important; }
+}
+
+/* 3) GRADE DE "TODOS OS ESTADOS" DA HOME some — o seletor do topo resolve. */
+.states-section { display: none !important; }
+
+/* 4) BADGES E SELOS pequenos ajustes */
+.btn-buy-proprio { background: #16A34A !important; }
+.btn-buy-hotmart { background: #EA580C !important; }
+.btn-buy-parceiro { background: #DC2626 !important; }
