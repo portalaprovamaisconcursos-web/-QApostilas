@@ -2756,8 +2756,8 @@
                         <!-- Populated dynamically -->
                     </div>
                 </li>
-                <li><a href="#" onclick="filterProducts('lancamento')">Lançamentos</a></li>
-                <li><a href="#" onclick="filterProducts('mais_vendida')">Mais Vendidas</a></li>
+                <li><a href="/lancamentos" onclick="event.preventDefault(); filterProducts('lancamento')">Lançamentos</a></li>
+                <li><a href="/mais-vendidas" onclick="event.preventDefault(); filterProducts('mais_vendida')">Mais Vendidas</a></li>
                 <li><a href="/sobre" onclick="event.preventDefault(); navigateTo('sobre')">Sobre Nós</a></li>
             </ul>
             
@@ -2796,12 +2796,12 @@
                 </div>
             </li>
             <li>
-                <a href="#" onclick="filterProducts('lancamento'); return false;">
+                <a href="/lancamentos" onclick="event.preventDefault(); filterProducts('lancamento'); return false;">
                     <i class="fas fa-rocket"></i> Lançamentos
                 </a>
             </li>
             <li>
-                <a href="#" onclick="filterProducts('mais_vendida'); return false;">
+                <a href="/mais-vendidas" onclick="event.preventDefault(); filterProducts('mais_vendida'); return false;">
                     <i class="fas fa-fire"></i> Mais Vendidas
                 </a>
             </li>
@@ -2844,6 +2844,8 @@
                 <ul>
                     <li><a href="/sobre">Sobre Nós</a></li>
                     <li><a href="/contato">Contato</a></li>
+                    <li><a href="/politica-de-privacidade">Política de Privacidade</a></li>
+                    <li><a href="/termos-de-uso">Termos de Uso</a></li>
                     <li><a href="/sitemap.xml">Mapa do site (sitemap)</a></li>
                 </ul>
             </div>
@@ -2851,20 +2853,7 @@
     </main>
 
     <!-- ==================== RODAPÉ ==================== -->
-    <!-- ===== v3.4 — bloco de marca (ajuda o Google a ligar o nome ao site) ===== -->
-    <section class="seo-brand-block">
-        <div class="container">
-            <h1 class="seo-brand-title">QApostilas &mdash; apostilas para concursos públicos</h1>
-            <p class="seo-brand-text">
-                A <strong>QApostilas</strong> (também conhecida como <strong>Mais QApostilas</strong> e
-                <strong>+QApostilas</strong>) reúne apostilas e cadernos de questões atualizados conforme o
-                último edital, em formato 100% digital (PDF), para concursos de todo o Brasil: prefeituras,
-                áreas policial, judiciária, administrativa, educacional, bancária, fiscal e da saúde.
-                Após a compra, o material é liberado automaticamente na Área do Aluno.
-                Site oficial: <strong>maisqapostilas.com.br</strong>.
-            </p>
-        </div>
-    </section>
+    <!-- v3.6 — bloco de texto de marca removido a pedido do cliente. -->
 
 
     <footer class="footer">
@@ -2890,8 +2879,8 @@
                 <div class="footer-section">
                     <h3>Informações</h3>
                     <ul class="footer-links">
-                        <li><a href="#" onclick="showModal('privacidade')">Política de Privacidade</a></li>
-                        <li><a href="#" onclick="showModal('termos')">Termos de Uso</a></li>
+                        <li><a href="/politica-de-privacidade" onclick="event.preventDefault(); navigateTo('/politica-de-privacidade')">Política de Privacidade</a></li>
+                        <li><a href="/termos-de-uso" onclick="event.preventDefault(); navigateTo('/termos-de-uso')">Termos de Uso</a></li>
                     </ul>
                 </div>
             </div>
@@ -2951,6 +2940,7 @@
             <button class="admin-tab" onclick="switchAdminTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</button>
             <button class="admin-tab" onclick="switchAdminTab('clientes')"><i class="fas fa-users"></i> Clientes</button>
             <button class="admin-tab" onclick="switchAdminTab('cupons')"><i class="fas fa-tags"></i> Cupons</button>
+            <button class="admin-tab" onclick="switchAdminTab('institucional')"><i class="fas fa-file-lines"></i> Institucional</button>
         </div>
         
         <div class="admin-content">
@@ -3091,47 +3081,10 @@
                         <textarea name="sobre_nos" id="config_sobre_nos" rows="3" placeholder="Frase curta usada na home e nas buscas."></textarea>
                     </div>
 
-                    <div class="admin-section-label"><i class="fas fa-building"></i> Página "Sobre Nós" (conteúdo completo)</div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Título</label>
-                            <input type="text" name="sobre_titulo" id="config_sobre_titulo" placeholder="Sobre a +QApostilas">
-                        </div>
-                        <div class="form-group">
-                            <label>Subtítulo</label>
-                            <input type="text" name="sobre_subtitulo" id="config_sobre_subtitulo" placeholder="Apostilas digitais atualizadas conforme o último edital.">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>História (um parágrafo por linha)</label>
-                        <textarea name="sobre_historia" id="config_sobre_historia" rows="5"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Missão</label>
-                        <textarea name="sobre_missao" id="config_sobre_missao" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Valores (um por linha)</label>
-                        <textarea name="sobre_valores" id="config_sobre_valores" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Diferenciais (um por linha)</label>
-                        <textarea name="sobre_diferenciais" id="config_sobre_diferenciais" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Números (um por linha, formato: número | rótulo)</label>
-                        <textarea name="sobre_numeros" id="config_sobre_numeros" rows="3" placeholder="145+ | Concursos atendidos"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Texto do botão (CTA)</label>
-                            <input type="text" name="sobre_cta_texto" id="config_sobre_cta_texto" placeholder="Ver apostilas disponíveis">
-                        </div>
-                        <div class="form-group">
-                            <label>Link do botão (CTA)</label>
-                            <input type="text" name="sobre_cta_link" id="config_sobre_cta_link" placeholder="/categoria/caderno-de-questoes">
-                        </div>
-                    </div>
+                    <div class="admin-section-label"><i class="fas fa-file-lines"></i> Página "Sobre Nós", "Política de Privacidade" e "Termos de Uso"</div>
+                    <p style="margin:-4px 0 18px;color:var(--text-muted);font-size:14px;">
+                        Os textos dessas páginas agora ficam na aba <strong>Institucional</strong> do painel.
+                    </p>
                     
                     <div class="form-group">
                         <label>Senha Admin</label>
@@ -4150,6 +4103,104 @@
                     </table>
                 </div>
             </div>
+
+            <!-- ===== v3.6 — Institucional: Sobre, Política de Privacidade e Termos de Uso ===== -->
+            <div class="admin-section" id="admin-institucional">
+                <h3>Conteúdo Institucional</h3>
+                <p style="color:var(--text-muted);font-size:14px;margin:-8px 0 18px;">
+                    Aqui ficam os textos das páginas <strong>Sobre Nós</strong>, <strong>Política de Privacidade</strong> e
+                    <strong>Termos de Uso</strong>. No campo de texto, cada linha é uma seção, no formato
+                    <code>Título da seção | Texto da seção</code>.
+                </p>
+
+                <form id="institucionalForm" onsubmit="saveInstitucional(event)">
+                    <div class="admin-section-label"><i class="fas fa-building"></i> Página "Sobre Nós"</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" name="sobre_titulo" id="config_sobre_titulo" placeholder="Sobre a +QApostilas">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" name="sobre_subtitulo" id="config_sobre_subtitulo" placeholder="Apostilas digitais atualizadas conforme o último edital.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>História (um parágrafo por linha)</label>
+                        <textarea name="sobre_historia" id="config_sobre_historia" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Missão</label>
+                        <textarea name="sobre_missao" id="config_sobre_missao" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Valores (um por linha)</label>
+                        <textarea name="sobre_valores" id="config_sobre_valores" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Diferenciais (um por linha)</label>
+                        <textarea name="sobre_diferenciais" id="config_sobre_diferenciais" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Números (um por linha, formato: número | rótulo)</label>
+                        <textarea name="sobre_numeros" id="config_sobre_numeros" rows="3" placeholder="145+ | Concursos atendidos"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Texto do botão (CTA)</label>
+                            <input type="text" name="sobre_cta_texto" id="config_sobre_cta_texto" placeholder="Ver apostilas disponíveis">
+                        </div>
+                        <div class="form-group">
+                            <label>Link do botão (CTA)</label>
+                            <input type="text" name="sobre_cta_link" id="config_sobre_cta_link" placeholder="/categoria/caderno-de-questoes">
+                        </div>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-user-shield"></i> Página "Política de Privacidade"</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" name="politica_titulo" id="config_politica_titulo" placeholder="Política de Privacidade">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" name="politica_subtitulo" id="config_politica_subtitulo" placeholder="Como a +QApostilas coleta, usa e protege os seus dados.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Data / aviso de atualização</label>
+                        <input type="text" name="politica_atualizado" id="config_politica_atualizado" placeholder="Última atualização: outubro de 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Seções (uma por linha, formato: Título da seção | Texto da seção)</label>
+                        <textarea name="politica_texto" id="config_politica_texto" rows="14"></textarea>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-file-contract"></i> Página "Termos de Uso"</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" name="termos_titulo" id="config_termos_titulo" placeholder="Termos de Uso">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" name="termos_subtitulo" id="config_termos_subtitulo" placeholder="Regras para navegar e comprar no site.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Data / aviso de atualização</label>
+                        <input type="text" name="termos_atualizado" id="config_termos_atualizado" placeholder="Última atualização: outubro de 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Seções (uma por linha, formato: Título da seção | Texto da seção)</label>
+                        <textarea name="termos_texto" id="config_termos_texto" rows="14"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Salvar conteúdo institucional
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
     <!-- ==================== PAINEL DA ÁREA DO ALUNO ==================== -->
@@ -4291,6 +4342,18 @@
                     return '/sobre';
                 case 'contato':
                     return '/contato';
+                case 'lancamentos':
+                    return '/lancamentos';
+                case 'mais-vendidas':
+                    return '/mais-vendidas';
+                case 'destaques':
+                    return '/destaques';
+                case 'pre-venda':
+                    return '/pre-venda';
+                case 'privacidade':
+                    return '/politica-de-privacidade';
+                case 'termos':
+                    return '/termos-de-uso';
                 case 'categoria': {
                     const categoria = appState.categorias.find(c => c.id === data || c.slug === data);
                     return categoria?.slug ? `/categoria/${categoria.slug}` : '/';
@@ -4483,6 +4546,18 @@ if (currentPath === '/') {
                 renderSobre();
             } else if (currentPath === '/contato') {
                 renderContato();
+            } else if (currentPath === '/lancamentos') {
+                filterProducts('lancamento', { navigate: false });
+            } else if (currentPath === '/mais-vendidas') {
+                filterProducts('mais_vendida', { navigate: false });
+            } else if (currentPath === '/destaques') {
+                filterProducts('destaque', { navigate: false });
+            } else if (currentPath === '/pre-venda') {
+                filterProducts('pre_venda', { navigate: false });
+            } else if (currentPath === '/politica-de-privacidade') {
+                renderPaginaInstitucional('privacidade');
+            } else if (currentPath === '/termos-de-uso') {
+                renderPaginaInstitucional('termos');
             } else if (parts[0] === 'categoria' && parts[1]) {
                 filterByCategory(decodeURIComponent(parts[1]), { navigate: false });
             } else if (parts[0] === 'estado' && parts[1]) {
@@ -4605,9 +4680,22 @@ try {
         }
 
         function preencherFormConfig() {
-            const form = document.getElementById('configForm');
-            if (!form) return;
             const cfg = appState.config || {};
+            // v3.6 — o painel agora tem dois formulários: "Configurações" e "Institucional".
+            ['configForm', 'institucionalForm'].forEach(idForm => preencherFormulario(idForm, cfg));
+
+            // Quando o texto institucional ainda não foi salvo no banco, mostramos o
+            // texto padrão no campo para o administrador poder editar.
+            Object.keys(INSTITUCIONAL_DEF).forEach(kind => {
+                const prefixo = (kind === 'termos') ? 'termos' : 'politica';
+                const campo = document.getElementById('config_' + prefixo + '_texto');
+                if (campo && !campo.value) campo.value = INSTITUCIONAL_DEF[kind].padrao;
+            });
+        }
+
+        function preencherFormulario(idForm, cfg) {
+            const form = document.getElementById(idForm);
+            if (!form) return;
             Array.from(form.elements).forEach(el => {
                 if (!el.name || el.type === 'password') return;
                 const valor = cfg[el.name];
@@ -5555,6 +5643,117 @@ ${parcelaHtml}
             });
         }
 
+        // ==================== v3.6 — PÁGINAS INSTITUCIONAIS ====================
+        // Política de Privacidade e Termos de Uso agora são PÁGINAS de verdade
+        // (/politica-de-privacidade e /termos-de-uso), com texto editável no painel
+        // administrativo, na aba "Institucional".
+        // Cada linha do campo de texto é uma seção, no formato:  Título da seção | Texto da seção
+        const INSTITUCIONAL_DEF = {
+            privacidade: {
+                path: '/politica-de-privacidade',
+                titulo: 'Política de Privacidade',
+                subtitulo: 'Como a +QApostilas coleta, usa e protege os seus dados pessoais.',
+                atualizado: 'Última atualização: outubro de 2026',
+                padrao: [
+                    'Quais dados coletamos | Coletamos apenas o necessário para registrar a sua compra e liberar o material: nome, e-mail, telefone, CPF e os dados de navegação indispensáveis ao funcionamento do site.',
+                    'Para que usamos os dados | Usamos os seus dados para registrar o pedido, gerar a cobrança no Mercado Pago, liberar o PDF na Área do Aluno, enviar avisos sobre a compra e prestar atendimento. O CPF é usado somente para identificar o pagamento e prevenir fraudes.',
+                    'Com quem compartilhamos | Não vendemos nem alugamos dados pessoais. Compartilhamos apenas o necessário com o Mercado Pago (processamento do pagamento), com o provedor de e-mail usado nas comunicações da compra e com a plataforma parceira responsável pela entrega quando a compra é feita no site do parceiro.',
+                    'Cookies e armazenamento local | Usamos cookies e armazenamento local apenas para manter a sua sessão na Área do Aluno e lembrar preferências básicas de navegação. Não usamos cookies de publicidade de terceiros.',
+                    'Por quanto tempo guardamos | Os dados do pedido são mantidos pelo prazo necessário ao cumprimento de obrigações fiscais e legais e para eventual suporte. Depois desse prazo, são eliminados ou anonimizados.',
+                    'Seus direitos (LGPD) | Você pode solicitar a confirmação, o acesso, a correção ou a exclusão dos seus dados pessoais a qualquer momento pelo canal de atendimento informado no rodapé do site.',
+                    'Segurança | Os dados trafegam em conexão criptografada e o acesso ao banco de dados é restrito. Em caso de incidente relevante, os titulares serão comunicados conforme a legislação aplicável.',
+                    'Alterações desta política | Esta política pode ser atualizada para refletir mudanças na legislação ou nos nossos serviços. A data da última atualização é sempre exibida no topo desta página.'
+                ].join('\n')
+            },
+            termos: {
+                path: '/termos-de-uso',
+                titulo: 'Termos de Uso',
+                subtitulo: 'As regras para navegar no site e comprar as apostilas e cadernos de questões da +QApostilas.',
+                atualizado: 'Última atualização: outubro de 2026',
+                padrao: [
+                    'Do objeto | Estes Termos de Uso regulam o acesso ao site +QApostilas e a compra das apostilas e cadernos de questões comercializados aqui. Ao navegar ou comprar, o usuário declara que leu e concorda com estas condições.',
+                    'Do conteúdo | Todo o material é 100% digital (PDF), produzido e organizado pela +QApostilas ou licenciado de parceiros. O conteúdo é disponibilizado exclusivamente pela Área do Aluno, acessível pelo site.',
+                    'Da licença de uso | A licença é pessoal e intransferível. É proibido revender, compartilhar, redistribuir ou publicar os arquivos, no todo ou em parte. Qualquer violação pode resultar em bloqueio do acesso, sem direito a reembolso.',
+                    'Entrega do material | A liberação do PDF acontece na Área do Aluno imediatamente após a confirmação do pagamento. Não há envio de material impresso nem cobrança de frete.',
+                    'Preços e pagamento | Os preços são exibidos em reais e podem ser alterados sem aviso prévio. O pagamento é processado pelo Mercado Pago, nas formas de Pix, cartão de crédito ou débito. Não trabalhamos com boleto.',
+                    'Arrependimento e reembolso | Nas compras realizadas no próprio site respeitamos o prazo de 7 dias previsto no art. 49 do Código de Defesa do Consumidor. Compras feitas em plataformas de terceiros seguem as regras da plataforma onde foram realizadas.',
+                    'Produtos de parceiros | Quando o produto é anunciado por um parceiro, a compra é concluída no site oficial do parceiro e a entrega segue as regras dele. A +QApostilas atua como vitrine de organização.',
+                    'Suporte | Problemas de pagamento ou de acesso devem ser comunicados pelo canal de atendimento informado no rodapé do site, informando o código do pedido.',
+                    'Legislação e foro | Estes termos são regidos pelas leis brasileiras. Eventuais controvérsias serão discutidas no foro do domicílio do consumidor.'
+                ].join('\n')
+            }
+        };
+
+        function linhasInstitucionais(valor, padrao) {
+            const bruto = (valor && String(valor).trim()) ? String(valor) : padrao;
+            return String(bruto || '')
+                .split('\n')
+                .map(linha => linha.trim())
+                .filter(Boolean)
+                .map(linha => {
+                    const corte = linha.indexOf('|');
+                    if (corte === -1) return { titulo: '', texto: linha };
+                    return { titulo: linha.slice(0, corte).trim(), texto: linha.slice(corte + 1).trim() };
+                });
+        }
+
+        function renderPaginaInstitucional(kind) {
+            const def = INSTITUCIONAL_DEF[kind] || INSTITUCIONAL_DEF.privacidade;
+            const cfg = appState.config || {};
+            const prefixo = (kind === 'termos') ? 'termos' : 'politica';
+            const ler = (campo, fallback) => {
+                const v = cfg[campo];
+                return (v && String(v).trim()) ? String(v).trim() : fallback;
+            };
+
+            appState.currentView = 'institucional';
+
+            const titulo = ler(prefixo + '_titulo', def.titulo);
+            const subtitulo = ler(prefixo + '_subtitulo', def.subtitulo);
+            const atualizado = ler(prefixo + '_atualizado', def.atualizado);
+            const blocos = linhasInstitucionais(cfg[prefixo + '_texto'], def.padrao);
+            const whats = String(cfg.whatsapp || '').replace(/\D/g, '');
+            const email = cfg.email || '';
+
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <section class="products-section" style="padding:70px 20px 50px;">
+                    <div class="container" style="max-width:980px;">
+                        <div style="text-align:center;margin-bottom:30px;">
+                            <span class="badge badge-success" style="margin-bottom:14px;"><i class="fas fa-shield-halved"></i> Institucional</span>
+                            <h1 style="font-size:34px;margin:0 0 12px;">${escapeHtml(titulo)}</h1>
+                            <p style="font-size:18px;color:var(--text-muted);margin:0 auto 8px;max-width:680px;">${escapeHtml(subtitulo)}</p>
+                            <p style="font-size:13px;color:var(--text-muted);margin:0;">${escapeHtml(atualizado)}</p>
+                        </div>
+                        <div style="background:#fff;border:1px solid var(--border);border-radius:18px;padding:30px;line-height:1.8;color:var(--text-muted);font-size:15px;">
+                            ${blocos.map(b => `
+                                ${b.titulo ? `<h2 style="font-size:18px;margin:22px 0 8px;color:var(--primary);">${escapeHtml(b.titulo)}</h2>` : ''}
+                                <p style="margin:0 0 10px;">${escapeHtml(b.texto)}</p>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+                            ${whats ? `<a href="https://wa.me/${escapeHtml(whats)}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="text-decoration:none;"><i class="fab fa-whatsapp"></i> Falar no WhatsApp</a>` : ''}
+                            ${email ? `<a href="mailto:${escapeHtml(email)}" class="btn btn-primary" style="text-decoration:none;"><i class="fas fa-envelope"></i> Enviar e-mail</a>` : ''}
+                            <button class="btn" onclick="navigateTo('home')"><i class="fas fa-home"></i> Voltar para a Home</button>
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            setSeoMeta({
+                title: titulo + ' | +QApostilas',
+                description: String(subtitulo).slice(0, 155),
+                path: def.path,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: titulo + ' | +QApostilas',
+                    description: subtitulo,
+                    url: getAbsoluteUrl(def.path)
+                }
+            });
+        }
+
         // ==================== RENDER CONTATO ====================
         function renderContato() {
             appState.currentView = 'contato';
@@ -5673,7 +5872,23 @@ ${parcelaHtml}
             });
         }
 
-        function filterProducts(type) {
+        // v3.6 — cada item do menu tem URL propria (/lancamentos, /mais-vendidas...)
+        const VITRINE_ROTAS = {
+            lancamento: { path: '/lancamentos', titulo: 'Lançamentos', descricao: 'Apostilas e cadernos de questões recém-lançados na +QApostilas, atualizados conforme o último edital.' },
+            mais_vendida: { path: '/mais-vendidas', titulo: 'Mais Vendidas', descricao: 'As apostilas e cadernos de questões mais vendidos da +QApostilas, com liberação imediata do PDF.' },
+            destaque: { path: '/destaques', titulo: 'Destaques', descricao: 'Apostilas e cadernos de questões em destaque na +QApostilas.' },
+            pre_venda: { path: '/pre-venda', titulo: 'Pré-venda', descricao: 'Apostilas em pré-venda na +QApostilas, conforme o edital publicado.' }
+        };
+
+        function filterProducts(type, options = {}) {
+            const rota = VITRINE_ROTAS[type];
+
+            // Se o item do menu tem URL propria, navega para ela (o link deixa de ser "#").
+            if (rota && options.navigate !== false) {
+                navigateTo(rota.path);
+                return;
+            }
+
             appState.filters = { search: '', estado: '', categoria: '', type };
             let filtered = [];
             const titulos = {
@@ -5698,7 +5913,22 @@ ${parcelaHtml}
                     break;
             }
 
-            renderFilteredResults(filtered, titulos[type] || 'Resultados');
+            const titulo = (rota && rota.titulo) || titulos[type] || 'Resultados';
+            const caminho = (rota && rota.path) || '/';
+            const descricao = (rota && rota.descricao) || 'Confira as apostilas disponíveis na +QApostilas.';
+
+            renderFilteredResults(filtered, titulo, {
+                title: titulo + ' | +QApostilas',
+                description: descricao,
+                path: caminho,
+                schema: {
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: titulo + ' | +QApostilas',
+                    description: descricao,
+                    url: getAbsoluteUrl(caminho)
+                }
+            });
         }
 
         function renderFilteredResults(produtos, titulo = 'Resultados da Busca', seo = null) {
@@ -6095,6 +6325,27 @@ ${parcelaHtml}
                 set('config_admin' + (i + 1) + '_nome', conta.nome);
                 set('config_admin' + (i + 1) + '_login', conta.login);
                 set('config_admin' + (i + 1) + '_senha', '');
+            }
+        }
+
+        // v3.6 — salva os textos das páginas institucionais (aba "Institucional")
+        async function saveInstitucional(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            try {
+                for (const [key, value] of formData.entries()) {
+                    await supabaseClient
+                        .from('site_config')
+                        .upsert({ key: key, value: String(value) }, { onConflict: 'key' });
+                    appState.config[key] = String(value);
+                }
+
+                showAlert('Conteúdo institucional salvo com sucesso!', 'success');
+                await loadConfig();
+            } catch (error) {
+                console.error(error);
+                showAlert('Erro ao salvar o conteúdo institucional', 'error');
             }
         }
 
@@ -9185,5 +9436,6 @@ showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
