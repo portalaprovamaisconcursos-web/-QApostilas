@@ -76,16 +76,18 @@
         }
 
         :root {
-            --primary: #1E90FF;
-            --primary-dark: #0066CC;
-            --primary-light: #E8F4FF;
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --primary-light: #EFF6FF;
             --accent: #FF4444;
-            --partner: #0066CC;
+            --partner: #F1F5F9;
             --text: #111111;
-            --text-muted: #666666;
-            --bg: #F8FAFF;
+            --text-muted: #64748B;
+            --bg: #F6F8FB;
             --white: #FFFFFF;
-            --border: #E0E8FF;
+            --border: #E5E9F0;
+            --gray-btn: #F1F5F9;
+            --gray-btn-border: #DDE3EC;
             --success: #22C55E;
             --gold: #FFD700;
             --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -170,12 +172,14 @@
         }
 
         .btn-partner {
-            background: var(--partner);
-            color: var(--white);
+            background: var(--gray-btn);
+            color: var(--primary-dark);
+            border: 1.5px solid var(--gray-btn-border);
         }
 
         .btn-partner:hover {
-            background: var(--primary-dark);
+            background: #E7ECF3;
+            border-color: #C7D2E0;
             transform: translateY(-2px);
         }
 
@@ -812,7 +816,7 @@
         .price-current {
             font-size: 20px;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--success);
         }
 
         .price-original {
@@ -1022,11 +1026,23 @@
         /* ==================== PÁGINA DE PRODUTO ==================== */
         .product-detail {
             display: grid;
-            grid-template-columns: minmax(260px, 360px) minmax(0, 1fr) minmax(270px, 320px);
-            gap: 28px;
+            grid-template-columns: minmax(280px, 400px) minmax(0, 1fr);
+            gap: 32px;
             margin-bottom: 32px;
             align-items: start;
+            background: var(--white);
+            padding: 28px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
         }
+
+        .product-detail-media { grid-column: 1; grid-row: 1 / span 3; }
+
+        .product-detail-info { grid-column: 2; grid-row: 1; }
+
+        .product-detail-main-box { grid-column: 2; grid-row: 2; }
+
+        .product-detail-extra { grid-column: 2; grid-row: 3; }
 
         .product-detail-media {
             display: flex;
@@ -1884,7 +1900,7 @@
             min-width: 260px;
             display: flex;
             align-items: center;
-            background: #1a3a6b;
+            background: #3B82F6;
             border-radius: 50px;
             overflow: hidden;
             box-shadow: 0 4px 16px rgba(30,90,200,0.25);
@@ -1941,7 +1957,7 @@
 
         /* ==================== NAV TOP BAR (Blog / links topo) ==================== */
         .header-top {
-            background: #1a3a6b;
+            background: #3B82F6;
             border-bottom: 1px solid rgba(255,255,255,0.10);
             padding: 7px 20px;
             display: flex;
@@ -2065,7 +2081,7 @@
 
         /* ==================== BARRA DE NAVEGAÇÃO SECUNDÁRIA (estilo Maxi Educa) ==================== */
         .nav-secondary {
-            background: #1a3a6b;
+            background: #3B82F6;
             border-top: 1px solid rgba(255,255,255,0.10);
         }
         .nav-secondary-inner {
@@ -2131,7 +2147,7 @@
             align-items: center;
             gap: 10px;
             padding: 11px 20px;
-            color: #1a3a6b;
+            color: #3B82F6;
             font-size: 14px;
             font-weight: 500;
             letter-spacing: 0;
@@ -2180,7 +2196,7 @@
     border-radius: 8px;
     font-weight: 700 !important;
     font-size: 13px !important;
-    color: #1a3a6b !important;
+    color: #3B82F6 !important;
     background: #f1f5fd;
     text-transform: none !important;
 }
@@ -2559,6 +2575,31 @@
     padding: 5px 11px;
 }
 
+    
+        /* ===== v3.3 — ajustes da pagina de produto (mockup) ===== */
+        .product-detail-sidebar { position: static !important; top: auto !important; }
+        .product-detail-sidebar .purchase-box {
+            max-width: none !important;
+            width: 100%;
+            margin: 0 0 14px !important;
+        }
+        .product-detail-extra { display: flex; flex-direction: column; gap: 18px; margin-top: 4px; }
+        .product-detail-extra .product-benefits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .product-detail-extra .product-summary-grid { margin-top: 0; }
+        .product-detail-info .product-detail-sidebar { margin-top: 4px; }
+        .card-buy-btn {
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        @media (max-width: 900px) {
+            .product-detail { grid-template-columns: 1fr; padding: 18px; }
+            .product-detail-media,
+            .product-detail-info,
+            .product-detail-sidebar,
+            .product-detail-extra { grid-column: auto !important; grid-row: auto !important; }
+            .product-cover-shell { max-width: 340px; }
+        }
     </style>
 </head>
 <body>
@@ -4605,7 +4646,7 @@ try {
                 <section class="products-section" id="produtos-relacionados">
                     <div class="container">
                         <div class="section-header" style="margin-bottom: 28px;">
-                            <h2 class="section-title">📚 Materiais relacionados</h2>
+                            <h2 class="section-title">Materiais relacionados</h2>
                             <p class="section-subtitle">Sugestões automáticas parecidas com este material</p>
                         </div>
                         <div class="carousel-wrapper">
@@ -4713,45 +4754,17 @@ function renderHomeSeguro() {
                 <!-- Hero Banner -->
                 ${heroHtml}
 
-                <!-- Categorias (barra compacta, sem botões grandes) -->
-                <section class="categories-section" style="padding: 26px 20px 4px;">
-                    <div class="container">
-                        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center;">
-                            ${appState.categorias.map(cat => `
-                                <button class="btn btn-sm" style="background:var(--white); border:1px solid var(--border); color:var(--text);" onclick="navigateTo('categoria', '${cat.slug}')">
-                                    <i class="fas ${cat.icone || 'fa-tag'}" style="color:var(--primary);"></i> ${cat.nome}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Apostilas divididas por estado -->
-                <section class="products-section" style="padding: 26px 20px 44px;">
-                    <div class="container">
-                        <div class="section-header" style="margin-bottom:18px;">
-                            <h2 class="section-title" style="font-size:clamp(22px,3vw,30px);">📍 Apostilas por estado</h2>
-                            <p class="section-subtitle">Clique na sigla do seu estado e veja as apostilas da sua região</p>
-                        </div>
-                        <div class="estados-grid" style="grid-template-columns:repeat(9, minmax(0,1fr));">
-                            ${UFS_BRASIL.map(([uf, nome]) => `
-                                <a href="/estado/${uf}" title="${nome}" onclick="event.preventDefault(); filterByEstado('${uf}');">${uf}</a>
-                            `).join('')}
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Destaques -->
-                ${renderProductsSection('destaques', '🔥 Destaques', destaques)}
+                ${renderProductsSection('destaques', 'Destaques', destaques)}
 
                 <!-- Lançamentos -->
-                ${renderProductsSection('lancamentos', '🆕 Lançamentos', lancamentos)}
+                ${renderProductsSection('lancamentos', 'Lançamentos', lancamentos)}
 
                 <!-- Mais Vendidas -->
-                ${renderProductsSection('mais-vendidas', '⭐ Mais Vendidas', maisVendidas)}
+                ${renderProductsSection('mais-vendidas', 'Mais Vendidas', maisVendidas)}
 
                 <!-- Pré-venda -->
-                ${renderProductsSection('pre-venda', '🔔 Pré-venda', preVenda)}
+                ${renderProductsSection('pre-venda', 'Pré-venda', preVenda)}
 
                 <!-- Depoimentos -->
                 ${renderTestimonialsSection()}
@@ -4834,17 +4847,22 @@ function renderHomeSeguro() {
                         <h3 class="product-title">${produto.titulo}</h3>
                         <div class="product-prices">
                             <div class="price-version-row">
-                                <span class="price-current">R$ ${formatPrice(produto.preco)}</span>
-                                ${produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
+                                ${produto.preco ? `<span class="price-current">R$ ${formatPrice(produto.preco)}</span>` : `<span class="price-current" style="font-size:15px;">Ver oferta</span>`}
+                                ${produto.preco && produto.preco_original ? `<span class="price-original">R$ ${formatPrice(produto.preco_original)}</span>` : ''}
                             </div>
 ${parcelaHtml}
                         </div>
-                        ${isDirectSale(produto) ? `
-                            <button class="btn btn-success btn-sm" style="width:100%; justify-content:center; margin-top:8px;"
+                        ${(isDirectSale(produto) || !produto.link_compra) ? `
+                            <button class="btn btn-primary btn-sm card-buy-btn"
                                 onclick="event.stopPropagation(); openCheckout('${produto.slug}')">
-                                <i class="fas fa-shopping-cart"></i> Comprar
+                                <i class="fas fa-shopping-cart"></i> Comprar agora
                             </button>
-                        ` : ''}
+                        ` : `
+                            <button class="btn btn-partner btn-sm card-buy-btn"
+                                onclick="event.stopPropagation(); buyProduct(event, '${produto.link_compra}')">
+                                <i class="fas fa-shopping-cart"></i> Comprar agora
+                            </button>
+                        `}
                     </div>
                 </div>
             `;
@@ -4857,7 +4875,7 @@ ${parcelaHtml}
                 <section class="testimonials-section">
                     <div class="container">
                         <div class="section-header">
-                            <h2 class="section-title">💬 O que nossos alunos dizem</h2>
+                            <h2 class="section-title">O que nossos alunos dizem</h2>
                             <p class="section-subtitle">Depoimentos de quem conquistou a aprovação</p>
                         </div>
                         <div class="testimonials-grid">
@@ -4874,7 +4892,7 @@ ${parcelaHtml}
 
             return `
                 <div class="testimonial-card">
-                    ${depoimento.destaque ? '<div style="margin-bottom: 12px;"><span class="badge badge-success">✅ Destaque</span></div>' : ''}
+                    ${depoimento.destaque ? '<div style="margin-bottom: 12px;"><span class="badge badge-success">Destaque</span></div>' : ''}
                     <div class="testimonial-header">
                         <img src="${fotoUrl}" alt="${depoimento.nome}" class="testimonial-photo" onerror="this.src='https://via.placeholder.com/60/22C55E/FFFFFF?text=${depoimento.nome.charAt(0)}'">
                         <div class="testimonial-info">
@@ -4947,12 +4965,12 @@ ${parcelaHtml}
                             <button class="btn btn-primary" onclick="navigateTo('home')" style="padding: 12px 18px;">
                                 <i class="fas fa-arrow-left"></i> Voltar para a Home
                             </button>
-                            ${categoriaSlug ? `<button class="btn" onclick="navigateTo('categoria', '${categoriaSlug}')" style="padding: 12px 18px; background: var(--white); border: 1px solid var(--border);">
+                            ${categoriaSlug ? `<button class="btn" onclick="navigateTo('categoria', '${categoriaSlug}')" style="padding: 12px 18px; background: var(--gray-btn); border: 1.5px solid var(--gray-btn-border); color: var(--primary-dark);">
                                 <i class="fas fa-folder-open"></i> Ver categoria ${categoria}
                             </button>` : ''}
                         </div>
 
-                        <div class="product-detail" style="background: var(--white); padding: 24px; border-radius: 24px; box-shadow: var(--shadow-md);">
+                        <div class="product-detail">
                             <div class="product-detail-media">
                                 ${coverHtml}
                             </div>
@@ -4974,7 +4992,21 @@ ${parcelaHtml}
                                     ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
                                     ${isDirectSale(produto) ? '<span class="direct-sale-flag"><i class="fas fa-bolt"></i> Compra imediata no site</span>' : ''}
                                 </div>
+                            </div>
 
+                            <aside class="product-detail-sidebar">
+                                <div id="productPurchaseBox_${produto.id}">
+                                    ${renderProductPurchaseBox(produto)}
+                                </div>
+
+                                <div class="product-share-box">
+                                    <a href="${getWhatsAppShareLink(produto)}" target="_blank" rel="noopener noreferrer" class="btn btn-success product-share-button">
+                                        <i class="fab fa-whatsapp"></i> Indique para um amigo
+                                    </a>
+                                </div>
+                            </aside>
+
+                            <div class="product-detail-extra">
                                 <div class="product-benefits">
                                     <div class="product-benefit-item">
                                         <i class="fas fa-bolt"></i>
@@ -5004,18 +5036,6 @@ ${parcelaHtml}
                                     </div>
                                 ` : ''}
                             </div>
-
-                            <aside class="product-detail-sidebar">
-                                <div id="productPurchaseBox_${produto.id}">
-                                    ${renderProductPurchaseBox(produto)}
-                                </div>
-
-                                <div class="product-share-box">
-                                    <a href="${getWhatsAppShareLink(produto)}" target="_blank" rel="noopener noreferrer" class="btn btn-success product-share-button">
-                                        <i class="fab fa-whatsapp"></i> Indique para um amigo
-                                    </a>
-                                </div>
-                            </aside>
                         </div>
 
                         ${(descricaoHtml || conteudos.length > 0 || bonusItems.length > 0) ? `
@@ -5242,10 +5262,10 @@ ${parcelaHtml}
             appState.filters = { search: '', estado: '', categoria: '', type };
             let filtered = [];
             const titulos = {
-                lancamento: '🆕 Lançamentos',
-                mais_vendida: '⭐ Mais Vendidas',
-                destaque: '🔥 Destaques',
-                pre_venda: '🔔 Pré-venda'
+                lancamento: 'Lançamentos',
+                mais_vendida: 'Mais Vendidas',
+                destaque: 'Destaques',
+                pre_venda: 'Pré-venda'
             };
 
             switch(type) {
@@ -6882,7 +6902,7 @@ function erroBanco(prefixo, error) {
             appState.currentView = 'estado';
             appState.filters = { search: '', estado: sigla, categoria: '', type: '' };
             const filtered = (appState.produtos || []).filter(p => String(p.estado || '').toUpperCase() === sigla);
-            renderFilteredResults(filtered, `📍 Apostilas de ${sigla} — ${getUfName(sigla)}`, {
+            renderFilteredResults(filtered, `Apostilas de ${sigla} — ${getUfName(sigla)}`, {
                 title: `Apostilas de ${getUfName(sigla)} | +QApostilas`,
                 description: `Confira as apostilas para concursos de ${getUfName(sigla)} na +QApostilas.`,
                 path: `/estado/${sigla}`,
@@ -8529,6 +8549,7 @@ showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
 
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
