@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" id="meta-description" content="+QApostilas - Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.">
-    <title>+QApostilas - Apostilas para Concursos Públicos</title>
+    <meta name="description" id="meta-description" content="QApostilas (Mais QApostilas) — apostilas e cadernos de questões atualizados conforme o último edital. Material 100% digital, com liberação imediata do PDF após a compra.">
+    <meta name="robots" id="meta-robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <meta name="author" content="QApostilas">
+    <meta name="keywords" content="apostila, apostilas para concursos, apostilas concurso 2026, caderno de questões, PDF apostila, QApostilas, Mais QApostilas">
+
+    <!-- ============================================================
+         GOOGLE SEARCH CONSOLE — COMO VALIDAR O SITE (fazer uma vez)
+         1) Acesse https://search.google.com/search-console
+         2) Adicionar propriedade -> "Prefixo do URL"
+            https://www.maisqapostilas.com.br
+         3) Escolha a verificacao por "Tag HTML"
+         4) Copie o valor do codigo e cole abaixo, entre as aspas,
+            trocando COLE_AQUI_O_SEU_CODIGO
+         5) Descomente a linha (tire o <!-- e o --> da volta dela)
+         6) Suba este index.html e clique em Verificar
+    <meta name="google-site-verification" content="COLE_AQUI_O_SEU_CODIGO">
+         ============================================================ -->
+    <title>QApostilas — Apostilas para Concursos Públicos | Mais QApostilas</title>
 
     <!-- ✅ SEO: URL Canônica -->
     <link rel="canonical" id="canonical-link" href="https://www.maisqapostilas.com.br/" />
@@ -29,10 +45,22 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "+QApostilas",
+      "name": "QApostilas",
+      "alternateName": ["+QApostilas", "Mais QApostilas", "MaisQApostilas", "QApostilas Concursos"],
       "url": "https://www.maisqapostilas.com.br",
-      "description": "Apostilas atualizadas para concursos públicos. Material 100% digital conforme último edital.",
-      "logo": "https://www.maisqapostilas.com.br/og-image.jpg"
+      "description": "Apostilas e cadernos de questoes atualizados para concursos publicos. Material 100% digital, com liberacao imediata do PDF.",
+      "logo": "https://www.maisqapostilas.com.br/og-image.jpg",
+      "image": "https://www.maisqapostilas.com.br/og-image.jpg",
+      "email": "contato@qapostilas.com.br",
+      "areaServed": "BR",
+      "knowsAbout": ["concursos publicos", "apostilas", "caderno de questoes"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "atendimento ao cliente",
+        "email": "contato@qapostilas.com.br",
+        "areaServed": "BR",
+        "availableLanguage": "Portuguese"
+      }
     }
     </script>
 
@@ -43,7 +71,9 @@
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "+QApostilas",
+      "name": "QApostilas",
+      "alternateName": ["+QApostilas", "Mais QApostilas", "MaisQApostilas"],
+      "inLanguage": "pt-BR",
       "url": "https://www.maisqapostilas.com.br",
       "potentialAction": {
         "@type": "SearchAction",
@@ -54,7 +84,8 @@
     </script>
 
     <!-- Favicon dinâmico (configurado via painel admin) -->
-    <link rel="icon" id="site-favicon" href="" type="image/x-icon">
+    <link rel="icon" id="site-favicon" href="/og-image.jpg" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/og-image.jpg">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -959,7 +990,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
+            z-index: 100000;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -2641,7 +2672,50 @@
             .product-cover-shell { max-width: 380px; }
             .product-detail-image { max-width: 380px; }
         }
-    </style>
+    
+        /* ===== v3.4 — o modal abre SEMPRE na frente do painel do admin ===== */
+        .modal { z-index: 100000 !important; }
+        .admin-panel { z-index: 9000; }
+        .modal-content { max-height: 92vh; }
+        /* ===== v3.4 — painel e formularios no celular ===== */
+        @media (max-width: 680px) {
+            .modal { padding: 10px; align-items: flex-start; }
+            .modal-content { max-height: 96vh; border-radius: 14px; }
+            .modal-body { padding: 16px; }
+            .modal-content .form-row {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .modal-content .product-summary-grid { grid-template-columns: 1fr !important; }
+            .modal-content .btn { width: 100%; justify-content: center; }
+            .admin-tabs { overflow-x: auto; }
+        }
+    
+        /* ===== v3.4 — bloco de marca (SEO) ===== */
+        .seo-brand-block {
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            padding: 34px 20px;
+        }
+        .seo-brand-title {
+            font-size: clamp(16px, 1.6vw, 19px);
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .seo-brand-text {
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: var(--text-muted);
+            max-width: 900px;
+        }
+    
+/* v3.5 - conforto de toque no celular e rolagem do modal */
+@media (max-width: 768px) {
+  .btn, button, .admin-tab, .admin-tab-v2, .ellipsis-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .modal-content { max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+}
+</style>
 </head>
 <body>
     
@@ -2761,6 +2835,22 @@
     </main>
 
     <!-- ==================== RODAPÉ ==================== -->
+    <!-- ===== v3.4 — bloco de marca (ajuda o Google a ligar o nome ao site) ===== -->
+    <section class="seo-brand-block">
+        <div class="container">
+            <h1 class="seo-brand-title">QApostilas &mdash; apostilas para concursos públicos</h1>
+            <p class="seo-brand-text">
+                A <strong>QApostilas</strong> (também conhecida como <strong>Mais QApostilas</strong> e
+                <strong>+QApostilas</strong>) reúne apostilas e cadernos de questões atualizados conforme o
+                último edital, em formato 100% digital (PDF), para concursos de todo o Brasil: prefeituras,
+                áreas policial, judiciária, administrativa, educacional, bancária, fiscal e da saúde.
+                Após a compra, o material é liberado automaticamente na Área do Aluno.
+                Site oficial: <strong>maisqapostilas.com.br</strong>.
+            </p>
+        </div>
+    </section>
+
+
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -4151,7 +4241,7 @@
             }
         }
 
-        function setSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, type = 'website', schema = null }) {
+        function setSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, type = 'website', schema = null, robots = 'index, follow, max-image-preview:large' }) {
             const absoluteUrl = getAbsoluteUrl(path);
             document.title = title;
 
@@ -4173,6 +4263,9 @@
                 if (el && value) el.setAttribute(attr, value);
             });
 
+            const robotsEl = document.getElementById('meta-robots');
+            if (robotsEl) robotsEl.setAttribute('content', robots);
+
             const schemaEl = document.getElementById('dynamic-schema');
             if (schemaEl) {
                 const fallbackSchema = {
@@ -4191,6 +4284,36 @@
             if (navMenu) navMenu.classList.remove('active');
         }
 
+        function showModal(kind) {
+            const CONTEUDO = {
+                privacidade: {
+                    titulo: 'Politica de Privacidade',
+                    texto: 'Os dados informados na compra (nome, e-mail, telefone e CPF) sao usados apenas para processar o pedido, emitir a cobranca, liberar o material na Area do Aluno e prestar suporte.\n\nNao vendemos nem repassamos seus dados fora do necessario para a compra (Mercado Pago e servico de e-mail). O CPF e usado somente para identificar o pagamento e evitar fraudes. Voce pode pedir correcao ou exclusao dos seus dados pelo canal de atendimento informado no rodape do site.\n\nOs cookies do site servem apenas para manter a sua sessao na Area do Aluno.'
+                },
+                termos: {
+                    titulo: 'Termos de Uso',
+                    texto: 'O material vendido e digital (PDF) e e liberado na Area do Aluno logo apos a confirmacao do pagamento. O conteudo e protegido por direito autoral e o uso e pessoal: nao e permitido revender, compartilhar ou redistribuir os arquivos.\n\nO prazo de arrependimento de 7 dias, previsto no Codigo de Defesa do Consumidor, e respeitado nas compras feitas no proprio site. Compras feitas em plataformas de terceiros seguem as regras da plataforma onde foram realizadas.\n\nProblemas de pagamento ou de acesso devem ser comunicados pelo canal de atendimento informado no rodape.'
+                }
+            };
+            try {
+                const c = CONTEUDO[kind] || CONTEUDO.privacidade;
+                const t = document.getElementById('modalTitle');
+                const b = document.getElementById('modalBody');
+                const g = document.getElementById('globalModal') || document.querySelector('.modal-overlay');
+                if (t && b && g) {
+                    t.textContent = c.titulo;
+                    b.innerHTML = '<h3>' + c.titulo + '</h3>' + c.texto.split('\n\n').map(function(par){ return '<p>' + par + '</p>'; }).join('');
+                    if (g.classList) { g.classList.add('active'); }
+                    g.style.display = 'flex';
+                    window.scrollTo(0, 0);
+                    return;
+                }
+                alert(c.titulo + '\n\n' + c.texto);
+            } catch (e) {
+                console.warn('showModal', e);
+                alert(CONTEUDO[kind] ? CONTEUDO[kind].texto : '');
+            }
+        }
         function closeModal() {
             const modal = document.getElementById('globalModal');
             if (!modal) return;
@@ -4222,7 +4345,8 @@
                 </section>
             `;
             setSeoMeta({
-                title: 'Página não encontrada | +QApostilas',
+                robots: 'noindex, follow',
+                title: 'Página não encontrada | QApostilas',
                 description: 'A página solicitada não foi encontrada no site +QApostilas.',
                 path: normalizePath(window.location.pathname),
                 schema: {
@@ -7923,6 +8047,14 @@ showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
         // ==================== v3.3 — ENTREGA DIGITAL ====================
         const STATUS_LIBERADO = ['pagamento_confirmado', 'em_andamento', 'entregue', 'entregue_transportadora'];
 
+        const ENVIO_LABEL = {
+            digital: 'Digital (PDF liberado na Área do Aluno)',
+            impresso: 'Impresso',
+            enviado: 'Enviado',
+            entregue_transportadora: 'Entregue à transportadora',
+            entregue: 'Entregue'
+        };
+
         function pedidoLiberado(pedido) {
             return Boolean(pedido) && STATUS_LIBERADO.indexOf(String(pedido.status)) !== -1;
         }
@@ -8151,7 +8283,21 @@ showAlert(erroBanco('Erro ao atualizar pedidos', error), 'error');
                         <div class="product-summary-item"><span class="product-summary-label">Pago em</span><span class="product-summary-value">${formatDateBR(pedido.pago_em, true)}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">ID Mercado Pago</span><span class="product-summary-value">${escapeHtml(pedido.mp_payment_id || pedido.mp_preference_id || '—')}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Cliente cadastrado</span><span class="product-summary-value">${cliente.id ? 'Sim (#' + cliente.id + ')' : 'Não'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Frete</span><span class="product-summary-value">${Number(pedido.frete || 0) > 0 ? 'R$ ' + formatPrice(pedido.frete) : 'Digital (sem frete)'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Total</span><span class="product-summary-value">R$ ${formatPrice(pedido.total || pedido.valor || 0)}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Situação da entrega</span><span class="product-summary-value">${escapeHtml(ENVIO_LABEL[pedido.envio_status] || pedido.envio_status || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Entregue em</span><span class="product-summary-value">${formatDateBR(pedido.entregue_em, true)}</span></div>
                     </div>
+                    ${getLinkDownloadPedido(pedido) ? `
+                    <div class="alert alert-info" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <i class="fas fa-file-pdf"></i>
+                        <span style="flex:1; word-break:break-all; font-size:13px;">${escapeHtml(getLinkDownloadPedido(pedido))}</span>
+                        <a class="btn btn-sm btn-success" href="${escapeHtml(getLinkDownloadPedido(pedido))}" target="_blank" rel="noopener noreferrer"><i class="fas fa-download"></i> Abrir PDF</a>
+                    </div>` : `
+                    <p style="font-size:13px; color:var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Sem link de download cadastrado para este produto
+                        (aba Produtos → "Link de download do PDF").
+                    </p>`}
                     <div class="form-row">
                         <div class="form-group">
                             <label>Status do pedido</label>
@@ -8555,6 +8701,11 @@ showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
                     <div class="product-summary-item"><span class="product-summary-label">Perfil</span><span class="product-summary-value">${escapeHtml(c.perfil || '—')}</span></div>
                     <div class="product-summary-item"><span class="product-summary-label">Cadastro</span><span class="product-summary-value">${formatDateBR(c.created_at)}</span></div>
                     <div class="product-summary-item"><span class="product-summary-label">Compras</span><span class="product-summary-value">${pedidos.length} — R$ ${formatPrice(total)}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Estado</span><span class="product-summary-value">${escapeHtml(c.estado || '—')}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Data de nascimento</span><span class="product-summary-value">${c.data_nascimento ? formatDateBR(c.data_nascimento) : '—'}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Situação</span><span class="product-summary-value">${c.ativo === false ? 'Inativo' : 'Ativo'}${c.aprovacao_pendente ? ' — aguardando aprovação' : ''}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Aceita marketing</span><span class="product-summary-value">${c.aceita_marketing ? 'Sim' : 'Não'}</span></div>
+                    <div class="product-summary-item"><span class="product-summary-label">Última atualização</span><span class="product-summary-value">${formatDateBR(c.updated_at, true)}</span></div>
                 </div>
                 <h4 style="margin:18px 0 8px;">Histórico de compras</h4>
                 ${pedidos.length ? pedidos.map(p => `
