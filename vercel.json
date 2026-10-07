@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/produto/:slug", "destination": "/api/seo-product?slug=:slug" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -12,19 +13,8 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
-      ]
-    },
-    {
-      "source": "/sitemap.xml",
-      "headers": [{ "key": "Content-Type", "value": "application/xml" }, { "key": "Cache-Control", "value": "public, max-age=86400" }]
-    },
-    {
-      "source": "/robots.txt",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
-    }
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
+    { "source": "/sitemap.xml", "headers": [{ "key": "Content-Type", "value": "application/xml" }, { "key": "Cache-Control", "value": "public, max-age=86400" }] },
+    { "source": "/robots.txt", "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }] }
   ]
 }
