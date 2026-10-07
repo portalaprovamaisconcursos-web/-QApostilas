@@ -67,6 +67,34 @@ function mapearStatus(mpStatus) {
   }
 }
 
+// v3.3 — e-mail de entrega (opcional). Usa a RESEND_API_KEY se ela existir;
+// se nao existir, simplesmente nao envia e nada mais quebra.
+async function enviarEmailEntrega({ para, nome, titulo, link }) {
+  const key = process.env.RESEND_API_KEY;
+  const de = process.env.EMAIL_FROM || 'entrega@maisqapostilas.com.br';
+  if (!key || !para || !link) return false;
+  try {
+    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#111">
+      <p>Olá, ${nome || ''}!</p>
+      <p>Seu pagamento foi confirmado e sua apostila já está liberada.</p>
+      <p><strong>${titulo || 'Apostila'}</strong></p>
+      <p><a href="${link}" style="background:#16A34A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">Baixar meu PDF</a></p>
+      <p style="font-size:12px;color:#666">Se o botão não funcionar, copie o link: ${link}</p>
+      <p>Qualquer dúvida, responda este e-mail.<br>+QApostilas</p>
+    </div>`;
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: de, to: [para], subject: `Seu material +QApostilas — ${titulo || 'Apostila'}`, html })
+    });
+    if (!r.ok) console.warn('Resend recusou o envio:', r.status);
+    return r.ok;
+  } catch (e) {
+    console.warn('Falha ao enviar e-mail de entrega:', e.message || e);
+    return false;
+  }
+}
+
 // Manifesto da assinatura: id:<data.id>;request-id:<x-request-id>;ts:<ts>;
 function assinaturaValida(req, dataId) {
   const secret = process.env.MP_WEBHOOK_SECRET;
@@ -158,7 +186,7 @@ module.exports = async (req, res) => {
     // >>>>>> libera o PDF quando aprovado <<<<<<
     if (pagamento.status === 'approved' && pedido && pedido.produto_id) {
       try {
-        const prodRes = await supabase(`produtos?id=eq.${encodeURIComponent(pedido.produto_id)}&select=pdf_storage_path,titulo`);
+        const prodRes = await supabase(`produtos?id=eq.${encodeURIComponent(pedido.produto_id)}&select=pdf_storage_path,download_url,titulo`);
         const produtoDetalhe = Array.isArray(prodRes) && prodRes[0];
         if (produtoDetalhe && produtoDetalhe.pdf_storage_path) {
           const signed = await createSignedPdfUrl(produtoDetalhe.pdf_storage_path);
@@ -169,6 +197,29 @@ module.exports = async (req, res) => {
         }
       } catch (e) {
         console.warn('Falha ao gerar PDF signed URL:', e.message || e);
+      }
+    }
+
+    // v3.3 — entrega automatica: e-mail com o link (so produtos do nosso site)
+    let entregaLink = patch.pdf_signed_url || null;
+    if (pagamento.status === 'approved' && pedido && pedido.origem !== 'parceiro') {
+      try {
+        if (!entregaLink && pedido.produto_id) {
+          const pr = await supabase(`produtos?id=eq.${encodeURIComponent(pedido.produto_id)}&select=download_url,titulo`);
+          const pd = Array.isArray(pr) && pr[0];
+          if (pd && pd.download_url) entregaLink = pd.download_url;
+        }
+        if (entregaLink) {
+          const enviado = await enviarEmailEntrega({
+            para: pedido.cliente_email,
+            nome: pedido.cliente_nome,
+            titulo: pedido.produto_titulo,
+            link: entregaLink
+          });
+          patch.entrega_email_em = enviado ? new Date().toISOString() : null;
+        }
+      } catch (e) {
+        console.warn('Falha na entrega por e-mail:', e.message || e);
       }
     }
 
@@ -196,7 +247,8 @@ module.exports = async (req, res) => {
       pedido_id: pedido ? pedido.id : null,
       status_mp: pagamento.status,
       status_pedido: patch.status || (pedido ? pedido.status : null),
-      pdf_liberado: Boolean(patch.pdf_signed_url)
+      pdf_liberado: Boolean(patch.pdf_signed_url),
+      link_entrega: entregaLink || null
     });
   } catch (e) {
     console.error('Erro em /api/mp-webhook:', e);
