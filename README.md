@@ -226,3 +226,104 @@ Crie a **pasta `api/`** e coloque dentro dela: `mp-checkout.js` e `mp-webhook.js
 - [ ] Testei um cadastro + um Pix de teste
 
 Rodou tudo? Site perfeito. Se travar em algum ponto, me chama.
+
+---
+
+# v3.5 — Correções desta rodada (aplicadas no index.html)
+
+> Esta versão **não mexe** no que já estava funcionando (Mercado Pago, Supabase, painel, pedidos).
+> São correções pontuais + os dois recursos novos que você pediu.
+
+## 1) Texto estranho aparecendo em cima da barra azul  ✅ CORRIGIDO
+
+**O que era:** dentro do `<head>` existia um comentário HTML de instrução do Google Search Console
+com `<!--` **e** `-->` no meio do próprio texto ("Descomente a linha (tire o <!-- e o --> da volta dela)").
+Um comentário HTML **não pode conter `<!--` nem `-->`** dentro dele: o navegador entende que o
+comentário terminou ali e imprime o resto do texto na tela — era exatamente isso:
+`da volta dela) 6) Suba este index.html e clique em Verificar ========= -->`.
+
+**Correção:** o bloco virou um comentário simples (sem marcadores internos) e a linha
+`<meta name="google-site-verification" ...>` ficou ativa logo abaixo, pronta para receber o seu código.
+
+**O que você precisa fazer:** abra o `index.html`, procure por `COLE_AQUI_O_SEU_CODIGO`
+e troque pelo código que o Search Console mostra (a parte que vem depois de `content=`).
+É a **única** coisa que falta nesse ponto.
+
+## 2) Termos de Uso / Política de Privacidade travando a tela  ✅ CORRIGIDO
+
+**O que era:** o modal era aberto com `modal.style.display = 'flex'` (estilo inline) mas o fechamento
+só removia a classe `active`. O estilo inline **ganhava** da classe, então o modal continuava visível,
+sem conteúdo, com o título "Modal" — a tela ficava travada e só voltava recarregando a página.
+
+**Correção:**
+- o fechamento agora limpa o `display` inline (`modal.style.display = ''`) e o `body` volta a rolar;
+- o modal fecha pelo **X**, **clicando fora** da caixa e pela tecla **Esc**;
+- o conteúdo de Termos e Privacidade foi reescrito em seções (o antigo era um bloco de texto corrido),
+  com botão "Entendi, fechar" no fim.
+
+## 3) Pré-venda com data de liberação  ✅ NOVO
+
+- No painel: **Admin → Produtos → (editar produto)** agora existe o campo
+  **"Data de liberação (pré-venda)"**, ao lado da caixa "Pré-venda".
+- **Antes da data:** aparece o selo **"Pré-venda — disponível em DD/MM/AAAA"** (card, página do produto
+  e caixa de compra) e o produto aparece na seção "Pré-venda" da home.
+- **Na data ou depois:** o produto sai da pré-venda **sozinho**, o selo desaparece e o botão vira
+  **"Comprar agora"** — sem você precisar mexer em nada.
+- Produto marcado como pré-venda **sem data** continua em pré-venda (não muda sozinho).
+
+⚠️ Para isso funcionar, rode o `database-schema.sql` atualizado no **SQL Editor** do Supabase
+(ele só adiciona as colunas `data_lancamento` e `pre_venda_data` — não apaga nada).
+
+## 4) Página "Sobre Nós" reformulada  ✅ NOVO
+
+A página deixou de ser um parágrafo centralizado. Agora tem: números/destaques, **história**,
+**missão e valores**, **diferenciais** e um **bloco final com botão (CTA)** + contato.
+
+**Tudo editável no painel:** **Admin → Configurações → "Página Sobre Nós (conteúdo completo)"**:
+Título, Subtítulo, História (um parágrafo por linha), Missão, Valores (um por linha),
+Diferenciais (um por linha), Números (formato `valor | rótulo`), Texto e Link do botão.
+
+Se você deixar os campos vazios, o site usa um texto padrão já pronto sobre a empresa.
+
+> ⚠️ Um detalhe: o formulário de Configurações **não estava sendo preenchido** com o que já estava
+> salvo no banco (você abria e os campos apareciam vazios). Isso também foi corrigido.
+
+## 5) SEO / aparecer no Google
+
+| Item | Situação |
+|---|---|
+| Texto solto no `<head>` | corrigido (item 1) |
+| `google-site-verification` | linha ativa — **falta colar seu código** |
+| `robots.txt` | atualizado: `Allow: /` + `Disallow: /admin`, `/api/`, `/minha-conta` |
+| `sitemap.xml` | já contém 90 URLs (75 de produtos) — está correto |
+| `noindex` | **não existe** em nenhuma página normal (só na "Página não encontrada", que é o correto) |
+| title / description / canonical por página | já existem e são atualizados por rota (home, produto, categoria, sobre, contato) |
+| Open Graph + JSON-LD | já existem (Organization, WebSite, Product, AboutPage) |
+| Conteúdo sem JavaScript | **melhorado**: agora o HTML entrega título, categorias e links institucionais mesmo sem JS (o site é SPA) |
+
+**Checklist no Search Console (na ordem):**
+1. **Verificação:** Search Console → Adicionar propriedade → "Prefixo do URL" → `https://www.maisqapostilas.com.br`
+   → Tag HTML → copie o código → cole no `index.html` (passo 1) → suba → clique em **Verificar**.
+2. **Sitemap:** menu *Sitemaps* → envie `sitemap.xml` → deve ficar "Êxito".
+3. **Inspeção de URL:** cole `https://www.maisqapostilas.com.br/` → **Testar URL ativa** →
+   confira que aparece "O URL pode ser indexado" → **Solicitar indexação**.
+   Repita para as páginas de produto que mais vendem.
+4. **Teste `site:`** no Google: digite `site:maisqapostilas.com.br` — mostra o que já está indexado.
+5. **Paciência:** indexação leva de **dias a semanas**. O que acelera: páginas de produto com texto
+   próprio (título, órgão, cargo, conteúdo programático) e links internos — o que o site já faz.
+6. Se depois de ~2 semanas nada aparecer, verifique em *Configurações → Rastreamento → robots.txt*
+   e *Páginas → Não indexadas* qual é o motivo apontado pelo Google.
+
+## 6) Arquivos desta versão
+
+| Arquivo | O que fazer |
+|---|---|
+| `index.html` | ✅ **substituir** na raiz do projeto |
+| `database-schema.sql` | ✅ rodar no **Supabase → SQL Editor** (adiciona as colunas de pré-venda) |
+| `robots.txt` | ✅ substituir na raiz |
+| `sitemap.xml` | ⚪ sem mudança (está correto — pode manter o seu) |
+| `README.md` | ⚪ este arquivo (não publicar) |
+| `supabase-config.js`, `vercel.json`, `api/*.js` | ⚪ **não mexer** — já estão funcionando |
+
+**Deploy:** suba o `index.html` e o `robots.txt` na raiz (Vercel → Deployments → Redeploy ou via Git).
+Depois abra o site com **Ctrl+F5** para limpar o cache do navegador.

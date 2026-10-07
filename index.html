@@ -8,18 +8,15 @@
     <meta name="author" content="QApostilas">
     <meta name="keywords" content="apostila, apostilas para concursos, apostilas concurso 2026, caderno de questões, PDF apostila, QApostilas, Mais QApostilas">
 
-    <!-- ============================================================
-         GOOGLE SEARCH CONSOLE — COMO VALIDAR O SITE (fazer uma vez)
+    <!-- GOOGLE SEARCH CONSOLE - COMO VALIDAR O SITE (fazer uma vez)
          1) Acesse https://search.google.com/search-console
-         2) Adicionar propriedade -> "Prefixo do URL"
-            https://www.maisqapostilas.com.br
+         2) Adicionar propriedade -> "Prefixo do URL" = https://www.maisqapostilas.com.br
          3) Escolha a verificacao por "Tag HTML"
-         4) Copie o valor do codigo e cole abaixo, entre as aspas,
-            trocando COLE_AQUI_O_SEU_CODIGO
-         5) Descomente a linha (tire o <!-- e o --> da volta dela)
-         6) Suba este index.html e clique em Verificar
+         4) Copie o valor do codigo e cole abaixo, entre as aspas, trocando COLE_AQUI_O_SEU_CODIGO
+         5) Salve, suba este index.html e clique em Verificar
+         IMPORTANTE: um comentario HTML nao pode conter marcadores de comentario no meio,
+         senao o resto do texto aparece impresso no topo da pagina. -->
     <meta name="google-site-verification" content="COLE_AQUI_O_SEU_CODIGO">
-         ============================================================ -->
     <title>QApostilas — Apostilas para Concursos Públicos | Mais QApostilas</title>
 
     <!-- ✅ SEO: URL Canônica -->
@@ -2831,7 +2828,26 @@
 
     <!-- ==================== MAIN CONTENT ==================== -->
     <main id="mainContent">
-        <!-- Content will be dynamically injected -->
+        <!-- ===== v3.5 - Conteudo estatico de apoio (SEO) =====
+             Fica no HTML para robos de busca e leitores sem JavaScript.
+             E substituido pelo conteudo dinamico assim que o site carrega. -->
+        <section class="products-section" style="padding:40px 20px;">
+            <div class="container">
+                <h1>Apostilas e Cadernos de Questões para Concursos Públicos</h1>
+                <p>A +QApostilas produz apostilas e cadernos de questões 100% digitais, atualizados conforme o último edital, com liberação imediata do PDF após a confirmação do pagamento.</p>
+                <h2>Categorias</h2>
+                <ul>
+                    <li><a href="/categoria/caderno-de-questoes">Caderno de Questões</a></li>
+                    <li><a href="/categoria/apostilas-dominio">Apostilas Domínio</a></li>
+                </ul>
+                <h2>Institucional</h2>
+                <ul>
+                    <li><a href="/sobre">Sobre Nós</a></li>
+                    <li><a href="/contato">Contato</a></li>
+                    <li><a href="/sitemap.xml">Mapa do site (sitemap)</a></li>
+                </ul>
+            </div>
+        </section>
     </main>
 
     <!-- ==================== RODAPÉ ==================== -->
@@ -3071,8 +3087,50 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Texto "Sobre Nós"</label>
-                        <textarea name="sobre_nos" id="config_sobre_nos" rows="6"></textarea>
+                        <label>Texto "Sobre Nós" (resumo curto)</label>
+                        <textarea name="sobre_nos" id="config_sobre_nos" rows="3" placeholder="Frase curta usada na home e nas buscas."></textarea>
+                    </div>
+
+                    <div class="admin-section-label"><i class="fas fa-building"></i> Página "Sobre Nós" (conteúdo completo)</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" name="sobre_titulo" id="config_sobre_titulo" placeholder="Sobre a +QApostilas">
+                        </div>
+                        <div class="form-group">
+                            <label>Subtítulo</label>
+                            <input type="text" name="sobre_subtitulo" id="config_sobre_subtitulo" placeholder="Apostilas digitais atualizadas conforme o último edital.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>História (um parágrafo por linha)</label>
+                        <textarea name="sobre_historia" id="config_sobre_historia" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Missão</label>
+                        <textarea name="sobre_missao" id="config_sobre_missao" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Valores (um por linha)</label>
+                        <textarea name="sobre_valores" id="config_sobre_valores" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Diferenciais (um por linha)</label>
+                        <textarea name="sobre_diferenciais" id="config_sobre_diferenciais" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Números (um por linha, formato: número | rótulo)</label>
+                        <textarea name="sobre_numeros" id="config_sobre_numeros" rows="3" placeholder="145+ | Concursos atendidos"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Texto do botão (CTA)</label>
+                            <input type="text" name="sobre_cta_texto" id="config_sobre_cta_texto" placeholder="Ver apostilas disponíveis">
+                        </div>
+                        <div class="form-group">
+                            <label>Link do botão (CTA)</label>
+                            <input type="text" name="sobre_cta_link" id="config_sobre_cta_link" placeholder="/categoria/caderno-de-questoes">
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -3492,6 +3550,11 @@
                             <div class="checkbox-group">
                                 <input type="checkbox" name="pre_venda" id="product_pre_venda">
                                 <label>Pré-venda</label>
+                            </div>
+                            <div class="form-group" style="max-width:240px;">
+                                <label>Data de liberação (pré-venda)</label>
+                                <input type="date" name="data_lancamento" id="product_data_lancamento">
+                                <small style="color:var(--text-muted)">A partir desta data o produto sai da pré-venda e o botão vira "Comprar agora" automaticamente.</small>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" name="atualizado_edital" id="product_atualizado_edital" checked>
@@ -4288,44 +4351,90 @@
             const CONTEUDO = {
                 privacidade: {
                     titulo: 'Politica de Privacidade',
-                    texto: 'Os dados informados na compra (nome, e-mail, telefone e CPF) sao usados apenas para processar o pedido, emitir a cobranca, liberar o material na Area do Aluno e prestar suporte.\n\nNao vendemos nem repassamos seus dados fora do necessario para a compra (Mercado Pago e servico de e-mail). O CPF e usado somente para identificar o pagamento e evitar fraudes. Voce pode pedir correcao ou exclusao dos seus dados pelo canal de atendimento informado no rodape do site.\n\nOs cookies do site servem apenas para manter a sua sessao na Area do Aluno.'
+                    atualizado: 'Ultima atualizacao: outubro de 2026',
+                    secoes: [
+                        { t: 'Quais dados coletamos', p: 'Coletamos apenas o necessario para vender e entregar o material: nome, e-mail, telefone, CPF e os dados de navegacao indispensaveis ao funcionamento do site.' },
+                        { t: 'Para que usamos', p: 'Os dados sao usados para processar o pedido, emitir a cobranca pelo Mercado Pago, liberar o PDF na Area do Aluno, enviar avisos sobre a compra e prestar suporte. O CPF e usado somente para identificar o pagamento e prevenir fraudes.' },
+                        { t: 'Com quem compartilhamos', p: 'Nao vendemos nem alugamos seus dados. Compartilhamos apenas o necessario com o Mercado Pago (processamento do pagamento) e com o provedor de e-mail usado nas comunicacoes da compra.' },
+                        { t: 'Cookies', p: 'Usamos cookies e armazenamento local apenas para manter a sua sessao na Area do Aluno e lembrar preferencias basicas. Nao usamos cookies de publicidade de terceiros.' },
+                        { t: 'Seus direitos (LGPD)', p: 'Voce pode solicitar a confirmacao, a correcao ou a exclusao dos seus dados pessoais a qualquer momento pelo canal de atendimento informado no rodape do site.' },
+                        { t: 'Seguranca', p: 'Os dados trafegam em conexao criptografada e o acesso ao banco e restrito. Em caso de incidente relevante, os titulares serao comunicados.' }
+                    ]
                 },
                 termos: {
                     titulo: 'Termos de Uso',
-                    texto: 'O material vendido e digital (PDF) e e liberado na Area do Aluno logo apos a confirmacao do pagamento. O conteudo e protegido por direito autoral e o uso e pessoal: nao e permitido revender, compartilhar ou redistribuir os arquivos.\n\nO prazo de arrependimento de 7 dias, previsto no Codigo de Defesa do Consumidor, e respeitado nas compras feitas no proprio site. Compras feitas em plataformas de terceiros seguem as regras da plataforma onde foram realizadas.\n\nProblemas de pagamento ou de acesso devem ser comunicados pelo canal de atendimento informado no rodape.'
+                    atualizado: 'Ultima atualizacao: outubro de 2026',
+                    secoes: [
+                        { t: 'Do que se trata', p: 'Estes termos regulam o uso do site +QApostilas e a compra das apostilas e cadernos de questoes comercializados aqui.' },
+                        { t: 'Entrega do material', p: 'Todo o material e digital (PDF). A liberacao acontece na Area do Aluno imediatamente apos a confirmacao do pagamento. Nao ha envio de material impresso.' },
+                        { t: 'Direito autoral', p: 'O conteudo e protegido por direito autoral e a licenca e pessoal e intransferivel. E proibido revender, compartilhar, redistribuir ou publicar os arquivos, no todo ou em parte.' },
+                        { t: 'Precos e pagamento', p: 'Os precos exibidos sao em reais e podem ser alterados sem aviso previo. O pagamento e processado pelo Mercado Pago (Pix, cartao de credito ou debito). Nao trabalhamos com boleto.' },
+                        { t: 'Arrependimento e reembolso', p: 'Nas compras feitas no proprio site respeitamos o prazo de 7 dias previsto no Codigo de Defesa do Consumidor (art. 49). Compras feitas em plataformas de terceiros seguem as regras da plataforma onde foram realizadas.' },
+                        { t: 'Suporte', p: 'Problemas de pagamento ou de acesso devem ser comunicados pelo canal de atendimento informado no rodape do site, informando o codigo do pedido.' }
+                    ]
                 }
             };
-            try {
-                const c = CONTEUDO[kind] || CONTEUDO.privacidade;
-                const t = document.getElementById('modalTitle');
-                const b = document.getElementById('modalBody');
-                const g = document.getElementById('globalModal') || document.querySelector('.modal-overlay');
-                if (t && b && g) {
-                    t.textContent = c.titulo;
-                    b.innerHTML = '<h3>' + c.titulo + '</h3>' + c.texto.split('\n\n').map(function(par){ return '<p>' + par + '</p>'; }).join('');
-                    if (g.classList) { g.classList.add('active'); }
-                    g.style.display = 'flex';
-                    window.scrollTo(0, 0);
-                    return;
-                }
-                alert(c.titulo + '\n\n' + c.texto);
-            } catch (e) {
-                console.warn('showModal', e);
-                alert(CONTEUDO[kind] ? CONTEUDO[kind].texto : '');
+
+            const c = CONTEUDO[kind] || CONTEUDO.privacidade;
+            const t = document.getElementById('modalTitle');
+            const b = document.getElementById('modalBody');
+            const g = document.getElementById('globalModal');
+
+            if (!t || !b || !g) {
+                alert(c.titulo + '\n\n' + c.secoes.map(function (sec) { return sec.t + ': ' + sec.p; }).join('\n\n'));
+                return;
             }
+
+            t.textContent = c.titulo;
+            b.innerHTML =
+                '<h3 style="margin:0 0 4px;">' + c.titulo + '</h3>' +
+                '<p style="color:var(--text-muted);font-size:13px;margin:0 0 18px;">' + c.atualizado + '</p>' +
+                c.secoes.map(function (sec) {
+                    return '<h4 style="margin:18px 0 6px;color:var(--primary);">' + sec.t + '</h4>' +
+                           '<p style="margin:0;line-height:1.7;">' + sec.p + '</p>';
+                }).join('') +
+                '<div style="margin-top:26px;text-align:right;">' +
+                    '<button type="button" class="btn btn-primary" onclick="closeModal()">' +
+                        '<i class="fas fa-check"></i> Entendi, fechar' +
+                    '</button>' +
+                '</div>';
+
+            g.classList.add('active');
+            g.style.display = 'flex';
+            g.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            window.scrollTo(0, 0);
         }
+
         function closeModal() {
             const modal = document.getElementById('globalModal');
             if (!modal) return;
 
             modal.classList.remove('active');
+            // v3.5 - limpa o display:flex aplicado inline ao abrir.
+            // Sem isto o modal continuava visivel depois de fechar (obrigava recarregar a pagina).
+            modal.style.display = '';
+            modal.setAttribute('aria-hidden', 'true');
 
             const modalTitle = document.getElementById('modalTitle');
             if (modalTitle) modalTitle.textContent = 'Modal';
 
             const modalBody = document.getElementById('modalBody');
             if (modalBody) modalBody.innerHTML = '';
+
+            document.body.style.overflow = '';
         }
+
+        // v3.5 - o modal tambem fecha clicando fora da caixa e pela tecla Esc
+        (function bindGlobalModalClose() {
+            document.addEventListener('click', function (ev) {
+                const modal = document.getElementById('globalModal');
+                if (modal && ev.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape' || ev.key === 'Esc') closeModal();
+            });
+        })();
 
         function renderNotFound() {
             appState.currentView = 'notfound';
@@ -4490,6 +4599,28 @@ try {
                 const faviconEl = document.getElementById('site-favicon');
                 faviconEl.href = appState.config.favicon_url;
             }
+
+            // v3.5 - preenche o formulario do painel com o que esta salvo no banco
+            preencherFormConfig();
+        }
+
+        function preencherFormConfig() {
+            const form = document.getElementById('configForm');
+            if (!form) return;
+            const cfg = appState.config || {};
+            Array.from(form.elements).forEach(el => {
+                if (!el.name || el.type === 'password') return;
+                const valor = cfg[el.name];
+                if (valor === undefined || valor === null) return;
+                if (el.type === 'checkbox') {
+                    const v = String(valor).trim().toLowerCase();
+                    el.checked = (v === 'true' || v === 'on' || v === '1' || v === 'sim');
+                } else if (el.type === 'radio') {
+                    if (String(el.value) === String(valor)) el.checked = true;
+                } else {
+                    el.value = valor;
+                }
+            });
         }
 
         async function loadCategorias() {
@@ -4733,6 +4864,9 @@ try {
         }
 
         function getProductAvailabilityBadge(produto) {
+            if (isPreVendaAtiva(produto)) {
+                return `<span class="badge badge-warning"><i class="fas fa-clock"></i> ${getPreVendaLabel(produto)}</span>`;
+            }
             const formats = getProductFormats(produto);
             if (formats.length > 1) {
                 return '<span class="badge badge-info"><i class="fas fa-layer-group"></i> Formatos disponíveis: Digital e Impressa</span>';
@@ -4756,6 +4890,7 @@ try {
                     </div>
                     <div class="purchase-box-current">R$ ${formatPrice(currentOffer.price)}</div>
                     ${installmentText ? `<div class="purchase-box-installment">${installmentText}</div>` : ''}
+                    ${isPreVendaAtiva(produto) ? `<div class="purchase-box-prevenda" style="margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#fff7e6;border:1px solid #ffd591;font-size:13px;color:#8a5a00;"><i class="fas fa-clock"></i> ${getPreVendaLabel(produto)}<br><small>Nesta data o botão passa a ser "Comprar agora" automaticamente.</small></div>` : ''}
                     ${formats.length > 1 ? `
                         <label class="purchase-box-label" for="format_selector_${produto.id}">Formato</label>
                         <select id="format_selector_${produto.id}" class="purchase-box-select" onchange="setProductFormat('${produto.slug}', this.value)">
@@ -4907,7 +5042,7 @@ function renderHomeSeguro() {
             const destaques = getHighlightedProductsByFlag('destaque', 8);
             const lancamentos = getHighlightedProductsByFlag('lancamento', 8);
             const maisVendidas = getHighlightedProductsByFlag('mais_vendida', 8);
-            const preVenda = getHighlightedProductsByFlag('pre_venda', 8);
+            const preVenda = getHighlightedProductsByFlag('pre_venda', 8).filter(p => isPreVendaAtiva(p));
 
             const heroHtml = banners.length
                 ? `
@@ -5048,7 +5183,7 @@ function renderHomeSeguro() {
                         <img src="${produto.capa_url}" alt="${produto.titulo}" class="product-image" onerror="this.src='https://via.placeholder.com/300x400/1E90FF/FFFFFF?text=Apostila'">
                         <div class="product-badges">
                             ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check"></i> Atualizado</span>' : ''}
-                            ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
+                            ${isPreVendaAtiva(produto) ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Pré-venda</span>' : ''}
                             ${produto.lancamento ? '<span class="badge badge-accent"><i class="fas fa-star"></i> Novo</span>' : ''}
                         </div>
                     </div>
@@ -5200,7 +5335,7 @@ ${parcelaHtml}
                                 <div class="product-detail-badges">
                                     ${produto.atualizado_edital ? '<span class="badge badge-success"><i class="fas fa-check-circle"></i> Atualizado conforme último edital</span>' : ''}
                                     ${getProductAvailabilityBadge(produto)}
-                                    ${produto.pre_venda ? '<span class="badge badge-warning"><i class="fas fa-clock"></i> Em pré-venda</span>' : ''}
+                                    ${isPreVendaAtiva(produto) ? `<span class="badge badge-warning"><i class="fas fa-clock"></i> ${getPreVendaLabel(produto)}</span>` : ''}
                                     ${isDirectSale(produto) ? '<span class="direct-sale-flag"><i class="fas fa-bolt"></i> Compra imediata no site</span>' : ''}
                                 </div>
                             </div>
@@ -5321,32 +5456,100 @@ ${parcelaHtml}
         function renderSobre() {
             appState.currentView = 'sobre';
             const mainContent = document.getElementById('mainContent');
-            const sobreText = appState.config.sobre_nos || 'Somos especializados em apostilas para concursos públicos.';
+            const cfg = appState.config || {};
+
+            const txt = (valor, padrao) => (valor && String(valor).trim()) ? String(valor).trim() : padrao;
+            const linhas = (valor) => String(valor || '').split('\n').map(i => i.trim()).filter(Boolean);
+            const paragrafos = (valor) => linhas(valor).map(p => `<p style="margin:0 0 14px;">${escapeHtml(p)}</p>`).join('');
+
+            const titulo = txt(cfg.sobre_titulo, 'Sobre a +QApostilas');
+            const subtitulo = txt(cfg.sobre_subtitulo, 'Apostilas e cadernos de questões digitais, atualizados conforme o último edital.');
+            const historia = txt(cfg.sobre_historia, 'A +QApostilas nasceu de uma necessidade simples: estudar para concurso com material organizado, atualizado e direto ao ponto.\n\nComeçamos reunindo questões de provas anteriores e organizando por banca, órgão e cargo. Com o tempo, isso virou um catálogo com centenas de apostilas e cadernos, todos revisados conforme o edital vigente.\n\nHoje somos uma operação 100% digital: o material é liberado na hora, sem espera de envio e sem custo de frete.');
+            const missao = txt(cfg.sobre_missao, 'Ajudar o candidato a chegar preparado no dia da prova, com material de qualidade e preço acessível.');
+            const valores = linhas(txt(cfg.sobre_valores, 'Conteúdo atualizado conforme o edital\nTransparência total no preço e na entrega\nAtendimento humano e rápido\nRespeito ao esforço de quem estuda'));
+            const diferenciais = linhas(txt(cfg.sobre_diferenciais, 'Material 100% digital, liberado automaticamente após o pagamento\nQuestões organizadas por banca, órgão e cargo\nAtualização conforme o último edital publicado\nGarantia de 7 dias conforme o Código de Defesa do Consumidor\nSuporte pelo WhatsApp com resposta rápida'));
+            const numeros = linhas(txt(cfg.sobre_numeros, '100% | Material digital\n7 dias | Garantia de reembolso\n24h | Suporte por WhatsApp\nPix, crédito e débito | Formas de pagamento')).map(item => {
+                const partes = item.split('|');
+                return { valor: (partes[0] || '').trim(), rotulo: (partes[1] || '').trim() };
+            }).filter(n => n.valor || n.rotulo);
+            const ctaTexto = txt(cfg.sobre_cta_texto, 'Ver apostilas disponíveis');
+            const ctaLink = txt(cfg.sobre_cta_link, '/categoria/caderno-de-questoes');
+            const whats = (cfg.whatsapp || '').replace(/\D/g, '');
+            const email = cfg.email || '';
+
+            const numerosHtml = numeros.length ? `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:0 0 30px;">
+                    ${numeros.map(n => `
+                        <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;">
+                            <div style="font-size:26px;font-weight:800;color:var(--primary);">${escapeHtml(n.valor)}</div>
+                            <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">${escapeHtml(n.rotulo)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
 
             mainContent.innerHTML = `
-                <section class="products-section" style="padding: 100px 20px;">
-                    <div class="container">
-                        <div class="section-header">
-                            <h2 class="section-title">Sobre Nós</h2>
+                <section class="products-section" style="padding:70px 20px 50px;">
+                    <div class="container" style="max-width:980px;">
+                        <div style="text-align:center;margin-bottom:34px;">
+                            <span class="badge badge-success" style="margin-bottom:14px;"><i class="fas fa-graduation-cap"></i> Quem somos</span>
+                            <h1 style="font-size:34px;margin:0 0 12px;">${escapeHtml(titulo)}</h1>
+                            <p style="font-size:18px;color:var(--text-muted);margin:0 auto;max-width:680px;">${escapeHtml(subtitulo)}</p>
                         </div>
-                        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                            <div style="font-size: 18px; line-height: 1.8; color: var(--text-muted);">
-                                ${sobreText.replace(/\n/g, '<br>')}
+
+                        ${numerosHtml}
+
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;margin-bottom:22px;">
+                            <div style="background:#fff;border:1px solid var(--border);border-radius:18px;padding:26px;">
+                                <h2 style="font-size:20px;margin:0 0 12px;color:var(--primary);"><i class="fas fa-book-open"></i> Nossa história</h2>
+                                <div style="line-height:1.75;color:var(--text-muted);font-size:15px;">${paragrafos(historia)}</div>
                             </div>
+                            <div style="background:#fff;border:1px solid var(--border);border-radius:18px;padding:26px;">
+                                <h2 style="font-size:20px;margin:0 0 12px;color:var(--primary);"><i class="fas fa-bullseye"></i> Nossa missão</h2>
+                                <div style="line-height:1.75;color:var(--text-muted);font-size:15px;">${paragrafos(missao)}</div>
+                                ${valores.length ? `
+                                    <h3 style="font-size:16px;margin:20px 0 10px;">Valores</h3>
+                                    <ul style="margin:0;padding-left:18px;color:var(--text-muted);line-height:1.8;font-size:15px;">
+                                        ${valores.map(v => `<li>${escapeHtml(v)}</li>`).join('')}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        ${diferenciais.length ? `
+                            <div style="background:#fff;border:1px solid var(--border);border-radius:18px;padding:26px;margin-bottom:22px;">
+                                <h2 style="font-size:20px;margin:0 0 14px;color:var(--primary);"><i class="fas fa-check-circle"></i> Por que comprar na +QApostilas</h2>
+                                <ul style="margin:0;padding-left:18px;color:var(--text-muted);line-height:1.9;font-size:15px;">
+                                    ${diferenciais.map(d => `<li>${escapeHtml(d)}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+
+                        <div style="background:linear-gradient(135deg,var(--primary),#0b3d91);border-radius:20px;padding:32px;text-align:center;color:#fff;">
+                            <h2 style="margin:0 0 8px;font-size:22px;">Pronto para começar a estudar?</h2>
+                            <p style="margin:0 0 18px;opacity:.9;">Material atualizado conforme o último edital, com liberação imediata do PDF.</p>
+                            <a href="${escapeHtml(ctaLink)}" class="btn btn-accent" style="text-decoration:none;display:inline-flex;">
+                                <i class="fas fa-shopping-cart"></i> ${escapeHtml(ctaTexto)}
+                            </a>
+                            ${(whats || email) ? `
+                                <p style="margin:18px 0 0;font-size:14px;opacity:.9;">
+                                    ${whats ? `WhatsApp: ${escapeHtml(whats)}` : ''}${whats && email ? ' • ' : ''}${email ? `E-mail: ${escapeHtml(email)}` : ''}
+                                </p>
+                            ` : ''}
                         </div>
                     </div>
                 </section>
             `;
 
             setSeoMeta({
-                title: 'Sobre Nós | +QApostilas',
-                description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' ').slice(0, 155),
+                title: titulo + ' | +QApostilas',
+                description: String(subtitulo || '').replace(/<[^>]+>/g, ' ').slice(0, 155),
                 path: '/sobre',
                 schema: {
                     '@context': 'https://schema.org',
                     '@type': 'AboutPage',
-                    name: 'Sobre Nós | +QApostilas',
-                    description: (sobreText || 'Conheça a +QApostilas e nossa proposta para concursos públicos.').replace(/\n/g, ' '),
+                    name: titulo + ' | +QApostilas',
+                    description: subtitulo,
                     url: getAbsoluteUrl('/sobre')
                 }
             });
@@ -5491,7 +5694,7 @@ ${parcelaHtml}
                     filtered = appState.produtos.filter(p => p.destaque);
                     break;
                 case 'pre_venda':
-                    filtered = appState.produtos.filter(p => p.pre_venda);
+                    filtered = appState.produtos.filter(p => isPreVendaAtiva(p));
                     break;
             }
 
@@ -7229,6 +7432,32 @@ function erroBanco(prefixo, error) {
         }
 
         // ==================== VENDA DIRETA ====================
+        // v3.5 - PRE-VENDA COM DATA DE LIBERACAO
+        // Enquanto a data nao chega, o produto fica em pre-venda.
+        // Na data (ou depois), sai da pre-venda automaticamente e o botao vira "Comprar agora".
+        function isPreVendaAtiva(produto) {
+            if (!produto || !produto.pre_venda) return false;
+            const data = produto.data_lancamento || produto.pre_venda_data || '';
+            if (!data) return true;
+            const alvo = new Date(String(data).length <= 10 ? String(data) + 'T00:00:00' : data);
+            if (isNaN(alvo.getTime())) return true;
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            return hoje < alvo;
+        }
+
+        function formatarDataBr(data) {
+            if (!data) return '';
+            const d = new Date(String(data).length <= 10 ? String(data) + 'T00:00:00' : data);
+            if (isNaN(d.getTime())) return String(data);
+            return d.toLocaleDateString('pt-BR');
+        }
+
+        function getPreVendaLabel(produto) {
+            const data = produto && (produto.data_lancamento || produto.pre_venda_data);
+            return data ? ('Pre-venda - disponivel em ' + formatarDataBr(data)) : 'Em pre-venda';
+        }
+
         function isDirectSale(produto) {
             return Boolean(produto) && (produto.tipo_botao === 'site' || produto.venda_direta === true);
         }
@@ -7461,7 +7690,7 @@ const ativo = (key, padrao) => {
                 produto_codigo: produto.codigo || null,
                 formato,
                 origem: 'site',
-                tipo: produto.pre_venda ? 'pre_venda' : 'venda',
+                tipo: isPreVendaAtiva(produto) ? 'pre_venda' : 'venda',
                 status: 'aguardando_pagamento',
                 valor: Number(oferta.price || 0),
                 frete: 0,
@@ -8951,6 +9180,7 @@ showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
 
     </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>

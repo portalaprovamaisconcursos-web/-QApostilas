@@ -484,3 +484,35 @@ WHERE table_schema = 'public'
 ORDER BY table_name, column_name;
 
 -- ============== CONCLUÍDO ==============
+
+-- ============================================================================
+-- v3.5 - PRE-VENDA COM DATA DE LIBERACAO (idempotente - nao apaga nada)
+-- ============================================================================
+-- Como funciona no site:
+--   * produto marcado como "Pre-venda" e com data preenchida
+--       -> antes da data: aparece o selo "Pre-venda - disponivel em DD/MM/AAAA"
+--       -> na data ou depois: o produto sai da pre-venda sozinho e o botao
+--          passa a ser "Comprar agora" automaticamente
+--   * produto em "Pre-venda" SEM data -> continua em pre-venda ate voce preencher
+--
+-- Preencha a data no painel: Admin -> Produtos -> (editar produto) ->
+-- "Data de liberacao (pre-venda)".
+
+alter table if exists public.produtos
+  add column if not exists data_lancamento date;
+
+-- alias de compatibilidade (o site aceita os dois nomes)
+alter table if exists public.produtos
+  add column if not exists pre_venda_data date;
+
+comment on column public.produtos.data_lancamento is
+  'Data de liberacao da pre-venda. A partir dela o produto sai da pre-venda automaticamente.';
+
+comment on column public.produtos.pre_venda_data is
+  'Alias de data_lancamento (compatibilidade).';
+
+create index if not exists produtos_data_lancamento_idx
+  on public.produtos (data_lancamento);
+
+-- recarrega o cache de schema do PostgREST (Supabase) para o site enxergar as colunas novas
+notify pgrst, 'reload schema';

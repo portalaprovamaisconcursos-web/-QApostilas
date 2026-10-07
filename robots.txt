@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
+Disallow: /minha-conta
 
 Sitemap: https://www.maisqapostilas.com.br/sitemap.xml
