@@ -81,7 +81,7 @@ module.exports = async (req, res) => {
         // Produtos editoriais/digitais normalmente não possuem GTIN.
         // identifier_exists=no evita inventar EAN/ISBN/GTIN.
         return `  <item>
-    <g:id>${xmlEscape(p.codigo || `QA-${p.id}`)}</g:id>
+    <g:id>${xmlEscape(`QA-${p.id}`)}</g:id>
     <g:title>${xmlEscape(titulo)}</g:title>
     <g:description>${xmlEscape(descricao)}</g:description>
     <g:link>${xmlEscape(link)}</g:link>
