@@ -8536,6 +8536,9 @@ showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
                         <div class="product-summary-item"><span class="product-summary-label">Forma de pagamento</span><span class="product-summary-value">${escapeHtml(PAGTO_LABEL[pedido.forma_pagamento] || 'Não informada')}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Pagamento confirmado em</span><span class="product-summary-value">${pedido.pago_em ? formatDateBR(pedido.pago_em, true) : 'Não confirmado'}</span></div>
                         <div class="product-summary-item"><span class="product-summary-label">Prazo para pagamento</span><span class="product-summary-value">${prazo && !isNaN(prazo) ? formatDateBR(prazo.toISOString(), true) : '—'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Primeiro acesso ao PDF</span><span class="product-summary-value">${pedido.primeiro_acesso_pdf_em ? formatDateBR(pedido.primeiro_acesso_pdf_em, true) : 'Ainda não registrado'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Acessos registrados</span><span class="product-summary-value">${Number(pedido.quantidade_acessos_pdf)||0}</span></div>
+                        ${cancelado ? `<div class="product-summary-item"><span class="product-summary-label">Cancelado em</span><span class="product-summary-value">${pedido.cancelado_em ? formatDateBR(pedido.cancelado_em, true) : 'Data não registrada'}</span></div>` : ''}
                     </div>
                     ${pago ? renderBotaoDownload(pedido) : ''}
                 </div>`;
@@ -8574,7 +8577,33 @@ showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
             if (!link) {
                 return '<span style="font-size:12px;color:var(--text-muted);"><i class="fas fa-clock"></i> Liberando o arquivo…</span>';
             }
-            return `<a class="btn btn-sm btn-success" href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-download"></i> Baixar PDF</a>`;
+            return `<button type="button" class="btn btn-sm btn-success" onclick="abrirPdfRegistrado(${Number(pedido.id)})"><i class="fas fa-download"></i> Baixar PDF</button>`;
+        }
+
+        // Acesso protegido: valida sessão/pagamento no servidor e registra o clique.
+        async function abrirPdfRegistrado(pedidoId) {
+            const aba = window.open('about:blank', '_blank');
+            if (aba) aba.opener = null;
+            try {
+                const { data } = await window.supabaseClient.auth.getSession();
+                const token = data && data.session && data.session.access_token;
+                if (!token) throw new Error('Entre novamente na Área do Aluno para baixar.');
+                const resp = await fetch('/api/pdf-access', { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+token }, body:JSON.stringify({ pedido_id:pedidoId }) });
+                const result = await resp.json();
+                if (!resp.ok || !result.url) throw new Error(result.error || 'Não foi possível abrir o PDF.');
+                if (aba && !aba.closed) aba.location.href = result.url;
+                else window.location.href = result.url;
+                const pedido = (appState.pedidosAluno || []).find(p => Number(p.id)===Number(pedidoId));
+                if (pedido) {
+                    const agora = new Date().toISOString();
+                    pedido.primeiro_acesso_pdf_em ||= agora;
+                    pedido.ultimo_acesso_pdf_em = agora;
+                    pedido.quantidade_acessos_pdf = (Number(pedido.quantidade_acessos_pdf)||0)+1;
+                }
+            } catch(e) {
+                if (aba && !aba.closed) aba.close();
+                showAlert(e.message || 'Não foi possível abrir o PDF.', 'warning');
+            }
         }
 
         // Envio do link por e-mail: abre o e-mail já escrito (grátis, sem serviço externo)
