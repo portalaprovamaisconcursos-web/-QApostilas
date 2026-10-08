@@ -8477,7 +8477,9 @@ showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
                 return;
             }
 
-            const total = pedidos.reduce((soma, p) => soma + Number(p.total || 0), 0);
+            appState.pedidosAluno = pedidos;
+            const pagos = pedidos.filter(p => STATUS_LIBERADO.includes(String(p.status)));
+            const total = pagos.reduce((soma, p) => soma + Number(p.total ?? p.valor ?? 0), 0);
             container.innerHTML = `
                 <div class="student-card" style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;">
                     <div><span class="product-summary-label">Compras registradas</span><strong style="font-size:22px;">${pedidos.length}</strong></div>
@@ -8499,12 +8501,45 @@ showAlert(erroBanco('Erro ao salvar seus dados', error), 'error');
                                 ${renderStatusBadge(p.status)}
                                 <strong>R$ ${formatPrice(p.total || p.valor || 0)}</strong>
                                 ${renderBotaoDownload(p)}
-                                <button class="btn btn-sm btn-primary" onclick="openOrderDetail(${p.id})"><i class="fas fa-eye"></i> Detalhes</button>
+                                <button class="btn btn-sm btn-primary" onclick="openStudentOrderDetail(${p.id})"><i class="fas fa-eye"></i> Detalhes</button>
                             </div>
                         </div>
                     `).join('')}
                 </div>
             `;
+        }
+
+        // Detalhes exclusivos da Área do Aluno; não utiliza a lista administrativa.
+        function openStudentOrderDetail(id) {
+            const pedido = (appState.pedidosAluno || []).find(p => Number(p.id) === Number(id));
+            if (!pedido) { showAlert('Não foi possível localizar este pedido.', 'warning'); return; }
+            const pago = STATUS_LIBERADO.includes(String(pedido.status));
+            const cancelado = pedido.status === 'cancelado';
+            const prazo = pedido.created_at ? new Date(new Date(pedido.created_at).getTime() + 86400000) : null;
+            const motivo = cancelado
+                ? (pedido.motivo_cancelamento === 'prazo_24h' ? 'Cancelado por falta de pagamento no prazo de 24 horas.' : 'Este pedido foi cancelado. Entre em contato se precisar de ajuda.')
+                : pago ? 'Pagamento confirmado. Sua apostila está disponível para download.'
+                : pedido.status === 'em_analise' ? 'Pagamento em análise. Aguarde a confirmação.'
+                : 'Aguardando a confirmação do pagamento pelo Mercado Pago.';
+            document.getElementById('modalTitle').textContent = `Detalhes do pedido ${pedido.codigo || pedido.id}`;
+            document.getElementById('modalBody').innerHTML = `
+                <div style="display:grid;gap:15px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+                        ${renderStatusBadge(pedido.status)}
+                        <strong style="font-size:21px">R$ ${formatPrice(pedido.total ?? pedido.valor ?? 0)}</strong>
+                    </div>
+                    <div class="alert ${cancelado ? 'alert-warning' : pago ? 'alert-success' : 'alert-info'}"><i class="fas fa-info-circle"></i> ${motivo}</div>
+                    <div class="product-summary-grid" style="max-width:none;grid-template-columns:repeat(2,minmax(0,1fr))">
+                        <div class="product-summary-item"><span class="product-summary-label">Apostila</span><span class="product-summary-value">${escapeHtml(pedido.produto_titulo || '—')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Número do pedido</span><span class="product-summary-value">${escapeHtml(pedido.codigo || pedido.id)}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Data do pedido</span><span class="product-summary-value">${formatDateBR(pedido.created_at, true)}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Forma de pagamento</span><span class="product-summary-value">${escapeHtml(PAGTO_LABEL[pedido.forma_pagamento] || 'Não informada')}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Pagamento confirmado em</span><span class="product-summary-value">${pedido.pago_em ? formatDateBR(pedido.pago_em, true) : 'Não confirmado'}</span></div>
+                        <div class="product-summary-item"><span class="product-summary-label">Prazo para pagamento</span><span class="product-summary-value">${prazo && !isNaN(prazo) ? formatDateBR(prazo.toISOString(), true) : '—'}</span></div>
+                    </div>
+                    ${pago ? renderBotaoDownload(pedido) : ''}
+                </div>`;
+            document.getElementById('globalModal').classList.add('active');
         }
 
         // ==================== v3.3 — ENTREGA DIGITAL ====================
