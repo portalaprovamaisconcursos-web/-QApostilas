@@ -7966,10 +7966,7 @@ const ativo = (key, padrao) => {
 
                 await registrarClienteDoPedido(payload);
 
-                if (formaPagamento === 'pix') {
-                    renderPixInstructions(data);
-                    return;
-                }
+                // Pix e cartões usam a mesma preferência exclusiva do pedido no Mercado Pago.
 
 // 1) Tenta SEMPRE gerar um LINK UNICO deste pedido no Mercado Pago
                 //    (Checkout Pro via /api/mp-checkout). Assim cada venda pode ser
@@ -7995,30 +7992,16 @@ const ativo = (key, padrao) => {
                     return;
                 }
 
-                // 2) API indisponivel: usa o link fixo (do produto ou do painel).
-                const link = produto.mp_link_pagamento || (appState.config || {}).mp_link_pagamento;
-                if (link) {
-                    document.getElementById('modalBody').innerHTML = `
-                        <div style="text-align:center; padding:10px;">
-                            <div style="font-size:54px; color:var(--success); margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
-                            <h3 style="margin-bottom:10px;">Pedido ${escapeHtml(data.codigo || data.id)} registrado!</h3>
-                            <p style="color:var(--text-muted); margin-bottom:18px;">
-                                Agora você será levado ao Mercado Pago para concluir o pagamento.
-                                Assim que ele for confirmado, a compra aparece na sua Área do Aluno.
-                            </p>
-                            <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="width:100%; justify-content:center;">
-                                <i class="fas fa-external-link-alt"></i> Ir para o pagamento
-                            </a>
-                            <button class="btn" style="margin-top:12px; width:100%; justify-content:center;" onclick="closeModal(); openStudentAuth();">
-                                <i class="fas fa-user-graduate"></i> Ver minhas compras
-                            </button>
-                        </div>
-                    `;
-                    window.open(link, '_blank', 'noopener,noreferrer');
-                    return;
-                }
-
-                renderPixInstructions(data, 'Nenhum link de pagamento configurado no painel. Use o Pix abaixo ou fale conosco pelo WhatsApp.');
+                // Não utilizar chave Pix fixa ou link genérico: não vinculam pagamento ao pedido.
+                document.getElementById('modalTitle').textContent = 'Pagamento indisponível';
+                document.getElementById('modalBody').innerHTML = `
+                    <div style="text-align:center;padding:16px">
+                        <h3>Pedido ${escapeHtml(data.codigo || data.id)} registrado</h3>
+                        <p>Não foi possível gerar o pagamento automático agora. Nenhuma cobrança foi realizada.</p>
+                        <p>Não pague por chave Pix avulsa. Tente novamente mais tarde ou entre em contato com o atendimento informando o número do pedido.</p>
+                        <button class="btn btn-primary" onclick="closeModal()">Fechar</button>
+                    </div>`;
+                showAlert('Não foi possível criar o checkout do Mercado Pago. Verifique a configuração da API.', 'error');
             } catch (error) {
                 console.error(error);
                 showAlert('Erro ao registrar o pedido: ' + (error.message || error), 'error');
@@ -8044,7 +8027,7 @@ function renderLinkPagamento(pedido, url, produto) {
                     </p>
                 </div>
                 <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="width:100%; justify-content:center; margin-top:12px;">
-                    <i class="fas fa-external-link-alt"></i> Pagar agora no Mercado Pago
+                    <i class="fas fa-external-link-alt"></i> Gerar QR Code Pix ou pagar com cartão no Mercado Pago
                 </a>
                 <div class="pix-box" style="margin-top:14px;">
                     <strong><i class="fas fa-link"></i> Link exclusivo deste pedido</strong>

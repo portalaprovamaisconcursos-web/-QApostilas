@@ -19,7 +19,7 @@ window.APP_CONFIG = {
   //            de ambiente, cai automaticamente para o link fixo do produto/painel
   //            e, se não houver nenhum, mostra o Pix.
   // 'api'   -> igual, porém mostra erro caso a API não esteja configurada.
-  checkout_modo: 'link',
+  checkout_modo: 'api',
   mp_parcelas_max: 6,
   storage_bucket_capas: 'capas',
   storage_bucket_pdfs: 'apostilas-pdf',
