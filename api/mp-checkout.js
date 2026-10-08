@@ -1,3 +1,4 @@
+const { enviar: enviarEmailPedido } = require('../lib/qa-mail');
 // ============================================================================
 // api/mp-checkout.js — Mercado Pago Checkout Pro (v3.2)
 // Gera um LINK ÚNICO para cada pedido, o que permite controlar cada venda
@@ -136,6 +137,20 @@ module.exports = async (req, res) => {
         updated_at: new Date().toISOString()
       })
     });
+
+    // E-mail de pedido gerado (uma vez). Não bloqueia o checkout se falhar.
+    if (!pedido.email_pedido_enviado_em && pedido.cliente_email) {
+      try {
+        const ok = await enviarEmailPedido({
+          para: pedido.cliente_email,
+          assunto: `Pedido ${pedido.codigo || pedido.id} recebido — +QApostilas`,
+          titulo: 'Seu pedido foi registrado',
+          mensagem: `Olá, ${pedido.cliente_nome || 'cliente'}! Recebemos seu pedido ${pedido.codigo || pedido.id} referente a ${pedido.produto_titulo || 'apostila'}, no valor de R$ ${valorCobrar.toFixed(2).replace('.', ',')}. O pagamento ainda não foi confirmado. O pedido poderá ser cancelado após 24 horas sem pagamento.`,
+          link: site + '/minha-conta', botao: 'Acompanhar pedido'
+        });
+        if (ok) await supabase(`pedidos?id=eq.${pedido.id}`, {method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({email_pedido_enviado_em:new Date().toISOString()})});
+      } catch (e) { console.warn('E-mail de pedido:', e.message); }
+    }
 
     return json(res, 200, {
       ok: true,

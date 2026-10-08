@@ -85,7 +85,7 @@ async function enviarEmailEntrega({ para, nome, titulo, link }) {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: de, to: [para], subject: `Seu material +QApostilas — ${titulo || 'Apostila'}`, html })
+      body: JSON.stringify({ from: de, to: [para], reply_to: process.env.EMAIL_REPLY_TO || undefined, subject: `Seu material +QApostilas — ${titulo || 'Apostila'}`, html })
     });
     if (!r.ok) console.warn('Resend recusou o envio:', r.status);
     return r.ok;
@@ -182,10 +182,11 @@ module.exports = async (req, res) => {
       updated_at: new Date().toISOString()
     };
     // Não regride um pedido já entregue ao receber notificações repetidas.
-    if (novoStatus && !(pedido && (pedido.status === 'entregue' || pedido.status === 'entregue_transportadora'))) {
+    if (novoStatus && (pagamento.status === 'approved' || !['pagamento_confirmado','entregue','entregue_transportadora','cancelado'].includes(pedido.status))) {
       patch.status = novoStatus;
     }
     if (pagamento.status === 'approved') {
+      patch.cancelado_em = null; patch.motivo_cancelamento = null;
       patch.pago_em = pagamento.date_approved ? new Date(pagamento.date_approved).toISOString() : new Date().toISOString();
     }
 
@@ -220,9 +221,9 @@ module.exports = async (req, res) => {
             para: pedido.cliente_email,
             nome: pedido.cliente_nome,
             titulo: pedido.produto_titulo,
-            link: entregaLink
+            link: (process.env.SITE_URL || 'https://www.maisqapostilas.com.br').replace(/\/$/,'') + '/minha-conta'
           });
-          if (enviado) patch.entrega_email_em = new Date().toISOString();
+          if (enviado) { patch.entrega_email_em = new Date().toISOString(); patch.email_confirmacao_enviado_em = patch.entrega_email_em; }
         }
       } catch (e) {
         console.warn('Falha na entrega por e-mail:', e.message || e);
