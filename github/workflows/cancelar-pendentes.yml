@@ -1,0 +1,18 @@
+name: Verificar pedidos pendentes
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar pagamentos e cancelar pendentes
+        env:
+          QA_CRON_SECRET: ${{ secrets.QA_CRON_SECRET }}
+        run: |
+          test -n "$QA_CRON_SECRET"
+          curl --fail-with-body --retry 2 --max-time 55 -X POST \
+            -H "Authorization: Bearer $QA_CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            https://www.maisqapostilas.com.br/api/cancelar-pendentes
