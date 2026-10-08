@@ -95,6 +95,9 @@ module.exports = async (req, res) => {
     const pagamento = pagamentos.find(p => p.status === 'approved') || pagamentos[0];
     const novoStatus = mapearStatus(pagamento.status);
 
+    if (pagamento.status === 'approved' && (pagamento.currency_id !== 'BRL' || Math.abs(Number(pagamento.transaction_amount) - Number(pedido.total || pedido.valor)) > 0.009)) {
+      return json(res, 409, { error: 'Pagamento divergente do pedido' });
+    }
     const patch = {
       mp_payment_id: String(pagamento.id),
       parcelas: pagamento.installments || 1,

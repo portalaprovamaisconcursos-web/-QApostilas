@@ -50,6 +50,7 @@ module.exports = async (req, res) => {
     const rows = await supabase(`pedidos?id=eq.${encodeURIComponent(pedidoId)}&select=*`);
     const pedido = Array.isArray(rows) ? rows[0] : null;
     if (!pedido) return json(res, 404, { error: 'Pedido não encontrado.' });
+    if (['pagamento_confirmado', 'entregue', 'entregue_transportadora', 'cancelado'].includes(pedido.status)) return json(res, 409, { error: 'Pedido não está disponível para checkout.' });
 
     const site = (process.env.SITE_URL || `https://${req.headers.host}`).replace(/\/+$/, '');
     const parcelasMax = Math.max(1, Math.min(12, parseInt(body.parcelas_max || 6, 10) || 6));

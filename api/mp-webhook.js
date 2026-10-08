@@ -99,8 +99,8 @@ async function enviarEmailEntrega({ para, nome, titulo, link }) {
 function assinaturaValida(req, dataId) {
   const secret = process.env.MP_WEBHOOK_SECRET;
   if (!secret) {
-    console.warn('MP_WEBHOOK_SECRET não configurado: a assinatura do webhook NÃO está sendo validada.');
-    return true;
+    console.error('MP_WEBHOOK_SECRET ausente: webhook bloqueado.');
+    return false;
   }
   const xSig = req.headers['x-signature'] || '';
   const xReq = req.headers['x-request-id'] || '';
@@ -137,7 +137,8 @@ module.exports = async (req, res) => {
     if (!paymentId) return json(res, 400, { error: 'Sem id de pagamento.' });
 
     if (!assinaturaValida(req, dataId)) {
-      console.warn('Webhook com assinatura inválida para o pagamento', dataId);
+      console.warn('Webhook rejeitado: assinatura inválida', dataId);
+      return json(res, 401, { error: 'Assinatura inválida' });
     }
 
     const token = process.env.MP_ACCESS_TOKEN;
@@ -165,6 +166,11 @@ module.exports = async (req, res) => {
       pedido = Array.isArray(rows) ? rows[0] : null;
     }
 
+    if (!pedido) return json(res, 200, { ignored: true, reason: 'pedido_nao_encontrado' });
+    if (pagamento.status === 'approved' && (pagamento.currency_id !== 'BRL' || Math.abs(Number(pagamento.transaction_amount) - Number(pedido.total || pedido.valor)) > 0.009)) {
+      console.error('Valor ou moeda divergente para pedido', pedido.id);
+      return json(res, 409, { error: 'Pagamento divergente do pedido' });
+    }
     const patch = {
       mp_payment_id: String(pagamento.id),
       forma_pagamento:
@@ -202,7 +208,7 @@ module.exports = async (req, res) => {
 
     // v3.3 — entrega automatica: e-mail com o link (so produtos do nosso site)
     let entregaLink = patch.pdf_signed_url || null;
-    if (pagamento.status === 'approved' && pedido && pedido.origem !== 'parceiro') {
+    if (pagamento.status === 'approved' && pedido && pedido.origem !== 'parceiro' && !pedido.entrega_email_em) {
       try {
         if (!entregaLink && pedido.produto_id) {
           const pr = await supabase(`produtos?id=eq.${encodeURIComponent(pedido.produto_id)}&select=download_url,titulo`);
@@ -216,7 +222,7 @@ module.exports = async (req, res) => {
             titulo: pedido.produto_titulo,
             link: entregaLink
           });
-          patch.entrega_email_em = enviado ? new Date().toISOString() : null;
+          if (enviado) patch.entrega_email_em = new Date().toISOString();
         }
       } catch (e) {
         console.warn('Falha na entrega por e-mail:', e.message || e);
@@ -252,6 +258,6 @@ module.exports = async (req, res) => {
     });
   } catch (e) {
     console.error('Erro em /api/mp-webhook:', e);
-    return json(res, 200, { ok: false, error: String((e && e.message) || e) });
+    return json(res, 500, { ok: false, error: 'Falha ao processar notificação' });
   }
 };
