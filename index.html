@@ -2056,6 +2056,22 @@
             opacity: 1;
         }
 
+
+        /* Seletor de canais oficiais +QApostilas */
+        .qa-wa-overlay { position:fixed; inset:0; z-index:100100; background:rgba(15,23,42,.56); display:none; align-items:center; justify-content:center; padding:18px; }
+        .qa-wa-overlay.active { display:flex; }
+        .qa-wa-panel { width:min(100%,410px); background:#fff; border-radius:20px; padding:25px; box-shadow:0 18px 65px rgba(0,0,0,.24); font-family:Inter,Arial,sans-serif; }
+        .qa-wa-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+        .qa-wa-heading h2 { font-size:21px; margin:0; }
+        .qa-wa-close { background:#f1f5f9; border-radius:50%; width:34px; height:34px; font-size:22px; }
+        .qa-wa-panel p { color:#64748b; font-size:14px; margin-bottom:17px; }
+        .qa-wa-choice { display:flex; flex-direction:column; gap:5px; padding:15px; border:1px solid #dce5ee; border-radius:13px; margin-top:10px; color:#0f172a; transition:background .2s; }
+        .qa-wa-choice:hover { background:#f0fdf4; border-color:#25d366; }
+        .qa-wa-choice strong { font-size:15px; }
+        .qa-wa-choice small { color:#64748b; font-size:13px; }
+        .qa-wa-status { font-size:11px; font-weight:700; color:#b45309; }
+        @media(max-width:480px) { .qa-wa-panel { padding:20px; } }
+
         /* ==================== FOOTER SOCIAL ==================== */
         .footer-social {
             display: flex;
@@ -2908,6 +2924,17 @@
     <div id="whatsappFloat" class="whatsapp-float" style="display:none;" title="Fale conosco no WhatsApp">
         <span class="whatsapp-float-tooltip">Fale conosco!</span>
         <i class="fab fa-whatsapp"></i>
+    </div>
+
+
+    <!-- Seletor de WhatsApp: números oficiais da +QApostilas -->
+    <div class="qa-wa-overlay" id="qaWaOverlay" role="dialog" aria-modal="true" aria-labelledby="qaWaTitle" aria-hidden="true">
+        <div class="qa-wa-panel">
+            <div class="qa-wa-heading"><h2 id="qaWaTitle"><i class="fab fa-whatsapp" style="color:#25d366"></i> Atendimento +QApostilas</h2><button type="button" class="qa-wa-close" onclick="closeQAWhatsApp()" aria-label="Fechar">&times;</button></div>
+            <p>Escolha um dos nossos números para conversar pelo WhatsApp.</p>
+            <a class="qa-wa-choice" id="qaWaPrimary" href="https://wa.me/554391194428" target="_blank" rel="noopener noreferrer"><strong>WhatsApp principal <span class="qa-wa-status">(temporariamente suspenso)</span></strong><small>(43) 9119-4428</small></a>
+            <a class="qa-wa-choice" id="qaWaAlternative" href="https://wa.me/554399096281" target="_blank" rel="noopener noreferrer"><strong>WhatsApp alternativo</strong><small>(43) 9909-6281</small></a>
+        </div>
     </div>
 
     <!-- ==================== MODAL ==================== -->
@@ -7460,9 +7487,9 @@ function erroBanco(prefixo, error) {
 
             // WhatsApp flutuante
             const waFloat = document.getElementById('whatsappFloat');
-            if (waFloat && appState.config.whatsapp) {
+            if (waFloat) {
                 waFloat.style.display = 'flex';
-                waFloat.onclick = () => window.open('https://wa.me/' + appState.config.whatsapp, '_blank', 'noopener,noreferrer');
+                waFloat.onclick = () => openQAWhatsApp();
             }
         }
 
@@ -9484,5 +9511,40 @@ showAlert(erroBanco('Erro ao registrar o pedido', error), 'error');
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+
+    <script>
+    // Centraliza contatos comerciais sem interferir nos links de compartilhamento ou nos contatos de clientes do painel.
+    const QA_WA_NUMBERS = ['554391194428', '554399096281'];
+    function openQAWhatsApp(message) {
+        const msg = message || 'Olá! Vim pelo site da +QApostilas e gostaria de atendimento.';
+        for (const [id,number] of [['qaWaPrimary',QA_WA_NUMBERS[0]],['qaWaAlternative',QA_WA_NUMBERS[1]]]) {
+            document.getElementById(id).href = 'https://wa.me/' + number + '?text=' + encodeURIComponent(msg);
+        }
+        const overlay = document.getElementById('qaWaOverlay');
+        overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false');
+        overlay.querySelector('.qa-wa-close').focus();
+    }
+    function closeQAWhatsApp() {
+        const overlay = document.getElementById('qaWaOverlay');
+        overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true');
+    }
+    document.addEventListener('click', function(event) {
+        if (event.target.id === 'qaWaOverlay') closeQAWhatsApp();
+        const link = event.target.closest('a[href]');
+        if (!link || link.closest('#qaWaOverlay') || link.closest('#adminPanel') || link.closest('.admin-panel')) return;
+        let url;
+        try { url = new URL(link.href, location.href); } catch(e) { return; }
+        if (!['wa.me','api.whatsapp.com','web.whatsapp.com'].includes(url.hostname)) return;
+        const number = url.hostname === 'wa.me' ? url.pathname.replace(/\D/g,'') : (url.searchParams.get('phone') || '').replace(/\D/g,'');
+        // Somente links para o atendimento da loja; não interceptar "Indique para um amigo".
+        const configured = typeof appState !== 'undefined' ? String(appState.config?.whatsapp || '').replace(/\D/g,'') : '';
+        if (!number || (number !== configured && !QA_WA_NUMBERS.includes(number))) return;
+        event.preventDefault();
+        openQAWhatsApp(url.searchParams.get('text') || undefined);
+    }, true);
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeQAWhatsApp(); });
+    document.addEventListener('DOMContentLoaded', () => { const btn = document.getElementById('whatsappFloat'); if(btn) { btn.style.display='flex'; btn.onclick=()=>openQAWhatsApp(); } });
+    </script>
+
 </body>
 </html>
