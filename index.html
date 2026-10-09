@@ -2781,10 +2781,7 @@
                 <button class="btn-student" onclick="openStudentAuth()">
                     <i class="fas fa-user-circle"></i> <span id="studentButtonLabel">Entrar</span>
                 </button>
-                <button class="btn-admin" onclick="openAdminLogin()">
-                    <i class="fas fa-lock"></i>
-                    Admin
-                </button>
+
             </div>
             
             <div class="menu-toggle" onclick="toggleMobileMenu()">
@@ -2842,6 +2839,13 @@
         </ul>
     </nav>
 
+    <script>document.documentElement.classList.add('qa-booting'); setTimeout(function(){document.documentElement.classList.remove('qa-booting')},10000);</script>
+    <style>
+      html.qa-booting #mainContent { min-height: 340px; }
+      html.qa-booting #mainContent > * { visibility: hidden; }
+      html.qa-booting #mainContent::before { content:""; display:block; position:absolute; left:calc(50% - 22px); margin-top:110px; width:44px;height:44px; border:4px solid #e1e8f3; border-top-color:#317cf4; border-radius:50%; animation:qa-spin .8s linear infinite; }
+      @keyframes qa-spin { to { transform:rotate(360deg); } }
+    </style>
     <!-- ==================== MAIN CONTENT ==================== -->
     <main id="mainContent">
         <!-- ===== v3.5 - Conteudo estatico de apoio (SEO) =====
@@ -2897,6 +2901,7 @@
                     <ul class="footer-links">
                         <li><a href="/politica-de-privacidade" onclick="event.preventDefault(); navigateTo('/politica-de-privacidade')">Política de Privacidade</a></li>
                         <li><a href="/termos-de-uso" onclick="event.preventDefault(); navigateTo('/termos-de-uso')">Termos de Uso</a></li>
+                        <li><a href="/admin/login" onclick="event.preventDefault(); navigateTo('/admin/login')"><i class="fas fa-lock" aria-hidden="true"></i> Área Administrativa</a></li>
                     </ul>
                 </div>
             </div>
@@ -4569,6 +4574,8 @@
 
 if (currentPath === '/') {
                 renderHomeSeguro();
+            } else if (currentPath === '/admin/login') {
+                renderAdminLoginPage();
             } else if (currentPath === '/sobre') {
                 renderSobre();
             } else if (currentPath === '/contato') {
@@ -4598,6 +4605,7 @@ if (currentPath === '/') {
                 renderNotFound();
             }
 
+            document.documentElement.classList.remove('qa-booting');
             if (scroll) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -6162,6 +6170,32 @@ ${parcelaHtml}
         function buyProduct(event, url) {
             event.stopPropagation();
             window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+
+        // Página exclusiva de entrada; reutiliza a validação administrativa existente.
+        function renderAdminLoginPage() {
+            appState.currentView = 'admin-login';
+            setSeoMeta({robots:'noindex, nofollow', title:'Acesso Administrativo | +QApostilas',
+                description:'Área restrita da +QApostilas.',path:'/admin/login'});
+            document.getElementById('mainContent').innerHTML = `
+                <section class="products-section" style="min-height:65vh;padding:65px 20px;background:#f5f7fb">
+                    <div class="container" style="max-width:430px">
+                        <div style="background:#fff;border-radius:16px;padding:32px;box-shadow:0 8px 32px rgba(0,0,0,.09)">
+                            <h1 style="text-align:center;font-size:26px;margin-bottom:8px"><i class="fas fa-shield-alt"></i> +QApostilas</h1>
+                            <p style="text-align:center;margin-bottom:28px;color:#64748b">Acesso administrativo restrito</p>
+                            <form onsubmit="handleAdminLogin(event)">
+                                <div class="form-group"><label for="qaAdminUser">Usuário ou e-mail</label>
+                                    <input id="qaAdminUser" type="text" name="username" autocomplete="username" required placeholder="Seu usuário"></div>
+                                <div class="form-group"><label for="qaAdminPass">Senha</label>
+                                    <input id="qaAdminPass" type="password" name="password" autocomplete="current-password" required placeholder="Sua senha"></div>
+                                <button class="btn btn-primary" type="submit" style="width:100%"><i class="fas fa-sign-in-alt"></i> Entrar no painel</button>
+                            </form>
+                            <p style="text-align:center;margin-top:22px"><a href="/" onclick="event.preventDefault();navigateTo('home')">Voltar à loja</a></p>
+                        </div>
+                    </div>
+                </section>`;
+            if (appState.isAdmin) openAdmin();
         }
 
         function openAdminLogin() {
